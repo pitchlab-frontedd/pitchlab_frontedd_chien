@@ -139,16 +139,16 @@ export function aggregateByPitchType(pitches) {
 // 4. 統計九宮格數據
 export function aggregateByZone(pitches) {
   const byZone = {};
-  for (let z = 1; z <= 9; z++) {
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14].forEach(z => {
     byZone[z] = { total: 0, ball: 0, called_strike: 0, swinging_strike: 0, foul: 0, in_play_out: 0, in_play_hit: 0 };
-  }
+  })
   
   if (!pitches || pitches.length === 0) return byZone;
 
   pitches.forEach(p => {
     const res = getResultType(p);
     const z = parseInt(p.zone);
-    if (z >= 1 && z <= 9) {
+    if (byZone[z]) {
       byZone[z].total++;
       if (byZone[z][res] !== undefined) byZone[z][res]++;
     }
