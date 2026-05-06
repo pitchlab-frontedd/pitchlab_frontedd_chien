@@ -4,8 +4,13 @@ import { Typography } from 'antd'
 const { Text } = Typography
 
 const CELL = 88
-const OUTER = 46
+const OUTER_W = CELL / 2
+const OUTER_H = CELL / 2
 const GAP = 2
+const ZONE_X = OUTER_W
+const ZONE_Y = OUTER_H
+const QUAD_W = OUTER_W + CELL * 1.5 + GAP
+const QUAD_H = OUTER_H + CELL * 1.5 + GAP
 const STRIKE_ZONE = [
   [1, 2, 3],
   [4, 5, 6],
@@ -13,15 +18,15 @@ const STRIKE_ZONE = [
 ]
 
 const ZONE_CELLS = [
-  { zone: 11, x: 0, y: 0, width: OUTER + CELL, height: OUTER },
-  { zone: 12, x: OUTER + CELL + GAP, y: 0, width: CELL * 2 + GAP, height: OUTER },
-  { zone: 13, x: 0, y: OUTER + CELL * 3 + GAP * 3, width: OUTER + CELL, height: OUTER },
-  { zone: 14, x: OUTER + CELL + GAP, y: OUTER + CELL * 3 + GAP * 3, width: CELL * 2 + GAP, height: OUTER },
+  { zone: 11, x: 0, y: 0, width: QUAD_W, height: QUAD_H },
+  { zone: 12, x: QUAD_W + GAP, y: 0, width: QUAD_W, height: QUAD_H },
+  { zone: 13, x: 0, y: QUAD_H + GAP, width: QUAD_W, height: QUAD_H },
+  { zone: 14, x: QUAD_W + GAP, y: QUAD_H + GAP, width: QUAD_W, height: QUAD_H },
   ...STRIKE_ZONE.flatMap((row, ri) =>
     row.map((zone, ci) => ({
       zone,
-      x: OUTER + ci * (CELL + GAP),
-      y: OUTER + GAP + ri * (CELL + GAP),
+      x: ZONE_X + ci * (CELL + GAP),
+      y: ZONE_Y + ri * (CELL + GAP),
       width: CELL,
       height: CELL,
     }))
@@ -63,11 +68,12 @@ export default function ZoneHeatmap({ zoneData, totalPitches, setName, setColor 
 
   const getCellTextColor = (zone) => getValue(zone) > 0.55 ? '#0d1117' : '#e6edf3'
 
-  const width = OUTER + CELL * 3 + GAP * 4
-  const height = OUTER * 2 + CELL * 3 + GAP * 4
-  const zoneX = OUTER - 1
-  const zoneY = OUTER + GAP - 1
-  const zoneSize = CELL * 3 + GAP * 2 + 2
+  const width = QUAD_W * 2 + GAP
+  const height = QUAD_H * 2 + GAP
+  const zoneX = ZONE_X - 1
+  const zoneY = ZONE_Y - 1
+  const zoneWidth = CELL * 3 + GAP * 2 + 2
+  const zoneHeight = CELL * 3 + GAP * 2 + 2
 
   return (
     <div style={{ background: '#161b22', border: '1px solid #21262d', borderRadius: 8, padding: '16px' }}>
@@ -135,11 +141,13 @@ export default function ZoneHeatmap({ zoneData, totalPitches, setName, setColor 
               </g>
             )
           })}
-          <rect x={zoneX} y={zoneY} width={zoneSize} height={zoneSize} fill="none" stroke="#30363d" strokeWidth={2} rx={3} />
-          <line x1={OUTER + CELL + GAP / 2} y1={OUTER + GAP} x2={OUTER + CELL + GAP / 2} y2={OUTER + CELL * 3 + GAP * 3} stroke="#21262d" strokeWidth={1} />
-          <line x1={OUTER + CELL * 2 + GAP * 1.5} y1={OUTER + GAP} x2={OUTER + CELL * 2 + GAP * 1.5} y2={OUTER + CELL * 3 + GAP * 3} stroke="#21262d" strokeWidth={1} />
-          <line x1={OUTER} y1={OUTER + CELL + GAP * 1.5} x2={OUTER + CELL * 3 + GAP * 2} y2={OUTER + CELL + GAP * 1.5} stroke="#21262d" strokeWidth={1} />
-          <line x1={OUTER} y1={OUTER + CELL * 2 + GAP * 2.5} x2={OUTER + CELL * 3 + GAP * 2} y2={OUTER + CELL * 2 + GAP * 2.5} stroke="#21262d" strokeWidth={1} />
+          <rect x={zoneX} y={zoneY} width={zoneWidth} height={zoneHeight} fill="none" stroke="#30363d" strokeWidth={2} rx={3} />
+          <line x1={QUAD_W + GAP / 2} y1={0} x2={QUAD_W + GAP / 2} y2={height} stroke="#21262d" strokeWidth={1} />
+          <line x1={0} y1={QUAD_H + GAP / 2} x2={width} y2={QUAD_H + GAP / 2} stroke="#21262d" strokeWidth={1} />
+          <line x1={ZONE_X + CELL + GAP / 2} y1={ZONE_Y} x2={ZONE_X + CELL + GAP / 2} y2={ZONE_Y + CELL * 3 + GAP * 2} stroke="#21262d" strokeWidth={1} />
+          <line x1={ZONE_X + CELL * 2 + GAP * 1.5} y1={ZONE_Y} x2={ZONE_X + CELL * 2 + GAP * 1.5} y2={ZONE_Y + CELL * 3 + GAP * 2} stroke="#21262d" strokeWidth={1} />
+          <line x1={ZONE_X} y1={ZONE_Y + CELL + GAP / 2} x2={ZONE_X + CELL * 3 + GAP * 2} y2={ZONE_Y + CELL + GAP / 2} stroke="#21262d" strokeWidth={1} />
+          <line x1={ZONE_X} y1={ZONE_Y + CELL * 2 + GAP * 1.5} x2={ZONE_X + CELL * 3 + GAP * 2} y2={ZONE_Y + CELL * 2 + GAP * 1.5} stroke="#21262d" strokeWidth={1} />
         </svg>
       </div>
 
