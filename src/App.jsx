@@ -6,6 +6,7 @@ import SummaryStats from './components/SummaryStats'
 import ZoneHeatmap from './components/ZoneHeatmap'
 import ResultChart from './components/ResultChart'
 import PitchTypeTable from './components/PitchTypeTable'
+import OutcomeDistribution from './components/OutcomeDistribution'
 import PageNavbar from './components/PageNavbar'
 import LandingPage from './pages/LandingPage'
 import FeaturesPage from './pages/FeaturesPage'
@@ -35,6 +36,7 @@ const EMPTY_SET_DATA = {
   resultData: [],
   pitchTypeData: [],
   zoneData: {},
+  outcomeData: { total: 0, outcomes: [], pitchTypeOutcomes: [] },
 }
 
 function HistoricalDataPage({ page, onNavigate }) {
@@ -88,6 +90,7 @@ function HistoricalDataPage({ page, onNavigate }) {
         pitchTypes = [],
         zones = [],
         counts = [],
+        outs = 'All',
         runnerState = 'All',
         runnerBases = {},
       } = set.filters;
@@ -106,6 +109,10 @@ function HistoricalDataPage({ page, onNavigate }) {
         zone: zones.join(','),
         pitcherHand: pitcherHands || '',
       });
+
+      if (outs && outs !== 'All') {
+        params.set('outs', outs);
+      }
 
       if (runnerState && runnerState !== 'All') {
         const bases = runnerState === 'Empty'
@@ -126,22 +133,30 @@ function HistoricalDataPage({ page, onNavigate }) {
       const response = await fetch(`${API_BASE_URL}/api/pitches/summary?${params.toString()}`, {
         signal: controller.signal,
       });
+      const outcomesPromise = fetch(`${API_BASE_URL}/api/pitches/outcomes?${params.toString()}`, {
+        signal: controller.signal,
+      })
+        .then(res => res.ok ? res.json() : EMPTY_SET_DATA.outcomeData)
+        .catch(() => EMPTY_SET_DATA.outcomeData);
+
       if (!response.ok) {
         const fallback = await fetch(`${API_BASE_URL}/api/pitches?${params.toString()}`, {
           signal: controller.signal,
         });
         const pitches = await fallback.json();
         const rows = Array.isArray(pitches) ? pitches : [];
+        const outcomeData = await outcomesPromise;
         return {
           total: rows.length,
           summaryStats: getSummaryStats(rows),
           resultData: aggregateByResult(rows),
           pitchTypeData: aggregateByPitchType(rows),
           zoneData: aggregateByZone(rows),
+          outcomeData,
         };
       }
-      const data = await response.json();
-      return data && typeof data === 'object' ? data : EMPTY_SET_DATA;
+      const [data, outcomeData] = await Promise.all([response.json(), outcomesPromise]);
+      return data && typeof data === 'object' ? { ...data, outcomeData } : EMPTY_SET_DATA;
     };
 
     const fetchAllSummaries = async () => {
@@ -216,6 +231,7 @@ function HistoricalDataPage({ page, onNavigate }) {
         resultData: summary.resultData || [],
         pitchTypeData: summary.pitchTypeData || [],
         zoneData: summary.zoneData || {},
+        outcomeData: summary.outcomeData || EMPTY_SET_DATA.outcomeData,
       };
     });
   }, [sets, setSummaries]);
@@ -301,6 +317,7 @@ function HistoricalDataPage({ page, onNavigate }) {
                   <ResultChart setsData={setsData} />
                 </div>
                 <PitchTypeTable data={activeSetData?.pitchTypeData || []} />
+                <OutcomeDistribution data={activeSetData?.outcomeData} />
               </>
             )}
           </Content>

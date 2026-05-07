@@ -173,8 +173,8 @@ function PitchCard({ rank, result, isTop }) {
         {[
           { label: 'Out Rate', value: isEmpty ? '-' : `${result.outRate}%`, color: '#e3b341' },
           { label: 'xRuns', value: isEmpty ? '-' : result.expectedRuns.toFixed(2), color: '#ff6b6b' },
-          { label: 'Win%+', value: isEmpty ? '-' : `+${result.winProbIncrease}%`, color: '#3fb950' },
-          { label: 'Avg Runs', value: isEmpty ? '-' : result.avgRuns.toFixed(2), color: '#58a6ff' },
+          { label: 'Win% Δ', value: isEmpty ? '-' : `${result.winProbChange > 0 ? '+' : ''}${result.winProbChange}%`, color: result?.winProbChange >= 0 ? '#3fb950' : '#ff6b6b' },
+          { label: 'Sample', value: isEmpty ? '-' : result.count, color: '#58a6ff' },
         ].map(({ label, value, color: metricColor }) => (
           <div key={label} style={{ background: '#0d1117', borderRadius: 6, padding: '8px 10px' }}>
             <div style={{ fontSize: 9, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{label}</div>
@@ -188,19 +188,14 @@ function PitchCard({ rank, result, isTop }) {
   )
 }
 
-const MOCK_RESULTS = [
-  { pitchType: 'FF', outRate: 62, expectedRuns: 0.82, winProbIncrease: 3.2, avgRuns: 0.61 },
-  { pitchType: 'SL', outRate: 54, expectedRuns: 1.10, winProbIncrease: 2.1, avgRuns: 0.94 },
-  { pitchType: 'CH', outRate: 48, expectedRuns: 1.38, winProbIncrease: 1.5, avgRuns: 1.20 },
-  { pitchType: 'CU', outRate: 41, expectedRuns: 1.72, winProbIncrease: 0.8, avgRuns: 1.53 },
-]
-
 export default function PitchPredictionPage({ page, onNavigate }) {
   const [pitchers, setPitchers] = useState([])
   const [batters, setBatters] = useState([])
   const [metaLoading, setMetaLoading] = useState(true)
   const [pitcherId, setPitcherId] = useState('')
   const [batterId, setBatterId] = useState('')
+  const [pitcherHand, setPitcherHand] = useState('')
+  const [pitcherRole, setPitcherRole] = useState('All')
   const [inningHalf, setInningHalf] = useState('TOP')
   const [inning, setInning] = useState(1)
   const [scoreUs, setScoreUs] = useState(0)
@@ -230,12 +225,36 @@ export default function PitchPredictionPage({ page, onNavigate }) {
     load()
   }, [])
 
-  const handlePredict = () => {
+  const handlePredict = async () => {
     setLoading(true)
-    setTimeout(() => {
-      setResults(MOCK_RESULTS)
+    try {
+      const params = new URLSearchParams({
+        year: 'ALL',
+        pitcherId: pitcherId || '',
+        batterId: batterId || '',
+        pitcherRole,
+        pitcherHand,
+        outs: String(outs),
+        on1b: bases.first ? '1' : '0',
+        on2b: bases.second ? '1' : '0',
+        on3b: bases.third ? '1' : '0',
+      })
+
+      if (count) {
+        const [balls, strikes] = count.split('-')
+        params.set('balls', balls)
+        params.set('strikes', strikes)
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/pitches/predict?${params.toString()}`)
+      const data = await response.json()
+      setResults(Array.isArray(data?.recommendations) ? data.recommendations : [])
+    } catch (error) {
+      console.error('Prediction failed:', error)
+      setResults([])
+    } finally {
       setLoading(false)
-    }, 700)
+    }
   }
 
   return (
@@ -269,6 +288,19 @@ export default function PitchPredictionPage({ page, onNavigate }) {
               <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
               <SectionLabel>Batter</SectionLabel>
               <Select showSearch allowClear placeholder="Search batter..." value={batterId || undefined} onChange={v => setBatterId(v || '')} options={batters.map(b => ({ value: String(b.id), label: b.name }))} style={{ width: '100%' }} filterOption={(input, opt) => (opt?.label || '').toLowerCase().includes(input.toLowerCase())} />
+
+              <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
+              <SectionLabel>Pitcher Profile</SectionLabel>
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
+                {[{ label: 'ALL', value: '' }, { label: 'RHP', value: 'R' }, { label: 'LHP', value: 'L' }].map(item => (
+                  <Pill key={item.label} label={item.label} selected={pitcherHand === item.value} onClick={() => setPitcherHand(item.value)} />
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                {[{ label: 'ALL', value: 'All' }, { label: 'SP', value: 'SP' }, { label: 'RP', value: 'RP' }].map(item => (
+                  <Pill key={item.label} label={item.label} selected={pitcherRole === item.value} onClick={() => setPitcherRole(item.value)} />
+                ))}
+              </div>
 
               <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
               <SectionLabel>Inning</SectionLabel>
@@ -317,6 +349,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
                 { label: 'Score', content: `${scoreUs} - ${scoreThem}` },
                 { label: 'Count', content: count || '-' },
                 { label: 'Outs', content: `${outs}` },
+                { label: 'Pitcher', content: `${pitcherHand || 'ALL'} ${pitcherRole}` },
               ].map(({ label, content }) => (
                 <div key={label} style={{ paddingRight: 22, marginRight: 22, borderRight: '1px solid #21262d' }}>
                   <div style={{ fontSize: 9, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>{label}</div>

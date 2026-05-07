@@ -349,6 +349,20 @@ export default function FilterPanel({ filters, pitchers = [], onChange, onReset 
 
       <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
 
+      <SectionLabel>Outs</SectionLabel>
+      <SingleTogglePills
+        options={[
+          { value: 'All', label: 'ALL' },
+          { value: '0', label: '0 Out' },
+          { value: '1', label: '1 Out' },
+          { value: '2', label: '2 Outs' },
+        ]}
+        value={filters.outs}
+        onChange={set('outs')}
+      />
+
+      <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
+
       <SectionLabel>Runners On</SectionLabel>
       <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
         <Pill label="ALL" selected={filters.runnerState === 'All'} onClick={() => setRunnerState('All')} />

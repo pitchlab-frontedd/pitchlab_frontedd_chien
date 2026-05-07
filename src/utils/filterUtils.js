@@ -9,6 +9,7 @@ export const DEFAULT_FILTERS = {
   pitchTypes: [],
   zones: [],
   counts: [],
+  outs: 'All',
   runnerState: 'All',
   runnerBases: { first: false, second: false, third: false },
 }
@@ -71,6 +72,10 @@ export function filterPitches(pitches, filters) {
     if (filters.counts?.length) {
       const currentCount = `${p.balls}-${p.strikes}`;
       if (!filters.counts.includes(currentCount)) return false;
+    }
+
+    if (filters.outs && filters.outs !== 'All') {
+      if (String(p.outs_when_up) !== String(filters.outs)) return false;
     }
 
     if (filters.runnerState && filters.runnerState !== 'All') {
