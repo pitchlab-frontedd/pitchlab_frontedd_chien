@@ -250,13 +250,8 @@ function HistoricalDataPage({ page, onNavigate }) {
         <Header style={{
           display: 'flex', alignItems: 'center', gap: 32,
           padding: '0 24px', background: '#0d1117',
-          borderBottom: '1px solid #21262d', height: 56, position: 'sticky', top: 56, zIndex: 99,
+          borderBottom: '1px solid #21262d', height: 48, position: 'sticky', top: 56, zIndex: 99,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <img src="/logo.jpg" alt="logo" style={{ width: 48, height: 27, borderRadius: 4 }} />
-            <Text style={{ color: '#e6edf3', fontSize: 16, fontWeight: 700, letterSpacing: '0.15em' }}>PitchLab</Text>
-          </div>
-
           <Space size={8} align="center">
             <Text style={{ color: '#484f58', fontSize: 11, textTransform: 'uppercase' }}>Batter</Text>
             <Select
@@ -280,7 +275,7 @@ function HistoricalDataPage({ page, onNavigate }) {
         </Header>
 
         <Layout style={{ background: '#0d1117' }}>
-          <Sider width={270} style={{ background: '#0d1117', borderRight: '1px solid #21262d', height: 'calc(100vh - 112px)', overflow: 'auto', position: 'sticky', top: 112 }}>
+          <Sider width={270} style={{ background: '#0d1117', borderRight: '1px solid #21262d', height: 'calc(100vh - 104px)', overflow: 'auto', position: 'sticky', top: 104 }}>
             <SetTabs sets={sets} activeSetId={activeSetId} onSelect={setActiveSetId} onAdd={addSet} onRemove={removeSet} />
             {activeSet && (
               <FilterPanel
@@ -292,7 +287,7 @@ function HistoricalDataPage({ page, onNavigate }) {
             )}
           </Sider>
 
-          <Content style={{ padding: '20px', background: '#0d1117', minHeight: 'calc(100vh - 112px)', overflow: 'auto' }}>
+          <Content style={{ padding: '20px', background: '#0d1117', minHeight: 'calc(100vh - 104px)', overflow: 'auto' }}>
             {loading ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 100, gap: 16 }}>
                 <Spin size="large" />

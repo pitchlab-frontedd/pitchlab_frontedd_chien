@@ -1,5 +1,4 @@
 const LINKS = [
-  { label: 'Dashboard', page: 'dashboard' },
   { label: 'Features', page: 'features' },
   { label: 'Historical Data', page: 'history' },
   { label: 'Pitch Prediction', page: 'prediction' },

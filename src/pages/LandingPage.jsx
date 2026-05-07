@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 
 const NAV_LINKS = [
-  { label: 'Dashboard', page: 'dashboard' },
   { label: 'Features', page: 'features' },
   { label: 'Historical Data', page: 'history' },
   { label: 'Pitch Prediction', page: 'prediction' },
