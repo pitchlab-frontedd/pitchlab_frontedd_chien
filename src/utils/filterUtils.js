@@ -9,6 +9,8 @@ export const DEFAULT_FILTERS = {
   pitchTypes: [],
   zones: [],
   counts: [],
+  runnerState: 'All',
+  runnerBases: { first: false, second: false, third: false },
 }
 
 /**
@@ -69,6 +71,20 @@ export function filterPitches(pitches, filters) {
     if (filters.counts?.length) {
       const currentCount = `${p.balls}-${p.strikes}`;
       if (!filters.counts.includes(currentCount)) return false;
+    }
+
+    if (filters.runnerState && filters.runnerState !== 'All') {
+      const bases = filters.runnerState === 'Empty'
+        ? { first: false, second: false, third: false }
+        : filters.runnerBases || {};
+
+      const hasFirst = Number(p.on_1b || 0) > 0;
+      const hasSecond = Number(p.on_2b || 0) > 0;
+      const hasThird = Number(p.on_3b || 0) > 0;
+
+      if (hasFirst !== Boolean(bases.first)) return false;
+      if (hasSecond !== Boolean(bases.second)) return false;
+      if (hasThird !== Boolean(bases.third)) return false;
     }
 
     if (filters.pitcherRole && filters.pitcherRole !== 'All') {

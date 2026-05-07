@@ -162,6 +162,55 @@ function CountGrid({ selectedCounts, onChange }) {
   )
 }
 
+function BaseDiamond({ bases = {}, onChange }) {
+  const toggle = (base) => onChange({ ...bases, [base]: !bases[base] })
+
+  const BaseSquare = ({ base }) => {
+    const active = Boolean(bases[base])
+    return (
+      <div
+        onClick={() => toggle(base)}
+        style={{
+          width: 18,
+          height: 18,
+          transform: 'rotate(45deg)',
+          border: `2px solid ${active ? '#f0883e' : '#30363d'}`,
+          background: active ? 'rgba(240,136,62,0.35)' : '#161b22',
+          cursor: 'pointer',
+          transition: 'all 0.15s',
+        }}
+      />
+    )
+  }
+
+  return (
+    <div style={{ position: 'relative', width: 104, height: 92 }}>
+      <div style={{ position: 'absolute', left: 42, top: 4 }}>
+        <BaseSquare base="second" />
+      </div>
+      <div style={{ position: 'absolute', left: 8, top: 38 }}>
+        <BaseSquare base="third" />
+      </div>
+      <div style={{ position: 'absolute', left: 76, top: 38 }}>
+        <BaseSquare base="first" />
+      </div>
+      <div style={{
+        position: 'absolute',
+        left: 42,
+        top: 72,
+        width: 18,
+        height: 18,
+        transform: 'rotate(45deg)',
+        border: '2px solid #30363d',
+        background: '#161b22',
+      }} />
+      <span style={{ position: 'absolute', left: 40, top: -12, fontSize: 9, color: '#484f58', letterSpacing: '0.05em' }}>2B</span>
+      <span style={{ position: 'absolute', left: -12, top: 42, fontSize: 9, color: '#484f58', letterSpacing: '0.05em' }}>3B</span>
+      <span style={{ position: 'absolute', left: 98, top: 42, fontSize: 9, color: '#484f58', letterSpacing: '0.05em' }}>1B</span>
+    </div>
+  )
+}
+
 function ZoneSelector({ selectedZones, onChange }) {
   const toggle = (zone) => {
     if (selectedZones.includes(zone)) onChange(selectedZones.filter(z => z !== zone))
@@ -199,6 +248,8 @@ function ZoneSelector({ selectedZones, onChange }) {
 
 export default function FilterPanel({ filters, pitchers = [], onChange, onReset }) {
   const set = (key) => (val) => onChange(f => ({ ...f, [key]: val }))
+  const setRunnerState = (runnerState) => onChange(f => ({ ...f, runnerState }))
+  const setRunnerBases = (runnerBases) => onChange(f => ({ ...f, runnerState: 'Custom', runnerBases }))
 
   const uniquePitchers = Array.from(new Map(pitchers.map(p => [String(p.id), p])).values());
 
@@ -295,6 +346,28 @@ export default function FilterPanel({ filters, pitchers = [], onChange, onReset 
 
       <SectionLabel>Count</SectionLabel>
       <CountGrid selectedCounts={filters.counts} onChange={set('counts')} />
+
+      <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
+
+      <SectionLabel>Runners On</SectionLabel>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+        <Pill label="ALL" selected={filters.runnerState === 'All'} onClick={() => setRunnerState('All')} />
+        <Pill label="Empty" selected={filters.runnerState === 'Empty'} onClick={() => setRunnerState('Empty')} />
+      </div>
+      <div style={{
+        paddingLeft: 20,
+        marginTop: 14,
+        marginBottom: 4,
+        opacity: filters.runnerState === 'All' ? 0.45 : 1,
+      }}>
+        <BaseDiamond
+          bases={filters.runnerBases}
+          onChange={setRunnerBases}
+        />
+      </div>
+      <Text style={{ display: 'block', fontSize: 10, color: '#484f58', marginTop: 4 }}>
+        Select exact base occupancy
+      </Text>
 
       <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
 

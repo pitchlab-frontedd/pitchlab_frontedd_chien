@@ -6,6 +6,10 @@ import SummaryStats from './components/SummaryStats'
 import ZoneHeatmap from './components/ZoneHeatmap'
 import ResultChart from './components/ResultChart'
 import PitchTypeTable from './components/PitchTypeTable'
+import PageNavbar from './components/PageNavbar'
+import LandingPage from './pages/LandingPage'
+import FeaturesPage from './pages/FeaturesPage'
+import PitchPredictionPage from './pages/PitchPredictionPage'
 
 import {
   DEFAULT_FILTERS,
@@ -33,7 +37,7 @@ const EMPTY_SET_DATA = {
   zoneData: {},
 }
 
-export default function App() {
+function HistoricalDataPage({ page, onNavigate }) {
   const [batters, setBatters] = useState([]); 
   const [pitchers, setPitchers] = useState([]); 
   const [setSummaries, setSetSummaries] = useState({}); 
@@ -84,6 +88,8 @@ export default function App() {
         pitchTypes = [],
         zones = [],
         counts = [],
+        runnerState = 'All',
+        runnerBases = {},
       } = set.filters;
 
       const pId = pitcherIds?.join(',') || '';
@@ -100,6 +106,16 @@ export default function App() {
         zone: zones.join(','),
         pitcherHand: pitcherHands || '',
       });
+
+      if (runnerState && runnerState !== 'All') {
+        const bases = runnerState === 'Empty'
+          ? { first: false, second: false, third: false }
+          : runnerBases;
+
+        params.set('on1b', bases?.first ? '1' : '0');
+        params.set('on2b', bases?.second ? '1' : '0');
+        params.set('on3b', bases?.third ? '1' : '0');
+      }
 
       if (counts?.length > 0) {
         const [balls, strikes] = String(counts[0]).split('-');
@@ -228,11 +244,13 @@ export default function App() {
         },
       }}
     >
+      <>
+        <PageNavbar page={page} onNavigate={onNavigate} />
       <Layout style={{ minHeight: '100vh', background: '#0d1117' }}>
         <Header style={{
           display: 'flex', alignItems: 'center', gap: 32,
           padding: '0 24px', background: '#0d1117',
-          borderBottom: '1px solid #21262d', height: 56, position: 'sticky', top: 0, zIndex: 100,
+          borderBottom: '1px solid #21262d', height: 56, position: 'sticky', top: 56, zIndex: 99,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <img src="/logo.jpg" alt="logo" style={{ width: 48, height: 27, borderRadius: 4 }} />
@@ -262,7 +280,7 @@ export default function App() {
         </Header>
 
         <Layout style={{ background: '#0d1117' }}>
-          <Sider width={270} style={{ background: '#0d1117', borderRight: '1px solid #21262d', height: 'calc(100vh - 56px)', overflow: 'auto', position: 'sticky', top: 56 }}>
+          <Sider width={270} style={{ background: '#0d1117', borderRight: '1px solid #21262d', height: 'calc(100vh - 112px)', overflow: 'auto', position: 'sticky', top: 112 }}>
             <SetTabs sets={sets} activeSetId={activeSetId} onSelect={setActiveSetId} onAdd={addSet} onRemove={removeSet} />
             {activeSet && (
               <FilterPanel
@@ -274,7 +292,7 @@ export default function App() {
             )}
           </Sider>
 
-          <Content style={{ padding: '20px', background: '#0d1117', minHeight: 'calc(100vh - 56px)', overflow: 'auto' }}>
+          <Content style={{ padding: '20px', background: '#0d1117', minHeight: 'calc(100vh - 112px)', overflow: 'auto' }}>
             {loading ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 100, gap: 16 }}>
                 <Spin size="large" />
@@ -293,6 +311,25 @@ export default function App() {
           </Content>
         </Layout>
       </Layout>
+      </>
     </ConfigProvider>
   )
+}
+
+export default function App() {
+  const [page, setPage] = useState('home')
+
+  if (page === 'home') {
+    return <LandingPage onNavigate={setPage} />
+  }
+
+  if (page === 'features') {
+    return <FeaturesPage page={page} onNavigate={setPage} />
+  }
+
+  if (page === 'prediction') {
+    return <PitchPredictionPage page={page} onNavigate={setPage} />
+  }
+
+  return <HistoricalDataPage page={page} onNavigate={setPage} />
 }
