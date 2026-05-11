@@ -43,7 +43,7 @@ const columns = [
     render: value => numberText(value),
   },
   {
-    title: 'EXP RUNS',
+    title: 'EMP xRUNS',
     dataIndex: 'expectedRuns',
     width: 110,
     sorter: (a, b) => a.expectedRuns - b.expectedRuns,
@@ -106,7 +106,7 @@ export default function OutcomeDistribution({ data }) {
         Outcome Distribution
       </Text>
       <Text style={{ display: 'block', color: '#484f58', fontSize: 11, marginBottom: 12 }}>
-        Historical results under the selected filters. Expected runs and win% change are pitcher-perspective estimates.
+        Empirical expected runs from the historical outcome distribution under the selected filters.
       </Text>
       <Table
         dataSource={rows}
