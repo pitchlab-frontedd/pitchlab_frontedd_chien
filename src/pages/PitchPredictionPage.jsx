@@ -4,7 +4,7 @@ import PageNavbar from '../components/PageNavbar'
 
 const { Sider, Content } = Layout
 const { Text } = Typography
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://new-baseball-app-backend.onrender.com'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://new-baseball-app-backend-fn6w.onrender.com'
 
 const PITCH_TYPE_COLORS = {
   FF: '#f0883e', SI: '#e3b341', SL: '#58a6ff',
