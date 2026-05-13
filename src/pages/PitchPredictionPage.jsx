@@ -173,7 +173,7 @@ function PitchCard({ rank, result, isTop }) {
         {[
           { label: 'Out Rate', value: isEmpty ? '-' : `${result.outRate}%`, color: '#e3b341' },
           { label: 'xRuns', value: isEmpty ? '-' : result.expectedRuns.toFixed(2), color: '#ff6b6b' },
-          { label: 'Win% Δ', value: isEmpty ? '-' : `${result.winProbChange > 0 ? '+' : ''}${result.winProbChange}%`, color: result?.winProbChange >= 0 ? '#3fb950' : '#ff6b6b' },
+          { label: 'WPA', value: isEmpty ? '-' : `${result.winProbChange > 0 ? '+' : ''}${result.winProbChange}%`, color: result?.winProbChange >= 0 ? '#3fb950' : '#ff6b6b' },
           { label: 'Sample', value: isEmpty ? '-' : result.count, color: '#58a6ff' },
         ].map(({ label, value, color: metricColor }) => (
           <div key={label} style={{ background: '#0d1117', borderRadius: 6, padding: '8px 10px' }}>

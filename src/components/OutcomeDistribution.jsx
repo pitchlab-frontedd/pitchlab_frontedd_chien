@@ -50,7 +50,7 @@ const columns = [
     render: value => numberText(value, value > 0 ? '#ff6b6b' : '#3fb950'),
   },
   {
-    title: 'WIN% Δ',
+    title: 'WPA',
     dataIndex: 'winProbChange',
     width: 90,
     sorter: (a, b) => a.winProbChange - b.winProbChange,
