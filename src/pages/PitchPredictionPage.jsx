@@ -24,6 +24,15 @@ function sampleSignal(count = 0) {
   return { label: 'Low sample', color: '#ff6b6b' }
 }
 
+function valueSignal(value, lowerFavorsPitcher = true) {
+  const numeric = Number(value || 0)
+  if (Math.abs(numeric) < 0.005) return { label: 'Neutral', color: '#8b949e' }
+  const pitcherEdge = lowerFavorsPitcher ? numeric < 0 : numeric > 0
+  return pitcherEdge
+    ? { label: 'Pitcher edge', color: '#3fb950' }
+    : { label: 'Batter edge', color: '#ff6b6b' }
+}
+
 function SectionLabel({ children }) {
   return (
     <Text style={{
@@ -149,6 +158,16 @@ function PitchCard({ rank, result, isTop }) {
   const isEmpty = !result
   const color = isEmpty ? '#484f58' : (PITCH_TYPE_COLORS[result.pitchType] || '#484f58')
   const sample = isEmpty ? { label: '-', color: '#484f58' } : sampleSignal(result.count)
+  const runValue = isEmpty ? 0 : (result.avgRunValue ?? result.expectedRuns)
+  const runValueSignal = valueSignal(runValue, true)
+  const wpaSignal = valueSignal(isEmpty ? 0 : result.winProbChange, true)
+  const outRateSignal = isEmpty
+    ? { label: '-', color: '#484f58' }
+    : result.outRate >= 35
+      ? { label: 'High out rate', color: '#3fb950' }
+      : result.outRate >= 25
+        ? { label: 'Average out rate', color: '#e3b341' }
+        : { label: 'Low out rate', color: '#ff6b6b' }
 
   return (
     <div style={{
@@ -192,19 +211,24 @@ function PitchCard({ rank, result, isTop }) {
       )}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         {[
-          { label: 'Out Rate', hint: 'Higher favors defense', value: isEmpty ? '-' : `${result.outRate}%`, color: '#e3b341' },
-          { label: 'Run Value', hint: 'Lower favors pitcher', value: isEmpty ? '-' : (result.avgRunValue ?? result.expectedRuns).toFixed(2), color: '#ff6b6b' },
-          { label: 'WPA', hint: 'Perspective depends on selected player', value: isEmpty ? '-' : `${result.winProbChange > 0 ? '+' : ''}${result.winProbChange}%`, color: result?.winProbChange >= 0 ? '#3fb950' : '#ff6b6b' },
+          { label: 'Out Rate', hint: outRateSignal.label, subhint: 'Share of outcomes ending in an out', value: isEmpty ? '-' : `${result.outRate}%`, color: outRateSignal.color },
+          { label: 'Run Value', hint: runValueSignal.label, subhint: 'Avg runs added per pitch; lower helps pitcher', value: isEmpty ? '-' : runValue.toFixed(2), color: runValueSignal.color },
+          { label: 'WPA', hint: wpaSignal.label, subhint: 'Avg win-probability swing; lower helps pitcher', value: isEmpty ? '-' : `${result.winProbChange > 0 ? '+' : ''}${result.winProbChange}%`, color: wpaSignal.color },
           { label: 'Sample', hint: sample.label, value: isEmpty ? '-' : result.count, color: sample.color },
-        ].map(({ label, hint, value, color: metricColor }) => (
+        ].map(({ label, hint, subhint, value, color: metricColor }) => (
           <div key={label} style={{ background: '#0d1117', borderRadius: 6, padding: '8px 10px' }}>
             <div style={{ fontSize: 9, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{label}</div>
             <div style={{ fontSize: 22, fontWeight: 700, color: isEmpty ? '#484f58' : metricColor, fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>
               {value}
             </div>
-            <div style={{ fontSize: 9, color: '#6e7681', marginTop: 5, lineHeight: 1.2 }}>
+            <div style={{ fontSize: 10, color: isEmpty ? '#6e7681' : metricColor, marginTop: 5, lineHeight: 1.2, fontWeight: 700 }}>
               {hint}
             </div>
+            {subhint && (
+              <div style={{ fontSize: 9, color: '#6e7681', marginTop: 3, lineHeight: 1.25 }}>
+                {subhint}
+              </div>
+            )}
           </div>
         ))}
       </div>
