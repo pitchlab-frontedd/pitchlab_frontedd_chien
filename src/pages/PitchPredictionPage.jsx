@@ -88,28 +88,38 @@ function CountSelector({ value, onChange }) {
   )
 }
 
+function DiamondBaseSquare({ active, onClick, size = 18 }) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        width: size, height: size, transform: 'rotate(45deg)',
+        border: `2px solid ${active ? '#f0883e' : '#30363d'}`,
+        background: active ? 'rgba(240,136,62,0.35)' : '#161b22',
+        cursor: onClick ? 'pointer' : 'default', transition: 'all 0.15s',
+      }}
+    />
+  )
+}
+
+function MiniBaseSquare({ active }) {
+  return (
+    <div style={{
+      width: 10, height: 10, transform: 'rotate(45deg)',
+      background: active ? '#f0883e' : '#21262d',
+      border: `1px solid ${active ? '#f0883e' : '#30363d'}`,
+    }} />
+  )
+}
+
 function BaseDiamond({ bases, onChange }) {
   const toggle = (base) => onChange({ ...bases, [base]: !bases[base] })
-  const BaseSquare = ({ base }) => {
-    const active = bases[base]
-    return (
-      <div
-        onClick={() => toggle(base)}
-        style={{
-          width: 18, height: 18, transform: 'rotate(45deg)',
-          border: `2px solid ${active ? '#f0883e' : '#30363d'}`,
-          background: active ? 'rgba(240,136,62,0.35)' : '#161b22',
-          cursor: 'pointer', transition: 'all 0.15s',
-        }}
-      />
-    )
-  }
 
   return (
     <div style={{ position: 'relative', width: 100, height: 96 }}>
-      <div style={{ position: 'absolute', left: 41, top: 4 }}><BaseSquare base="second" /></div>
-      <div style={{ position: 'absolute', left: 5, top: 38 }}><BaseSquare base="third" /></div>
-      <div style={{ position: 'absolute', left: 77, top: 38 }}><BaseSquare base="first" /></div>
+      <div style={{ position: 'absolute', left: 41, top: 4 }}><DiamondBaseSquare active={bases.second} onClick={() => toggle('second')} /></div>
+      <div style={{ position: 'absolute', left: 5, top: 38 }}><DiamondBaseSquare active={bases.third} onClick={() => toggle('third')} /></div>
+      <div style={{ position: 'absolute', left: 77, top: 38 }}><DiamondBaseSquare active={bases.first} onClick={() => toggle('first')} /></div>
       <div style={{ position: 'absolute', left: 41, top: 72, width: 18, height: 18, transform: 'rotate(45deg)', border: '2px solid #30363d', background: '#161b22' }} />
       <span style={{ position: 'absolute', left: 39, top: -13, fontSize: 9, color: '#484f58', letterSpacing: '0.05em' }}>2B</span>
       <span style={{ position: 'absolute', left: -17, top: 42, fontSize: 9, color: '#484f58', letterSpacing: '0.05em' }}>3B</span>
@@ -119,19 +129,12 @@ function BaseDiamond({ bases, onChange }) {
 }
 
 function MiniDiamond({ bases }) {
-  const Base = ({ active }) => (
-    <div style={{
-      width: 10, height: 10, transform: 'rotate(45deg)',
-      background: active ? '#f0883e' : '#21262d',
-      border: `1px solid ${active ? '#f0883e' : '#30363d'}`,
-    }} />
-  )
   return (
     <div style={{ position: 'relative', width: 36, height: 36 }}>
-      <div style={{ position: 'absolute', left: 13, top: 2 }}><Base active={bases.second} /></div>
-      <div style={{ position: 'absolute', left: 2, top: 13 }}><Base active={bases.third} /></div>
-      <div style={{ position: 'absolute', left: 24, top: 13 }}><Base active={bases.first} /></div>
-      <div style={{ position: 'absolute', left: 13, top: 24 }}><Base active={false} /></div>
+      <div style={{ position: 'absolute', left: 13, top: 2 }}><MiniBaseSquare active={bases.second} /></div>
+      <div style={{ position: 'absolute', left: 2, top: 13 }}><MiniBaseSquare active={bases.third} /></div>
+      <div style={{ position: 'absolute', left: 24, top: 13 }}><MiniBaseSquare active={bases.first} /></div>
+      <div style={{ position: 'absolute', left: 13, top: 24 }}><MiniBaseSquare active={false} /></div>
     </div>
   )
 }
@@ -172,7 +175,7 @@ function PitchCard({ rank, result, isTop }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         {[
           { label: 'Out Rate', value: isEmpty ? '-' : `${result.outRate}%`, color: '#e3b341' },
-          { label: 'xRuns', value: isEmpty ? '-' : result.expectedRuns.toFixed(2), color: '#ff6b6b' },
+          { label: 'Run Value', value: isEmpty ? '-' : (result.avgRunValue ?? result.expectedRuns).toFixed(2), color: '#ff6b6b' },
           { label: 'WPA', value: isEmpty ? '-' : `${result.winProbChange > 0 ? '+' : ''}${result.winProbChange}%`, color: result?.winProbChange >= 0 ? '#3fb950' : '#ff6b6b' },
           { label: 'Sample', value: isEmpty ? '-' : result.count, color: '#58a6ff' },
         ].map(({ label, value, color: metricColor }) => (
@@ -217,7 +220,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
         setPitchers(Array.isArray(pitcherData) ? pitcherData : [])
         setBatters(Array.isArray(batterData) ? batterData : [])
       } catch (error) {
-        console.error('Prediction metadata failed:', error)
+        console.error('Empirical guide metadata failed:', error)
       } finally {
         setMetaLoading(false)
       }
@@ -225,7 +228,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
     load()
   }, [])
 
-  const handlePredict = async () => {
+  const handleAnalyze = async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({
@@ -246,11 +249,11 @@ export default function PitchPredictionPage({ page, onNavigate }) {
         params.set('strikes', strikes)
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/pitches/predict?${params.toString()}`)
+      const response = await fetch(`${API_BASE_URL}/api/pitches/empirical?${params.toString()}`)
       const data = await response.json()
       setResults(Array.isArray(data?.recommendations) ? data.recommendations : [])
     } catch (error) {
-      console.error('Prediction failed:', error)
+      console.error('Empirical pitch guide failed:', error)
       setResults([])
     } finally {
       setLoading(false)
@@ -274,7 +277,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
         <PageNavbar page={page} onNavigate={onNavigate} />
         <div style={{ display: 'flex', alignItems: 'center', padding: '0 24px', background: '#0d1117', borderBottom: '1px solid #21262d', height: 48 }}>
           <Text style={{ color: '#484f58', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-            Pitch Prediction
+            Empirical Pitch Guide
           </Text>
           {metaLoading && <Spin size="small" style={{ marginLeft: 12 }} />}
         </div>
@@ -336,8 +339,8 @@ export default function PitchPredictionPage({ page, onNavigate }) {
               </div>
 
               <Divider style={{ borderColor: '#21262d', margin: '16px 0 12px' }} />
-              <Button type="primary" onClick={handlePredict} loading={loading} block style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, letterSpacing: '0.12em', height: 42 }}>
-                Predict
+              <Button type="primary" onClick={handleAnalyze} loading={loading} block style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, letterSpacing: '0.12em', height: 42 }}>
+                Analyze
               </Button>
             </div>
           </Sider>
@@ -364,7 +367,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
 
             <div style={{ marginBottom: 14 }}>
               <Text style={{ fontSize: 10, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-                Top 4 Recommended Pitches
+                Top 4 Historical Pitch Results
               </Text>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>

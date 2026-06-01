@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 const NAV_LINKS = [
   { label: 'Features', page: 'features' },
   { label: 'Historical Data', page: 'history' },
-  { label: 'Pitch Prediction', page: 'prediction' },
+  { label: 'Empirical Pitch Guide', page: 'prediction' },
 ]
 
 export default function LandingPage({ onNavigate }) {
