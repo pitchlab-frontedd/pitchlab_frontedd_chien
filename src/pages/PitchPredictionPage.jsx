@@ -18,6 +18,12 @@ const PITCH_TYPE_LABELS = {
   ST: 'Sweeper', FS: 'Splitter',
 }
 
+function sampleSignal(count = 0) {
+  if (count >= 100) return { label: 'Strong sample', color: '#3fb950' }
+  if (count >= 30) return { label: 'Moderate sample', color: '#e3b341' }
+  return { label: 'Low sample', color: '#ff6b6b' }
+}
+
 function SectionLabel({ children }) {
   return (
     <Text style={{
@@ -30,17 +36,17 @@ function SectionLabel({ children }) {
   )
 }
 
-function Pill({ label, selected, onClick, color }) {
+function Pill({ label, selected, onClick, color, disabled = false }) {
   const c = color || '#f0883e'
   return (
     <div
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       style={{
         padding: '4px 10px', borderRadius: 4,
         border: `1px solid ${selected ? c : '#30363d'}`,
         background: selected ? `${c}25` : 'transparent',
-        color: selected ? c : '#8b949e',
-        cursor: 'pointer', fontSize: 12, fontWeight: selected ? 700 : 400,
+        color: disabled ? '#484f58' : (selected ? c : '#8b949e'),
+        cursor: disabled ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: selected ? 700 : 400,
         letterSpacing: '0.05em', userSelect: 'none', transition: 'all 0.15s',
       }}
     >
@@ -142,6 +148,7 @@ function MiniDiamond({ bases }) {
 function PitchCard({ rank, result, isTop }) {
   const isEmpty = !result
   const color = isEmpty ? '#484f58' : (PITCH_TYPE_COLORS[result.pitchType] || '#484f58')
+  const sample = isEmpty ? { label: '-', color: '#484f58' } : sampleSignal(result.count)
 
   return (
     <div style={{
@@ -172,20 +179,62 @@ function PitchCard({ rank, result, isTop }) {
           {isEmpty ? '' : PITCH_TYPE_LABELS[result.pitchType]}
         </span>
       </div>
+      {!isEmpty && (
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          color: sample.color, border: `1px solid ${sample.color}66`,
+          background: `${sample.color}18`, borderRadius: 4,
+          padding: '3px 7px', fontSize: 10, fontWeight: 700,
+          textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10,
+        }}>
+          {sample.label}
+        </div>
+      )}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         {[
-          { label: 'Out Rate', value: isEmpty ? '-' : `${result.outRate}%`, color: '#e3b341' },
-          { label: 'Run Value', value: isEmpty ? '-' : (result.avgRunValue ?? result.expectedRuns).toFixed(2), color: '#ff6b6b' },
-          { label: 'WPA', value: isEmpty ? '-' : `${result.winProbChange > 0 ? '+' : ''}${result.winProbChange}%`, color: result?.winProbChange >= 0 ? '#3fb950' : '#ff6b6b' },
-          { label: 'Sample', value: isEmpty ? '-' : result.count, color: '#58a6ff' },
-        ].map(({ label, value, color: metricColor }) => (
+          { label: 'Out Rate', hint: 'Higher favors defense', value: isEmpty ? '-' : `${result.outRate}%`, color: '#e3b341' },
+          { label: 'Run Value', hint: 'Lower favors pitcher', value: isEmpty ? '-' : (result.avgRunValue ?? result.expectedRuns).toFixed(2), color: '#ff6b6b' },
+          { label: 'WPA', hint: 'Perspective depends on selected player', value: isEmpty ? '-' : `${result.winProbChange > 0 ? '+' : ''}${result.winProbChange}%`, color: result?.winProbChange >= 0 ? '#3fb950' : '#ff6b6b' },
+          { label: 'Sample', hint: sample.label, value: isEmpty ? '-' : result.count, color: sample.color },
+        ].map(({ label, hint, value, color: metricColor }) => (
           <div key={label} style={{ background: '#0d1117', borderRadius: 6, padding: '8px 10px' }}>
             <div style={{ fontSize: 9, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{label}</div>
             <div style={{ fontSize: 22, fontWeight: 700, color: isEmpty ? '#484f58' : metricColor, fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>
               {value}
             </div>
+            <div style={{ fontSize: 9, color: '#6e7681', marginTop: 5, lineHeight: 1.2 }}>
+              {hint}
+            </div>
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+function EmptyResultsNotice({ hasResults }) {
+  if (hasResults) return null
+  return (
+    <div style={{
+      border: '1px dashed #30363d',
+      borderRadius: 8,
+      padding: '18px 20px',
+      color: '#8b949e',
+      background: '#0d1117',
+      marginBottom: 14,
+    }}>
+      <div style={{
+        color: '#e6edf3',
+        fontSize: 18,
+        fontWeight: 700,
+        fontFamily: "'Barlow Condensed', sans-serif",
+        letterSpacing: '0.08em',
+        marginBottom: 6,
+      }}>
+        No matching historical pitches
+      </div>
+      <div style={{ fontSize: 13, lineHeight: 1.5 }}>
+        Try removing a player, count, runner, or pitcher-profile filter to increase the sample.
       </div>
     </div>
   )
@@ -277,7 +326,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
         <PageNavbar page={page} onNavigate={onNavigate} />
         <div style={{ display: 'flex', alignItems: 'center', padding: '0 24px', background: '#0d1117', borderBottom: '1px solid #21262d', height: 48 }}>
           <Text style={{ color: '#484f58', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-            Empirical Pitch Guide
+            Pitch Prediction / Empirical Baseline
           </Text>
           {metaLoading && <Spin size="small" style={{ marginLeft: 12 }} />}
         </div>
@@ -307,20 +356,26 @@ export default function PitchPredictionPage({ page, onNavigate }) {
 
               <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
               <SectionLabel>Inning</SectionLabel>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, opacity: 0.45 }}>
                 <div style={{ display: 'flex', gap: 4 }}>
-                  {['TOP', 'BOT'].map(half => <Pill key={half} label={half} selected={inningHalf === half} onClick={() => setInningHalf(half)} />)}
+                  {['TOP', 'BOT'].map(half => <Pill key={half} label={half} selected={inningHalf === half} onClick={() => setInningHalf(half)} disabled />)}
                 </div>
-                <InputNumber min={1} max={20} value={inning} onChange={v => setInning(v || 1)} style={{ width: 76 }} />
+                <InputNumber disabled min={1} max={20} value={inning} onChange={v => setInning(v || 1)} style={{ width: 76 }} />
               </div>
+              <Text style={{ display: 'block', color: '#6e7681', fontSize: 11, marginTop: 6 }}>
+                Reserved for the future model version.
+              </Text>
 
               <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
               <SectionLabel>Score</SectionLabel>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
-                <InputNumber min={0} max={30} value={scoreUs} onChange={v => setScoreUs(v ?? 0)} style={{ width: 65 }} />
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, opacity: 0.45 }}>
+                <InputNumber disabled min={0} max={30} value={scoreUs} onChange={v => setScoreUs(v ?? 0)} style={{ width: 65 }} />
                 <span style={{ color: '#484f58', fontSize: 18, lineHeight: '32px', marginBottom: 2 }}>-</span>
-                <InputNumber min={0} max={30} value={scoreThem} onChange={v => setScoreThem(v ?? 0)} style={{ width: 65 }} />
+                <InputNumber disabled min={0} max={30} value={scoreThem} onChange={v => setScoreThem(v ?? 0)} style={{ width: 65 }} />
               </div>
+              <Text style={{ display: 'block', color: '#6e7681', fontSize: 11, marginTop: 6 }}>
+                Not used by the current empirical baseline.
+              </Text>
 
               <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
               <SectionLabel>Count</SectionLabel>
@@ -348,8 +403,6 @@ export default function PitchPredictionPage({ page, onNavigate }) {
           <Content style={{ padding: '20px', background: '#0d1117', overflow: 'auto' }}>
             <div style={{ background: '#161b22', border: '1px solid #21262d', borderRadius: 8, padding: '12px 20px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 0, flexWrap: 'wrap' }}>
               {[
-                { label: 'Inning', content: `${inningHalf} ${inning}` },
-                { label: 'Score', content: `${scoreUs} - ${scoreThem}` },
                 { label: 'Count', content: count || '-' },
                 { label: 'Outs', content: `${outs}` },
                 { label: 'Pitcher', content: `${pitcherHand || 'ALL'} ${pitcherRole}` },
@@ -367,9 +420,13 @@ export default function PitchPredictionPage({ page, onNavigate }) {
 
             <div style={{ marginBottom: 14 }}>
               <Text style={{ fontSize: 10, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-                Top 4 Historical Pitch Results
+                Top 4 Empirical Historical Results
+              </Text>
+              <Text style={{ display: 'block', marginTop: 5, fontSize: 12, color: '#6e7681' }}>
+                Current values are calculated from historical Statcast outcomes, not a trained prediction model.
               </Text>
             </div>
+            {results && results.length === 0 && <EmptyResultsNotice hasResults={false} />}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[0, 1, 2, 3].map(i => <PitchCard key={i} rank={i + 1} result={results?.[i] ?? null} isTop={i === 0} />)}
             </div>

@@ -1,7 +1,7 @@
 const LINKS = [
   { label: 'Features', page: 'features' },
   { label: 'Historical Data', page: 'history' },
-  { label: 'Empirical Pitch Guide', page: 'prediction' },
+  { label: 'Pitch Prediction', page: 'prediction' },
 ]
 
 export default function PageNavbar({ page, onNavigate }) {

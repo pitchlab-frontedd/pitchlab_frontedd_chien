@@ -14,8 +14,8 @@ const FEATURES = [
     body: 'Build multiple filter sets and compare summary stats, pitch outcomes, and pitch-type behavior side by side.',
   },
   {
-    title: 'Empirical Pitch Guide',
-    body: 'Rank pitch types from historical Statcast outcomes under the selected count, outs, runner state, pitcher, and batter filters.',
+    title: 'Pitch Prediction',
+    body: 'Use historical Statcast outcomes as the current empirical baseline for future pitch prediction workflows.',
   },
 ]
 
