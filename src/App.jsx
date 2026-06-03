@@ -39,9 +39,24 @@ const EMPTY_SET_DATA = {
   outcomeData: { total: 0, outcomes: [], pitchTypeOutcomes: [] },
 }
 
+const readCachedOptions = (key) => {
+  if (typeof window === 'undefined') return []
+  try {
+    const cached = JSON.parse(window.localStorage.getItem(key) || '[]')
+    return Array.isArray(cached) ? cached : []
+  } catch {
+    return []
+  }
+}
+
+const writeCachedOptions = (key, value) => {
+  if (typeof window === 'undefined' || !Array.isArray(value)) return
+  window.localStorage.setItem(key, JSON.stringify(value))
+}
+
 function HistoricalDataPage({ page, onNavigate }) {
-  const [batters, setBatters] = useState([]); 
-  const [pitchers, setPitchers] = useState([]); 
+  const [batters, setBatters] = useState(() => readCachedOptions('pitchlab:batters'));
+  const [pitchers, setPitchers] = useState(() => readCachedOptions('pitchlab:pitchers'));
   const [setSummaries, setSetSummaries] = useState({}); 
   const [loading, setLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(false);
@@ -61,9 +76,14 @@ function HistoricalDataPage({ page, onNavigate }) {
         ]);
         const bData = await resBatters.json();
         const pData = await resPitchers.json();
-        
-        setBatters(Array.isArray(bData) ? bData : []);
-        setPitchers(Array.isArray(pData) ? pData : []);
+
+        const nextBatters = Array.isArray(bData) ? bData : [];
+        const nextPitchers = Array.isArray(pData) ? pData : [];
+
+        setBatters(nextBatters);
+        setPitchers(nextPitchers);
+        writeCachedOptions('pitchlab:batters', nextBatters);
+        writeCachedOptions('pitchlab:pitchers', nextPitchers);
       } catch (error) {
         console.error("元數據加載失敗:", error);
       } finally {
@@ -281,6 +301,7 @@ function HistoricalDataPage({ page, onNavigate }) {
               style={{ width: 260 }}
               options={availableBatters.map(b => ({ value: String(b.id), label: b.name }))}
               filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+              loading={loading && availableBatters.length === 0}
               variant="borderless"
             />
           </Space>
@@ -299,6 +320,7 @@ function HistoricalDataPage({ page, onNavigate }) {
               <FilterPanel
                 filters={activeFilters}
                 pitchers={availablePitchers} 
+                loadingPitchers={loading && availablePitchers.length === 0}
                 onChange={updateActiveFilters}
                 onReset={() => updateActiveFilters(INITIAL_FILTERS)}
               />
@@ -306,22 +328,13 @@ function HistoricalDataPage({ page, onNavigate }) {
           </Sider>
 
           <Content style={{ padding: '20px', background: '#111827', minHeight: 'calc(100vh - 104px)', overflow: 'auto' }}>
-            {loading ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 100, gap: 16 }}>
-                <Spin size="large" />
-                <Text style={{ color: '#8b949e' }}>Fetching Statcast Data...</Text>
-              </div>
-            ) : (
-              <>
-                <SummaryStats setsData={setsData} />
-                <div style={{ display: 'grid', gridTemplateColumns: '310px 1fr', gap: 16, marginBottom: 16 }}>
-                  <ZoneHeatmap zoneData={activeSetData?.zoneData} totalPitches={activeSetData?.total || 0} setColor={activeSet?.color} setName={activeSet?.name} />
-                  <ResultChart setsData={setsData} />
-                </div>
-                <PitchTypeTable data={activeSetData?.pitchTypeData || []} />
-                <OutcomeDistribution data={activeSetData?.outcomeData} />
-              </>
-            )}
+            <SummaryStats setsData={setsData} />
+            <div style={{ display: 'grid', gridTemplateColumns: '310px 1fr', gap: 16, marginBottom: 16 }}>
+              <ZoneHeatmap zoneData={activeSetData?.zoneData} totalPitches={activeSetData?.total || 0} setColor={activeSet?.color} setName={activeSet?.name} />
+              <ResultChart setsData={setsData} />
+            </div>
+            <PitchTypeTable data={activeSetData?.pitchTypeData || []} />
+            <OutcomeDistribution data={activeSetData?.outcomeData} />
           </Content>
         </Layout>
       </Layout>

@@ -245,7 +245,7 @@ function ZoneSelector({ selectedZones, onChange }) {
   )
 }
 
-export default function FilterPanel({ filters, pitchers = [], onChange, onReset }) {
+export default function FilterPanel({ filters, pitchers = [], loadingPitchers = false, onChange, onReset }) {
   const set = (key) => (val) => onChange(f => ({ ...f, [key]: val }))
   const setRunnerState = (runnerState) => onChange(f => ({ ...f, runnerState }))
   const setRunnerBases = (runnerBases) => onChange(f => ({ ...f, runnerState: 'Custom', runnerBases }))
@@ -293,6 +293,7 @@ export default function FilterPanel({ filters, pitchers = [], onChange, onReset 
         value={filters.pitcherIds}
         onChange={(val) => onChange(f => ({ ...f, pitcherIds: val, ...(val.length > 0 ? { pitcherHands: '', pitcherLabels: [] } : {}) }))}
         options={pitcherOptions}
+        loading={loadingPitchers}
         style={{ width: '100%', marginBottom: 8 }}
         maxTagCount={2}
         filterOption={(input, option) =>
