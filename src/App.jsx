@@ -24,7 +24,7 @@ import './App.css'
 const { Header, Sider, Content } = Layout
 const { Text } = Typography
 
-const SET_COLORS = ['#f0883e', '#58a6ff', '#3fb950', '#bc8cff']
+const SET_COLORS = ['#fb923c', '#38bdf8', '#4ade80', '#c084fc']
 const INITIAL_FILTERS = { ...DEFAULT_FILTERS, batterId: '', pitcherIds: [], pitcherRole: 'All' }
 
 // 定義後端基礎網址。正式站用 Render，本機開發可用 VITE_API_BASE_URL 覆蓋。
@@ -243,33 +243,33 @@ function HistoricalDataPage({ page, onNavigate }) {
       theme={{
         algorithm: theme.darkAlgorithm,
         token: {
-          colorPrimary: '#f0883e',
-          colorBgContainer: '#161b22',
-          colorBgElevated: '#1c2128',
-          colorBgLayout: '#0d1117',
-          colorBorder: '#30363d',
-          colorBorderSecondary: '#21262d',
-          colorText: '#e6edf3',
-          colorTextSecondary: '#8b949e',
+          colorPrimary: '#fb923c',
+          colorBgContainer: '#1f2937',
+          colorBgElevated: '#273449',
+          colorBgLayout: '#111827',
+          colorBorder: '#475569',
+          colorBorderSecondary: '#334155',
+          colorText: '#f8fafc',
+          colorTextSecondary: '#cbd5e1',
           fontFamily: "'Barlow Condensed', system-ui, sans-serif",
           borderRadius: 6,
         },
         components: {
-          Table: { headerBg: '#1c2128', rowHoverBg: '#1c2128' },
-          Select: { optionSelectedBg: '#1c2128' },
+          Table: { headerBg: '#273449', rowHoverBg: '#273449' },
+          Select: { optionSelectedBg: '#273449' },
         },
       }}
     >
       <>
         <PageNavbar page={page} onNavigate={onNavigate} />
-      <Layout style={{ minHeight: '100vh', background: '#0d1117' }}>
+      <Layout style={{ minHeight: '100vh', background: '#111827' }}>
         <Header style={{
           display: 'flex', alignItems: 'center', gap: 32,
-          padding: '0 24px', background: '#0d1117',
-          borderBottom: '1px solid #21262d', height: 48, position: 'sticky', top: 56, zIndex: 99,
+          padding: '0 24px', background: '#111827',
+          borderBottom: '1px solid #334155', height: 48, position: 'sticky', top: 56, zIndex: 99,
         }}>
           <Space size={8} align="center">
-            <Text style={{ color: '#484f58', fontSize: 11, textTransform: 'uppercase' }}>Batter</Text>
+            <Text style={{ color: '#94a3b8', fontSize: 11, textTransform: 'uppercase' }}>Batter</Text>
             <Select
               allowClear
               showSearch
@@ -286,12 +286,12 @@ function HistoricalDataPage({ page, onNavigate }) {
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
             {dataLoading && <Spin size="small" style={{ marginRight: 8 }} />}
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: loading ? '#f0883e' : '#3fb950' }} />
-            <Text style={{ color: '#484f58', fontSize: 11 }}>{loading ? 'API CONNECTING...' : 'LIVE BACKEND'}</Text>
+            <Text style={{ color: '#94a3b8', fontSize: 11 }}>{loading ? 'API CONNECTING...' : 'LIVE BACKEND'}</Text>
           </div>
         </Header>
 
-        <Layout style={{ background: '#0d1117' }}>
-          <Sider width={270} style={{ background: '#0d1117', borderRight: '1px solid #21262d', height: 'calc(100vh - 104px)', overflow: 'auto', position: 'sticky', top: 104 }}>
+        <Layout style={{ background: '#111827' }}>
+          <Sider width={270} style={{ background: '#111827', borderRight: '1px solid #334155', height: 'calc(100vh - 104px)', overflow: 'auto', position: 'sticky', top: 104 }}>
             <SetTabs sets={sets} activeSetId={activeSetId} onSelect={setActiveSetId} onAdd={addSet} onRemove={removeSet} />
             {activeSet && (
               <FilterPanel
@@ -303,7 +303,7 @@ function HistoricalDataPage({ page, onNavigate }) {
             )}
           </Sider>
 
-          <Content style={{ padding: '20px', background: '#0d1117', minHeight: 'calc(100vh - 104px)', overflow: 'auto' }}>
+          <Content style={{ padding: '20px', background: '#111827', minHeight: 'calc(100vh - 104px)', overflow: 'auto' }}>
             {loading ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 100, gap: 16 }}>
                 <Spin size="large" />

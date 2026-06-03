@@ -30,6 +30,34 @@ const getResultType = (p) => {
   return 'other';
 };
 
+const HIT_EVENTS = new Set(['single', 'double', 'triple', 'home_run'])
+const OUT_EVENTS = new Set([
+  'field_out', 'strikeout', 'force_out', 'grounded_into_double_play',
+  'fielders_choice', 'fielders_choice_out', 'double_play',
+  'sac_fly', 'sac_bunt', 'strikeout_double_play',
+])
+const AT_BAT_EVENTS = new Set([...HIT_EVENTS, ...OUT_EVENTS, 'field_error'])
+const ON_BASE_EVENTS = new Set([...HIT_EVENTS, 'walk', 'intent_walk', 'hit_by_pitch'])
+const TOTAL_BASES_BY_EVENT = {
+  single: 1,
+  double: 2,
+  triple: 3,
+  home_run: 4,
+}
+const WOBA_WEIGHTS = {
+  walk: 0.69,
+  intent_walk: 0.69,
+  hit_by_pitch: 0.72,
+  single: 0.88,
+  double: 1.25,
+  triple: 1.58,
+  home_run: 2.03,
+}
+
+const average = (sum, count, digits = 1) => (
+  count > 0 ? +(sum / count).toFixed(digits) : null
+)
+
 /**
  * 過濾邏輯：確保 ID 全部轉為字串進行比對，並支援單選投手或打者
  */
@@ -131,13 +159,47 @@ export function aggregateByPitchType(pitches) {
   
   pitches.forEach(p => {
     const type = p.pitch_type || 'Unknown';
-    const res = getResultType(p);
     if (!byType[type]) {
-      byType[type] = { total: 0, ball: 0, called_strike: 0, swinging_strike: 0, foul: 0, in_play_out: 0, in_play_hit: 0 };
+      byType[type] = {
+        total: 0, ball: 0, called_strike: 0, swinging_strike: 0, foul: 0, in_play_out: 0, in_play_hit: 0,
+        rhb: 0, lhb: 0, speedSum: 0, speedCount: 0,
+        pa: 0, ab: 0, h: 0, singles: 0, doubles: 0, triples: 0, hr: 0, so: 0, bbe: 0,
+        totalBases: 0, wobaNumerator: 0, wobaDenominator: 0, twoStrikePitches: 0, putAway: 0,
+      };
     }
     byType[type].total++;
     const rType = getResultType(p);
     if (byType[type][rType] !== undefined) byType[type][rType]++;
+
+    if (p.stand === 'R') byType[type].rhb++;
+    if (p.stand === 'L') byType[type].lhb++;
+
+    const speed = Number(p.release_speed ?? p.speed);
+    if (Number.isFinite(speed)) {
+      byType[type].speedSum += speed;
+      byType[type].speedCount++;
+    }
+
+    const event = p.events || '';
+    if (event) {
+      byType[type].pa++;
+      if (AT_BAT_EVENTS.has(event)) byType[type].ab++;
+      if (HIT_EVENTS.has(event)) byType[type].h++;
+      if (event === 'single') byType[type].singles++;
+      if (event === 'double') byType[type].doubles++;
+      if (event === 'triple') byType[type].triples++;
+      if (event === 'home_run') byType[type].hr++;
+      if (event === 'strikeout') byType[type].so++;
+      byType[type].totalBases += TOTAL_BASES_BY_EVENT[event] || 0;
+      byType[type].wobaNumerator += WOBA_WEIGHTS[event] || 0;
+      if (ON_BASE_EVENTS.has(event) || AT_BAT_EVENTS.has(event)) byType[type].wobaDenominator++;
+    }
+
+    if (['in_play_out', 'in_play_hit'].includes(rType)) byType[type].bbe++;
+    if (Number(p.strikes) === 2) {
+      byType[type].twoStrikePitches++;
+      if (event === 'strikeout') byType[type].putAway++;
+    }
   });
 
   return Object.entries(byType)
@@ -146,10 +208,26 @@ export function aggregateByPitchType(pitches) {
       return {
         pitchType: type,
         count: d.total,
+        rhb: d.rhb || null,
+        lhb: d.lhb || null,
         pct: +((d.total / pitches.length) * 100).toFixed(1),
+        mph: average(d.speedSum, d.speedCount, 1),
+        pa: d.pa,
+        ab: d.ab,
+        h: d.h,
+        singles: d.singles,
+        doubles: d.doubles,
+        triples: d.triples,
+        hr: d.hr,
+        so: d.so,
+        bbe: d.bbe,
+        ba: average(d.h, d.ab, 3),
+        slg: average(d.totalBases, d.ab, 3),
+        woba: average(d.wobaNumerator, d.wobaDenominator, 3),
         ballPct: +((d.ball / d.total) * 100).toFixed(1),
         cswPct: +(((d.called_strike + d.swinging_strike) / d.total) * 100).toFixed(1),
         whiffPct: swingAttempts > 0 ? +((d.swinging_strike / swingAttempts) * 100).toFixed(1) : 0,
+        putAwayPct: d.twoStrikePitches > 0 ? +((d.putAway / d.twoStrikePitches) * 100).toFixed(1) : 0,
         inPlayPct: +(((d.in_play_out + d.in_play_hit) / d.total) * 100).toFixed(1),
         hitPct: +((d.in_play_hit / d.total) * 100).toFixed(1),
       };
