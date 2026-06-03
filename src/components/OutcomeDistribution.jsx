@@ -22,13 +22,13 @@ const OUTCOME_LABELS = {
 
 const IMPORTANT_OUTCOMES = ['BB', 'HBP', '1B', '2B', '3B', 'HR', 'K', 'Out', 'DP', 'FC', 'ROE']
 
-const numberText = (value, color = '#8b949e') => (
-  <span style={{ color, fontFamily: 'JetBrains Mono, monospace', fontSize: 13 }}>{value}</span>
+const numberText = (value, color) => (
+  <span className="tracking-number" style={color ? { color } : undefined}>{value}</span>
 )
 
 const METRIC_HELP = {
   PITCH: 'Pitch type code.',
-  N: 'Number of selected pitches for this pitch type.',
+  '#': 'Number of selected pitches for this pitch type.',
   'EMP xRUNS': 'Empirical expected runs per pitch from the historical result mix. Higher means more runs for the batting team.',
   WPA: 'Average win probability added by this pitch type in the selected data. Positive favors the batting team; negative favors the pitcher.',
   'RESULT DISTRIBUTION': 'How often each result happened for this pitch type under the selected filters.',
@@ -40,19 +40,25 @@ const metricTitle = (label) => (
   </Tooltip>
 )
 
+const right = {
+  align: 'right',
+}
+
 const columns = [
   {
     title: metricTitle('PITCH'),
     dataIndex: 'pitchType',
-    width: 80,
+    align: 'left',
+    width: 132,
     render: value => <span className="analysis-strong-text">{value}</span>,
   },
   {
-    title: metricTitle('N'),
+    title: metricTitle('#'),
     dataIndex: 'count',
-    width: 70,
+    width: 64,
     sorter: (a, b) => a.count - b.count,
     render: value => numberText(value),
+    ...right,
   },
   {
     title: metricTitle('EMP xRUNS'),
@@ -60,6 +66,7 @@ const columns = [
     width: 110,
     sorter: (a, b) => a.expectedRuns - b.expectedRuns,
     render: value => numberText(value, value > 0 ? '#ff6b6b' : '#3fb950'),
+    ...right,
   },
   {
     title: metricTitle('WPA'),
@@ -67,6 +74,7 @@ const columns = [
     width: 90,
     sorter: (a, b) => a.winProbChange - b.winProbChange,
     render: value => numberText(`${value > 0 ? '+' : ''}${value}%`, value >= 0 ? '#3fb950' : '#ff6b6b'),
+    ...right,
   },
   {
     title: metricTitle('RESULT DISTRIBUTION'),
