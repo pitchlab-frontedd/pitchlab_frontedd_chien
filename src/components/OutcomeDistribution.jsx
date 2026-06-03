@@ -20,6 +20,28 @@ const OUTCOME_LABELS = {
   Other: 'Other',
 }
 
+const PITCH_TYPE_LABELS = {
+  FF: 'Four Seamer',
+  SI: 'Sinker',
+  SL: 'Slider',
+  CH: 'Changeup',
+  CU: 'Curveball',
+  FC: 'Cutter',
+  ST: 'Sweeper',
+  FS: 'Splitter',
+}
+
+const PITCH_TYPE_COLORS = {
+  FF: '#ff5c7a',
+  SI: '#fb923c',
+  SL: '#4ade80',
+  CH: '#22c55e',
+  CU: '#22d3ee',
+  FC: '#a78bfa',
+  ST: '#f59e0b',
+  FS: '#38bdf8',
+}
+
 const IMPORTANT_OUTCOMES = ['BB', 'HBP', '1B', '2B', '3B', 'HR', 'K', 'Out', 'DP', 'FC', 'ROE']
 
 const numberText = (value, color) => (
@@ -27,7 +49,7 @@ const numberText = (value, color) => (
 )
 
 const METRIC_HELP = {
-  PITCH: 'Pitch type.',
+  'Pitch Type': 'Pitch category.',
   '#': 'Total pitches.',
   'EMP xRUNS': 'Average runs added per pitch.',
   WPA: 'Average win probability change.',
@@ -46,11 +68,18 @@ const right = {
 
 const columns = [
   {
-    title: metricTitle('PITCH'),
+    title: metricTitle('Pitch Type'),
     dataIndex: 'pitchType',
     align: 'left',
     width: 132,
-    render: value => <span className="analysis-strong-text">{value}</span>,
+    render: value => (
+      <span
+        className="tracking-pitch-type"
+        style={{ color: PITCH_TYPE_COLORS[value] || '#cbd5e1' }}
+      >
+        {PITCH_TYPE_LABELS[value] || value}
+      </span>
+    ),
   },
   {
     title: metricTitle('#'),
