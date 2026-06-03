@@ -76,7 +76,6 @@ const columns = [
   {
     title: metricTitle('Pitch Type'),
     dataIndex: 'pitchType',
-    fixed: 'left',
     width: 132,
     render: pt => (
       <span
@@ -116,23 +115,33 @@ const columns = [
 ]
 
 export default function PitchTypeTable({ data }) {
+  const rows = data || []
+  const hasData = rows.length > 0
+
   return (
     <section className="pitch-tracking-panel">
-      <div className="tracking-title-row">
-        <div />
-        <h2>Pitch Tracking</h2>
-        <div />
+      <div className="tracking-heading">
+        <div>
+          <h2>Pitch Tracking</h2>
+          <p>Pitch mix and outcome profile for the active filters.</p>
+        </div>
       </div>
-      <Table
-        className="pitch-tracking-table"
-        dataSource={data}
-        columns={columns}
-        rowKey="pitchType"
-        pagination={false}
-        size="small"
-        scroll={{ x: 1320 }}
-        showSorterTooltip={false}
-      />
+      {hasData ? (
+        <Table
+          className="pitch-tracking-table"
+          dataSource={rows}
+          columns={columns}
+          rowKey="pitchType"
+          pagination={false}
+          size="small"
+          scroll={{ x: 1320 }}
+          showSorterTooltip={false}
+        />
+      ) : (
+        <div className="tracking-empty-state">
+          Select a pitcher or batter to view pitch tracking.
+        </div>
+      )}
     </section>
   )
 }
