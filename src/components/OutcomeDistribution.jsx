@@ -1,4 +1,4 @@
-import { Table, Typography } from 'antd'
+import { Table, Tooltip, Typography } from 'antd'
 
 const { Text } = Typography
 
@@ -28,36 +28,50 @@ const numberText = (value, color = '#8b949e') => (
   <span style={{ color, fontFamily: 'JetBrains Mono, monospace', fontSize: 13 }}>{value}</span>
 )
 
+const METRIC_HELP = {
+  PITCH: 'Pitch type code.',
+  N: 'Number of selected pitches for this pitch type.',
+  'EMP xRUNS': 'Empirical expected runs per pitch from the historical result mix. Higher means more runs for the batting team.',
+  WPA: 'Average win probability added by this pitch type in the selected data. Positive favors the batting team; negative favors the pitcher.',
+  'RESULT DISTRIBUTION': 'How often each result happened for this pitch type under the selected filters.',
+}
+
+const metricTitle = (label) => (
+  <Tooltip title={METRIC_HELP[label]} placement="top">
+    <span style={{ cursor: 'help' }}>{label}</span>
+  </Tooltip>
+)
+
 const columns = [
   {
-    title: 'PITCH',
+    title: metricTitle('PITCH'),
     dataIndex: 'pitchType',
     width: 80,
     render: value => <Text style={{ color: '#e6edf3', fontWeight: 700 }}>{value}</Text>,
   },
   {
-    title: 'N',
+    title: metricTitle('N'),
     dataIndex: 'count',
     width: 70,
     sorter: (a, b) => a.count - b.count,
     render: value => numberText(value),
   },
   {
-    title: 'EMP xRUNS',
+    title: metricTitle('EMP xRUNS'),
     dataIndex: 'expectedRuns',
     width: 110,
     sorter: (a, b) => a.expectedRuns - b.expectedRuns,
     render: value => numberText(value, value > 0 ? '#ff6b6b' : '#3fb950'),
   },
   {
-    title: 'WPA',
+    title: metricTitle('WPA'),
     dataIndex: 'winProbChange',
     width: 90,
     sorter: (a, b) => a.winProbChange - b.winProbChange,
     render: value => numberText(`${value > 0 ? '+' : ''}${value}%`, value >= 0 ? '#3fb950' : '#ff6b6b'),
   },
   {
-    title: 'RESULT DISTRIBUTION',
+    title: metricTitle('RESULT DISTRIBUTION'),
     dataIndex: 'outcomes',
     render: outcomes => {
       const byOutcome = new Map((outcomes || []).map(item => [item.outcome, item]))
@@ -114,6 +128,7 @@ export default function OutcomeDistribution({ data }) {
         rowKey="pitchType"
         pagination={false}
         size="small"
+        showSorterTooltip={false}
       />
     </div>
   )

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Typography } from 'antd'
+import { Tooltip, Typography } from 'antd'
 
 const { Text } = Typography
 
@@ -92,12 +92,12 @@ const ZONE_CELLS = [
 ]
 
 const METRICS = [
-  { key: 'out', label: 'Out%', color: '88,166,255' },
-  { key: 'foul', label: 'Foul%', color: '227,179,65' },
-  { key: 'whiff', label: 'Whiff%', color: '255,107,107' },
+  { key: 'out', label: 'Out%', color: '88,166,255', help: 'Percentage of pitches in this zone that ended in an out.' },
+  { key: 'foul', label: 'Foul%', color: '227,179,65', help: 'Percentage of pitches in this zone that became fouls.' },
+  { key: 'whiff', label: 'Whiff%', color: '255,107,107', help: 'Swing-and-miss percentage in this zone.' },
 ]
 
-export default function ZoneHeatmap({ zoneData, totalPitches, setName, setColor }) {
+export default function ZoneHeatmap({ zoneData, setName, setColor }) {
   const [metric, setMetric] = useState('out')
   const metricConfig = METRICS.find(m => m.key === metric)
 
@@ -151,21 +151,22 @@ export default function ZoneHeatmap({ zoneData, totalPitches, setName, setColor 
         </div>
         <div style={{ display: 'flex', gap: 4 }}>
           {METRICS.map(m => (
-            <button
-              key={m.key}
-              onClick={() => setMetric(m.key)}
-              style={{
-                padding: '3px 10px', borderRadius: 4,
-                border: `1px solid ${metric === m.key ? `rgba(${m.color},1)` : '#30363d'}`,
-                background: metric === m.key ? `rgba(${m.color},0.2)` : 'transparent',
-                color: metric === m.key ? `rgb(${m.color})` : '#484f58',
-                cursor: 'pointer', fontSize: 11,
-                fontWeight: metric === m.key ? 700 : 400,
-                letterSpacing: '0.05em',
-              }}
-            >
-              {m.label}
-            </button>
+            <Tooltip key={m.key} title={m.help} placement="top">
+              <button
+                onClick={() => setMetric(m.key)}
+                style={{
+                  padding: '3px 10px', borderRadius: 4,
+                  border: `1px solid ${metric === m.key ? `rgba(${m.color},1)` : '#30363d'}`,
+                  background: metric === m.key ? `rgba(${m.color},0.2)` : 'transparent',
+                  color: metric === m.key ? `rgb(${m.color})` : '#484f58',
+                  cursor: 'help', fontSize: 11,
+                  fontWeight: metric === m.key ? 700 : 400,
+                  letterSpacing: '0.05em',
+                }}
+              >
+                {m.label}
+              </button>
+            </Tooltip>
           ))}
         </div>
       </div>

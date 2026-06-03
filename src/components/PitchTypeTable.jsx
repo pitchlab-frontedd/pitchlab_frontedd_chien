@@ -1,4 +1,4 @@
-import { Table, Typography } from 'antd'
+import { Table, Tooltip, Typography } from 'antd'
 
 const { Text } = Typography
 
@@ -31,9 +31,26 @@ const conditional = (hi, mid) => (v) => {
   return <span style={{ color, fontFamily: 'JetBrains Mono, monospace', fontSize: 13 }}>{v}%</span>
 }
 
+const METRIC_HELP = {
+  PITCH: 'Pitch type code and common pitch name.',
+  COUNT: 'Number of pitches in the selected filters for this pitch type.',
+  'USAGE%': 'Share of all selected pitches that were this pitch type.',
+  'BALL%': 'Percentage of this pitch type that resulted in a ball.',
+  'CSW%': 'Called Strikes plus Whiffs. Percentage of pitches that were called strikes or swinging strikes.',
+  'WHIFF%': 'Swing-and-miss rate. Swinging strikes divided by all swings.',
+  'IN-PLAY%': 'Percentage of this pitch type that was put into play.',
+  'HIT%': 'Percentage of this pitch type that became an in-play hit.',
+}
+
+const metricTitle = (label) => (
+  <Tooltip title={METRIC_HELP[label]} placement="top">
+    <span style={{ cursor: 'help' }}>{label}</span>
+  </Tooltip>
+)
+
 const columns = [
   {
-    title: 'PITCH',
+    title: metricTitle('PITCH'),
     dataIndex: 'pitchType',
     render: (pt) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -44,19 +61,19 @@ const columns = [
     ),
   },
   {
-    title: 'COUNT',
+    title: metricTitle('COUNT'),
     dataIndex: 'count',
     sorter: (a, b) => a.count - b.count,
     render: v => <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#8b949e', fontSize: 13 }}>{v}</span>,
     width: 80,
   },
-  { title: 'USAGE%', dataIndex: 'pct', sorter: (a, b) => a.pct - b.pct, render: mono('#58a6ff'), width: 90 },
-  { title: 'BALL%', dataIndex: 'ballPct', sorter: (a, b) => a.ballPct - b.ballPct, render: mono(), width: 80 },
-  { title: 'CSW%', dataIndex: 'cswPct', sorter: (a, b) => a.cswPct - b.cswPct, render: conditional(30, 25), width: 80 },
-  { title: 'WHIFF%', dataIndex: 'whiffPct', sorter: (a, b) => a.whiffPct - b.whiffPct, render: conditional(30, 20), width: 85 },
-  { title: 'IN-PLAY%', dataIndex: 'inPlayPct', sorter: (a, b) => a.inPlayPct - b.inPlayPct, render: mono(), width: 90 },
+  { title: metricTitle('USAGE%'), dataIndex: 'pct', sorter: (a, b) => a.pct - b.pct, render: mono('#58a6ff'), width: 90 },
+  { title: metricTitle('BALL%'), dataIndex: 'ballPct', sorter: (a, b) => a.ballPct - b.ballPct, render: mono(), width: 80 },
+  { title: metricTitle('CSW%'), dataIndex: 'cswPct', sorter: (a, b) => a.cswPct - b.cswPct, render: conditional(30, 25), width: 80 },
+  { title: metricTitle('WHIFF%'), dataIndex: 'whiffPct', sorter: (a, b) => a.whiffPct - b.whiffPct, render: conditional(30, 20), width: 85 },
+  { title: metricTitle('IN-PLAY%'), dataIndex: 'inPlayPct', sorter: (a, b) => a.inPlayPct - b.inPlayPct, render: mono(), width: 90 },
   {
-    title: 'HIT%',
+    title: metricTitle('HIT%'),
     dataIndex: 'hitPct',
     sorter: (a, b) => a.hitPct - b.hitPct,
     render: (v) => <span style={{ color: v >= 8 ? '#ff6b6b' : '#8b949e', fontFamily: 'JetBrains Mono, monospace', fontSize: 13 }}>{v}%</span>,
@@ -80,6 +97,7 @@ export default function PitchTypeTable({ data }) {
         rowKey="pitchType"
         pagination={false}
         size="small"
+        showSorterTooltip={false}
       />
     </div>
   )

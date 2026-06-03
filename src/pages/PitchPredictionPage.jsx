@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Layout, Select, ConfigProvider, theme, Typography, Divider, Button, InputNumber, Spin } from 'antd'
+import { Layout, Select, ConfigProvider, theme, Typography, Divider, Button, InputNumber, Spin, Tooltip } from 'antd'
 import PageNavbar from '../components/PageNavbar'
 
 const { Sider, Content } = Layout
@@ -211,13 +211,44 @@ function PitchCard({ rank, result, isTop }) {
       )}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         {[
-          { label: 'Out Rate', hint: outRateSignal.label, subhint: 'Share of outcomes ending in an out', value: isEmpty ? '-' : `${result.outRate}%`, color: outRateSignal.color },
-          { label: 'Run Value', hint: runValueSignal.label, subhint: 'Avg runs added per pitch; lower helps pitcher', value: isEmpty ? '-' : runValue.toFixed(2), color: runValueSignal.color },
-          { label: 'WPA', hint: wpaSignal.label, subhint: 'Avg win-probability swing; lower helps pitcher', value: isEmpty ? '-' : `${result.winProbChange > 0 ? '+' : ''}${result.winProbChange}%`, color: wpaSignal.color },
-          { label: 'Sample', hint: sample.label, value: isEmpty ? '-' : result.count, color: sample.color },
-        ].map(({ label, hint, subhint, value, color: metricColor }) => (
+          {
+            label: 'Out Rate',
+            help: 'Percentage of historical outcomes for this pitch type that ended in an out.',
+            hint: outRateSignal.label,
+            subhint: 'Share of outcomes ending in an out',
+            value: isEmpty ? '-' : `${result.outRate}%`,
+            color: outRateSignal.color,
+          },
+          {
+            label: 'Run Value',
+            help: 'Average runs added per pitch from historical results. Lower is better for the pitcher; higher is better for the batter.',
+            hint: runValueSignal.label,
+            subhint: 'Avg runs added per pitch; lower helps pitcher',
+            value: isEmpty ? '-' : runValue.toFixed(2),
+            color: runValueSignal.color,
+          },
+          {
+            label: 'WPA',
+            help: 'Average win probability added by this pitch type. Negative favors the pitcher; positive favors the batter.',
+            hint: wpaSignal.label,
+            subhint: 'Avg win-probability swing; lower helps pitcher',
+            value: isEmpty ? '-' : `${result.winProbChange > 0 ? '+' : ''}${result.winProbChange}%`,
+            color: wpaSignal.color,
+          },
+          {
+            label: 'Sample',
+            help: 'Number of historical pitches behind this estimate. Larger samples are more reliable.',
+            hint: sample.label,
+            value: isEmpty ? '-' : result.count,
+            color: sample.color,
+          },
+        ].map(({ label, help, hint, subhint, value, color: metricColor }) => (
           <div key={label} style={{ background: '#0d1117', borderRadius: 6, padding: '8px 10px' }}>
-            <div style={{ fontSize: 9, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{label}</div>
+            <div style={{ fontSize: 9, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
+              <Tooltip title={help} placement="top">
+                <span style={{ cursor: 'help' }}>{label}</span>
+              </Tooltip>
+            </div>
             <div style={{ fontSize: 22, fontWeight: 700, color: isEmpty ? '#484f58' : metricColor, fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>
               {value}
             </div>

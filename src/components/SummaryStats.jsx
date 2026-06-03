@@ -1,22 +1,30 @@
-import { Typography } from 'antd'
+import { Tooltip, Typography } from 'antd'
 
 const { Text } = Typography
 
 const STAT_KEYS = [
-  { key: 'total',      label: 'Pitches', format: v => v,       color: '#e6edf3' },
-  { key: 'strikeRate', label: 'Strike%', format: v => `${v}%`, color: '#e3b341' },
-  { key: 'swingRate',  label: 'Swing%',  format: v => `${v}%`, color: '#58a6ff' },
-  { key: 'whiffRate',  label: 'Whiff%',  format: v => `${v}%`, color: '#ff6b6b' },
-  { key: 'cswRate',    label: 'CSW%',    format: v => `${v}%`, color: '#bc8cff' },
-  { key: 'babip',      label: 'BABIP%',  format: v => `${v}%`, color: '#3fb950' },
+  { key: 'total',      label: 'Pitches', format: v => v,       color: '#e6edf3', help: 'Total number of pitches matching the selected filters.' },
+  { key: 'strikeRate', label: 'Strike%', format: v => `${v}%`, color: '#e3b341', help: 'Percentage of selected pitches that were not balls.' },
+  { key: 'swingRate',  label: 'Swing%',  format: v => `${v}%`, color: '#58a6ff', help: 'Percentage of pitches where the batter swung.' },
+  { key: 'whiffRate',  label: 'Whiff%',  format: v => `${v}%`, color: '#ff6b6b', help: 'Swing-and-miss rate: swinging strikes divided by all swings.' },
+  { key: 'cswRate',    label: 'CSW%',    format: v => `${v}%`, color: '#bc8cff', help: 'Called Strikes plus Whiffs divided by total pitches.' },
+  { key: 'babip',      label: 'BABIP%',  format: v => `${v}%`, color: '#3fb950', help: 'Batting average on balls in play: in-play hits divided by balls in play.' },
 ]
+
+function MetricLabel({ label, help }) {
+  return (
+    <Tooltip title={help} placement="top">
+      <span style={{ cursor: 'help' }}>{label}</span>
+    </Tooltip>
+  )
+}
 
 // Single set: 6 cards in a row
 function SingleStats({ stats }) {
   if (!stats) return null
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, marginBottom: 16 }}>
-      {STAT_KEYS.map(({ key, label, format, color }) => (
+      {STAT_KEYS.map(({ key, label, format, color, help }) => (
         <div key={key} style={{
           background: '#161b22', border: '1px solid #21262d',
           borderRadius: 8, padding: '12px 16px', textAlign: 'center',
@@ -26,7 +34,7 @@ function SingleStats({ stats }) {
             letterSpacing: '0.1em', marginBottom: 6,
             fontFamily: "'Barlow Condensed', sans-serif",
           }}>
-            {label}
+            <MetricLabel label={label} help={help} />
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color, fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>
             {format(stats[key])}
@@ -46,13 +54,13 @@ function ComparisonStats({ setsData }) {
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: '120px repeat(6, 1fr)', borderBottom: '1px solid #21262d' }}>
         <div style={{ padding: '8px 14px' }} />
-        {STAT_KEYS.map(({ key, label }) => (
+        {STAT_KEYS.map(({ key, label, help }) => (
           <div key={key} style={{
             padding: '8px 4px', textAlign: 'center',
             fontSize: 10, color: '#484f58', textTransform: 'uppercase',
             letterSpacing: '0.1em', fontFamily: "'Barlow Condensed', sans-serif",
           }}>
-            {label}
+            <MetricLabel label={label} help={help} />
           </div>
         ))}
       </div>
