@@ -94,7 +94,7 @@ const ZONE_CELLS = [
 const METRICS = [
   { key: 'out', label: 'Out%', color: '88,166,255', help: 'Percentage of pitches in this zone that ended in an out.' },
   { key: 'foul', label: 'Foul%', color: '227,179,65', help: 'Percentage of pitches in this zone that became fouls.' },
-  { key: 'whiff', label: 'Whiff%', color: '255,107,107', help: 'Swing-and-miss percentage in this zone.' },
+  { key: 'whiff', label: 'Whiff%', color: '255,107,107', help: 'Swing-and-miss percentage in this zone. Uses swings as the denominator, not total pitches.' },
 ]
 
 export default function ZoneHeatmap({ zoneData, setName, setColor }) {
@@ -113,9 +113,10 @@ export default function ZoneHeatmap({ zoneData, setName, setColor }) {
   const getDisplayText = (zone) => {
     const d = zoneData?.[zone]
     if (!d || d.total === 0) return { main: '—', sub: '' }
+    const swings = d.swinging_strike + d.foul + d.in_play_out + d.in_play_hit
     if (metric === 'out') return { main: `${(d.outRate * 100).toFixed(0)}%`, sub: `n=${d.total}` }
     if (metric === 'foul') return { main: `${(d.foulRate * 100).toFixed(0)}%`, sub: `n=${d.total}` }
-    if (metric === 'whiff') return { main: `${(d.whiffRate * 100).toFixed(0)}%`, sub: `n=${d.total}` }
+    if (metric === 'whiff') return { main: `${(d.whiffRate * 100).toFixed(0)}%`, sub: `sw=${swings}` }
     return { main: '—', sub: '' }
   }
 
