@@ -92,9 +92,9 @@ const ZONE_CELLS = [
 ]
 
 const METRICS = [
-  { key: 'out', label: 'Out%', color: '88,166,255', help: 'Percentage of pitches in this zone that ended in an out.' },
-  { key: 'foul', label: 'Foul%', color: '227,179,65', help: 'Percentage of pitches in this zone that became fouls.' },
-  { key: 'whiff', label: 'Whiff%', color: '255,107,107', help: 'Swing-and-miss percentage in this zone. Uses swings as the denominator, not total pitches.' },
+  { key: 'out', label: 'Out%', color: '88,166,255', help: 'Out rate by zone.' },
+  { key: 'foul', label: 'Foul%', color: '227,179,65', help: 'Foul rate by zone.' },
+  { key: 'whiff', label: 'Whiff%', color: '255,107,107', help: 'Misses divided by swings.' },
 ]
 
 export default function ZoneHeatmap({ zoneData, setName, setColor }) {

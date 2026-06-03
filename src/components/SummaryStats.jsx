@@ -3,12 +3,12 @@ import { Tooltip, Typography } from 'antd'
 const { Text } = Typography
 
 const STAT_KEYS = [
-  { key: 'total',      label: 'Pitches', format: v => v,       color: '#e6edf3', help: 'Total number of pitches matching the selected filters.' },
-  { key: 'strikeRate', label: 'Strike%', format: v => `${v}%`, color: '#e3b341', help: 'Percentage of selected pitches that were not balls.' },
-  { key: 'swingRate',  label: 'Swing%',  format: v => `${v}%`, color: '#58a6ff', help: 'Percentage of pitches where the batter swung.' },
-  { key: 'whiffRate',  label: 'Whiff%',  format: v => `${v}%`, color: '#ff6b6b', help: 'Swing-and-miss rate: swinging strikes divided by all swings.' },
-  { key: 'cswRate',    label: 'CSW%',    format: v => `${v}%`, color: '#bc8cff', help: 'Called Strikes plus Whiffs divided by total pitches.' },
-  { key: 'babip',      label: 'BABIP%',  format: v => `${v}%`, color: '#3fb950', help: 'Batting average on balls in play: in-play hits divided by balls in play.' },
+  { key: 'total',      label: 'Pitches', format: v => v,       color: '#e6edf3', help: 'Total pitches.' },
+  { key: 'strikeRate', label: 'Strike%', format: v => `${v}%`, color: '#e3b341', help: 'Non-ball pitch rate.' },
+  { key: 'swingRate',  label: 'Swing%',  format: v => `${v}%`, color: '#58a6ff', help: 'Batter swing rate.' },
+  { key: 'whiffRate',  label: 'Whiff%',  format: v => `${v}%`, color: '#ff6b6b', help: 'Misses divided by swings.' },
+  { key: 'cswRate',    label: 'CSW%',    format: v => `${v}%`, color: '#bc8cff', help: 'Called strikes plus whiffs.' },
+  { key: 'babip',      label: 'BABIP%',  format: v => `${v}%`, color: '#3fb950', help: 'Hit rate on balls in play.' },
 ]
 
 function MetricLabel({ label, help }) {

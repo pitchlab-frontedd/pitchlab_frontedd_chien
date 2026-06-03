@@ -27,11 +27,11 @@ const numberText = (value, color) => (
 )
 
 const METRIC_HELP = {
-  PITCH: 'Pitch type code.',
-  '#': 'Number of selected pitches for this pitch type.',
-  'EMP xRUNS': 'Empirical expected runs per pitch from the historical result mix. Higher means more runs for the batting team.',
-  WPA: 'Average win probability added by this pitch type in the selected data. Positive favors the batting team; negative favors the pitcher.',
-  'RESULT DISTRIBUTION': 'How often each result happened for this pitch type under the selected filters.',
+  PITCH: 'Pitch type.',
+  '#': 'Total pitches.',
+  'EMP xRUNS': 'Average runs added per pitch.',
+  WPA: 'Average win probability change.',
+  'RESULT DISTRIBUTION': 'Result frequency by pitch type.',
 }
 
 const metricTitle = (label) => (

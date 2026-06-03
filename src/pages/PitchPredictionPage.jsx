@@ -213,7 +213,7 @@ function PitchCard({ rank, result, isTop }) {
         {[
           {
             label: 'Out Rate',
-            help: 'Percentage of historical outcomes for this pitch type that ended in an out.',
+            help: 'Out rate for this pitch.',
             hint: outRateSignal.label,
             subhint: 'Share of outcomes ending in an out',
             value: isEmpty ? '-' : `${result.outRate}%`,
@@ -221,7 +221,7 @@ function PitchCard({ rank, result, isTop }) {
           },
           {
             label: 'Run Value',
-            help: 'Average runs added per pitch from historical results. Lower is better for the pitcher; higher is better for the batter.',
+            help: 'Average runs added per pitch.',
             hint: runValueSignal.label,
             subhint: 'Avg runs added per pitch; lower helps pitcher',
             value: isEmpty ? '-' : runValue.toFixed(2),
@@ -229,7 +229,7 @@ function PitchCard({ rank, result, isTop }) {
           },
           {
             label: 'WPA',
-            help: 'Average win probability added by this pitch type. Negative favors the pitcher; positive favors the batter.',
+            help: 'Average win probability change.',
             hint: wpaSignal.label,
             subhint: 'Avg win-probability swing; lower helps pitcher',
             value: isEmpty ? '-' : `${result.winProbChange > 0 ? '+' : ''}${result.winProbChange}%`,
@@ -237,7 +237,7 @@ function PitchCard({ rank, result, isTop }) {
           },
           {
             label: 'Sample',
-            help: 'Number of historical pitches behind this estimate. Larger samples are more reliable.',
+            help: 'Number of similar pitches.',
             hint: sample.label,
             value: isEmpty ? '-' : result.count,
             color: sample.color,
