@@ -125,8 +125,8 @@ export default function PitchTypeTable({ data }) {
   const hasData = rows.length > 0
 
   return (
-    <section className="pitch-tracking-panel">
-      <div className="tracking-heading">
+    <section className="analysis-card">
+      <div className="analysis-heading">
         <div>
           <h2>Pitch Tracking</h2>
           <p>Pitch mix and outcome profile for the active filters.</p>
@@ -134,7 +134,7 @@ export default function PitchTypeTable({ data }) {
       </div>
       {hasData ? (
         <Table
-          className="pitch-tracking-table"
+          className="analysis-table"
           dataSource={rows}
           columns={columns}
           rowKey="pitchType"
@@ -144,7 +144,7 @@ export default function PitchTypeTable({ data }) {
           showSorterTooltip={false}
         />
       ) : (
-        <div className="tracking-empty-state">
+        <div className="analysis-empty-state">
           Select a pitcher or batter to view pitch tracking.
         </div>
       )}

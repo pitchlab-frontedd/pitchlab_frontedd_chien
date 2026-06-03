@@ -1,6 +1,4 @@
-import { Table, Tooltip, Typography } from 'antd'
-
-const { Text } = Typography
+import { Table, Tooltip } from 'antd'
 
 const OUTCOME_LABELS = {
   BB: 'Walk',
@@ -47,7 +45,7 @@ const columns = [
     title: metricTitle('PITCH'),
     dataIndex: 'pitchType',
     width: 80,
-    render: value => <Text style={{ color: '#e6edf3', fontWeight: 700 }}>{value}</Text>,
+    render: value => <span className="analysis-strong-text">{value}</span>,
   },
   {
     title: metricTitle('N'),
@@ -83,17 +81,10 @@ const columns = [
             return (
               <span
                 key={outcome}
-                style={{
-                  border: '1px solid #30363d',
-                  borderRadius: 4,
-                  padding: '3px 7px',
-                  color: '#8b949e',
-                  fontSize: 11,
-                  whiteSpace: 'nowrap',
-                }}
+                className="outcome-chip"
                 title={OUTCOME_LABELS[outcome] || outcome}
               >
-                <b style={{ color: '#e6edf3' }}>{outcome}</b> {item.pct}%
+                <b>{outcome}</b> {item.pct}%
               </span>
             )
           })}
@@ -105,31 +96,31 @@ const columns = [
 
 export default function OutcomeDistribution({ data }) {
   const rows = data?.pitchTypeOutcomes || []
+  const hasData = rows.length > 0
 
   return (
-    <div style={{ background: '#161b22', border: '1px solid #21262d', borderRadius: 8, padding: '16px', marginTop: 16 }}>
-      <Text style={{
-        display: 'block',
-        color: '#e6edf3',
-        fontSize: 13,
-        fontWeight: 700,
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        marginBottom: 4,
-      }}>
-        Outcome Distribution
-      </Text>
-      <Text style={{ display: 'block', color: '#484f58', fontSize: 11, marginBottom: 12 }}>
-        Empirical expected runs from the historical outcome distribution under the selected filters.
-      </Text>
-      <Table
-        dataSource={rows}
-        columns={columns}
-        rowKey="pitchType"
-        pagination={false}
-        size="small"
-        showSorterTooltip={false}
-      />
-    </div>
+    <section className="analysis-card analysis-card-spaced">
+      <div className="analysis-heading">
+        <div>
+          <h2>Outcome Distribution</h2>
+          <p>Empirical expected runs from the historical outcome distribution under the selected filters.</p>
+        </div>
+      </div>
+      {hasData ? (
+        <Table
+          className="analysis-table"
+          dataSource={rows}
+          columns={columns}
+          rowKey="pitchType"
+          pagination={false}
+          size="small"
+          showSorterTooltip={false}
+        />
+      ) : (
+        <div className="analysis-empty-state">
+          Select a pitcher or batter to view outcome distribution.
+        </div>
+      )}
+    </section>
   )
 }
