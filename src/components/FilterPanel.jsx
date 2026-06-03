@@ -162,37 +162,36 @@ function CountGrid({ selectedCounts, onChange }) {
   )
 }
 
+function BaseSquare({ active, onClick }) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        width: 18,
+        height: 18,
+        transform: 'rotate(45deg)',
+        border: `2px solid ${active ? '#f0883e' : '#30363d'}`,
+        background: active ? 'rgba(240,136,62,0.35)' : '#161b22',
+        cursor: 'pointer',
+        transition: 'all 0.15s',
+      }}
+    />
+  )
+}
+
 function BaseDiamond({ bases = {}, onChange }) {
   const toggle = (base) => onChange({ ...bases, [base]: !bases[base] })
-
-  const BaseSquare = ({ base }) => {
-    const active = Boolean(bases[base])
-    return (
-      <div
-        onClick={() => toggle(base)}
-        style={{
-          width: 18,
-          height: 18,
-          transform: 'rotate(45deg)',
-          border: `2px solid ${active ? '#f0883e' : '#30363d'}`,
-          background: active ? 'rgba(240,136,62,0.35)' : '#161b22',
-          cursor: 'pointer',
-          transition: 'all 0.15s',
-        }}
-      />
-    )
-  }
 
   return (
     <div style={{ position: 'relative', width: 104, height: 92 }}>
       <div style={{ position: 'absolute', left: 42, top: 4 }}>
-        <BaseSquare base="second" />
+        <BaseSquare active={Boolean(bases.second)} onClick={() => toggle('second')} />
       </div>
       <div style={{ position: 'absolute', left: 8, top: 38 }}>
-        <BaseSquare base="third" />
+        <BaseSquare active={Boolean(bases.third)} onClick={() => toggle('third')} />
       </div>
       <div style={{ position: 'absolute', left: 76, top: 38 }}>
-        <BaseSquare base="first" />
+        <BaseSquare active={Boolean(bases.first)} onClick={() => toggle('first')} />
       </div>
       <div style={{
         position: 'absolute',
@@ -313,6 +312,19 @@ export default function FilterPanel({ filters, pitchers = [], onChange, onReset 
           color='#bc8cff'
         />
       </div>
+
+      <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
+
+      <SectionLabel>Batter Hand</SectionLabel>
+      <SingleTogglePills
+        options={[
+          { value: '', label: 'ALL' },
+          { value: 'R', label: 'RHB' },
+          { value: 'L', label: 'LHB' }
+        ]}
+        value={filters.batterHand}
+        onChange={set('batterHand')}
+      />
 
       <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
 

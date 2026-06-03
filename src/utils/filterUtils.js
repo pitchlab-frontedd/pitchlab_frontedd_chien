@@ -5,6 +5,7 @@ export const DEFAULT_FILTERS = {
   pitcherIds: [],
   pitcherLabels: [],
   pitcherHands: '', // ✅ 這裡你已經正確改成單選字串了！
+  batterHand: '',
   pitcherRoles: [],
   pitchTypes: [],
   zones: [],
@@ -90,6 +91,10 @@ export function filterPitches(pitches, filters) {
     if (filters.pitcherHands && filters.pitcherHands !== "") {
       // CSV 裡面的欄位叫 p_throws，值會是 'R' 或 'L'
       if (p.p_throws !== filters.pitcherHands) return false;
+    }
+
+    if (filters.batterHand && filters.batterHand !== "") {
+      if (p.stand !== filters.batterHand) return false;
     }
 
     // 4. 比對球種與好球帶

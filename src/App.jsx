@@ -87,6 +87,7 @@ function HistoricalDataPage({ page, onNavigate }) {
         year,
         pitcherRole,
         pitcherHands,
+        batterHand,
         pitchTypes = [],
         zones = [],
         counts = [],
@@ -108,6 +109,7 @@ function HistoricalDataPage({ page, onNavigate }) {
         pitchType: pitchTypes.join(','),
         zone: zones.join(','),
         pitcherHand: pitcherHands || '',
+        batterHand: batterHand || '',
       });
 
       if (outs && outs !== 'All') {
