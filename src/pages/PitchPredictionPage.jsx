@@ -1,22 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Layout, Select, ConfigProvider, theme, Typography, Divider, Button, InputNumber, Spin, Tooltip } from 'antd'
 import PageNavbar from '../components/PageNavbar'
+import { pitchTypeColor, pitchTypeLabel } from '../utils/pitchTypes'
 
 const { Sider, Content } = Layout
 const { Text } = Typography
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://new-baseball-app-backend-fn6w.onrender.com'
-
-const PITCH_TYPE_COLORS = {
-  FF: '#f0883e', SI: '#e3b341', SL: '#58a6ff',
-  CH: '#3fb950', CU: '#bc8cff', FC: '#ff6b6b',
-  ST: '#d2a8ff', FS: '#2da44e',
-}
-
-const PITCH_TYPE_LABELS = {
-  FF: 'Four-Seam FB', SI: 'Sinker', SL: 'Slider',
-  CH: 'Changeup', CU: 'Curveball', FC: 'Cutter',
-  ST: 'Sweeper', FS: 'Splitter',
-}
 
 function sampleSignal(count = 0) {
   if (count >= 100) return { label: 'Strong sample', color: '#3fb950' }
@@ -156,7 +145,7 @@ function MiniDiamond({ bases }) {
 
 function PitchCard({ rank, result, isTop }) {
   const isEmpty = !result
-  const color = isEmpty ? '#484f58' : (PITCH_TYPE_COLORS[result.pitchType] || '#484f58')
+  const color = isEmpty ? '#484f58' : pitchTypeColor(result.pitchType)
   const sample = isEmpty ? { label: '-', color: '#484f58' } : sampleSignal(result.count)
   const runValue = isEmpty ? 0 : (result.avgRunValue ?? result.expectedRuns)
   const runValueSignal = valueSignal(runValue, true)
@@ -195,7 +184,7 @@ function PitchCard({ rank, result, isTop }) {
           {isEmpty ? '-' : result.pitchType}
         </span>
         <span style={{ fontSize: 12, color: '#8b949e' }}>
-          {isEmpty ? '' : PITCH_TYPE_LABELS[result.pitchType]}
+          {isEmpty ? '' : pitchTypeLabel(result.pitchType)}
         </span>
       </div>
       {!isEmpty && (

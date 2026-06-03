@@ -1,4 +1,5 @@
 import { Table, Tooltip } from 'antd'
+import { pitchTypeColor, pitchTypeLabel } from '../utils/pitchTypes'
 
 const OUTCOME_LABELS = {
   BB: 'Walk',
@@ -18,28 +19,6 @@ const OUTCOME_LABELS = {
   Foul: 'Foul',
   'In Play': 'In Play',
   Other: 'Other',
-}
-
-const PITCH_TYPE_LABELS = {
-  FF: 'Four Seamer',
-  SI: 'Sinker',
-  SL: 'Slider',
-  CH: 'Changeup',
-  CU: 'Curveball',
-  FC: 'Cutter',
-  ST: 'Sweeper',
-  FS: 'Splitter',
-}
-
-const PITCH_TYPE_COLORS = {
-  FF: '#ff5c7a',
-  SI: '#fb923c',
-  SL: '#4ade80',
-  CH: '#22c55e',
-  CU: '#22d3ee',
-  FC: '#a78bfa',
-  ST: '#f59e0b',
-  FS: '#38bdf8',
 }
 
 const IMPORTANT_OUTCOMES = ['BB', 'HBP', '1B', '2B', '3B', 'HR', 'K', 'Out', 'DP', 'FC', 'ROE']
@@ -75,9 +54,9 @@ const columns = [
     render: value => (
       <span
         className="tracking-pitch-type"
-        style={{ color: PITCH_TYPE_COLORS[value] || '#cbd5e1' }}
+        style={{ color: pitchTypeColor(value) }}
       >
-        {PITCH_TYPE_LABELS[value] || value}
+        {pitchTypeLabel(value)}
       </span>
     ),
   },

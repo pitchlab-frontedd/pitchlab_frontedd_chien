@@ -1,5 +1,6 @@
 import { Divider, Button, Typography, Select } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
+import { ALL_PITCH_TYPES, pitchTypeColor, pitchTypeLabel } from '../utils/pitchTypes'
 
 const { Text } = Typography
 
@@ -9,26 +10,6 @@ const PITCHER_LABEL_OPTIONS = [
   { value: 'Finesse', label: 'Finesse' },
   { value: 'Sinker', label: 'Sinker' }
 ]
-
-const ALL_PITCH_TYPES = ['FF', 'SI', 'SL', 'CH', 'CU', 'FC', 'ST', 'FS']
-
-const PITCH_TYPE_LABELS = {
-  FF: 'Four-Seam FB',
-  SI: 'Sinker',
-  SL: 'Slider',
-  CH: 'Changeup',
-  CU: 'Curveball',
-  FC: 'Cutter',
-  ST: 'Sweeper', 
-  FS: 'Splitter',
-}
-
-const PITCH_TYPE_COLORS = {
-  FF: '#f0883e', SI: '#e3b341', SL: '#58a6ff',
-  CH: '#3fb950', CU: '#bc8cff', FC: '#ff6b6b',
-  ST: '#d2a8ff', // 新增 Sweeper 的顏色
-  FS: '#2da44e', // 新增 Splitter 的顏色
-}
 
 // ✨ 預先準備好 Statcast 時代 (2015起) 到未來的年份，全部使用字串確保與 game_date 匹配
 const YEAR_OPTIONS = [
@@ -412,15 +393,15 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
                 padding: '5px 8px', borderRadius: 4,
-                border: `1px solid ${sel ? PITCH_TYPE_COLORS[pt] : 'transparent'}`,
-                background: sel ? `${PITCH_TYPE_COLORS[pt]}18` : 'transparent',
+                border: `1px solid ${sel ? pitchTypeColor(pt) : 'transparent'}`,
+                background: sel ? `${pitchTypeColor(pt)}18` : 'transparent',
                 cursor: 'pointer', transition: 'all 0.12s',
               }}
             >
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: PITCH_TYPE_COLORS[pt] || '#484f58', flexShrink: 0 }} />
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: pitchTypeColor(pt), flexShrink: 0 }} />
               <Text style={{ fontSize: 12, color: sel ? '#e6edf3' : '#8b949e', fontWeight: sel ? 600 : 400 }}>
                 <span style={{ fontWeight: 700, marginRight: 4 }}>{pt}</span>
-                {PITCH_TYPE_LABELS[pt]}
+                {pitchTypeLabel(pt)}
               </Text>
             </div>
           )

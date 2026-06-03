@@ -1,26 +1,5 @@
 import { Table, Tooltip } from 'antd'
-
-const PITCH_TYPE_LABELS = {
-  FF: 'Four Seamer',
-  SI: 'Sinker',
-  SL: 'Slider',
-  CH: 'Changeup',
-  CU: 'Curveball',
-  FC: 'Cutter',
-  ST: 'Sweeper',
-  FS: 'Splitter',
-}
-
-const PITCH_TYPE_COLORS = {
-  FF: '#ff5c7a',
-  SI: '#fb923c',
-  SL: '#4ade80',
-  CH: '#22c55e',
-  CU: '#22d3ee',
-  FC: '#a78bfa',
-  ST: '#f59e0b',
-  FS: '#38bdf8',
-}
+import { pitchTypeColor, pitchTypeLabel } from '../utils/pitchTypes'
 
 const METRIC_HELP = {
   'Pitch Type': 'Pitch category.',
@@ -85,9 +64,9 @@ const columns = [
     render: pt => (
       <span
         className="tracking-pitch-type"
-        style={{ color: PITCH_TYPE_COLORS[pt] || '#cbd5e1' }}
+        style={{ color: pitchTypeColor(pt) }}
       >
-        {PITCH_TYPE_LABELS[pt] || pt}
+        {pitchTypeLabel(pt)}
       </span>
     ),
   },
