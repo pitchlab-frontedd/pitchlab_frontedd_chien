@@ -12,14 +12,14 @@ const PITCH_TYPE_LABELS = {
 }
 
 const PITCH_TYPE_COLORS = {
-  FF: '#e11d48',
-  SI: '#f97316',
-  SL: '#22c55e',
-  CH: '#16a34a',
-  CU: '#06b6d4',
-  FC: '#8b5cf6',
-  ST: '#d97706',
-  FS: '#0ea5e9',
+  FF: '#ff5c7a',
+  SI: '#fb923c',
+  SL: '#4ade80',
+  CH: '#22c55e',
+  CU: '#22d3ee',
+  FC: '#a78bfa',
+  ST: '#f59e0b',
+  FS: '#38bdf8',
 }
 
 const METRIC_HELP = {
@@ -81,7 +81,7 @@ const columns = [
     render: pt => (
       <span
         className="tracking-pitch-type"
-        style={{ color: PITCH_TYPE_COLORS[pt] || '#334155' }}
+        style={{ color: PITCH_TYPE_COLORS[pt] || '#cbd5e1' }}
       >
         {PITCH_TYPE_LABELS[pt] || pt}
       </span>
