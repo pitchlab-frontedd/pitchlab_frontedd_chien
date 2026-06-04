@@ -333,8 +333,8 @@ function HistoricalDataPage({ page, onNavigate }) {
               <ZoneHeatmap zoneData={activeSetData?.zoneData} totalPitches={activeSetData?.total || 0} setColor={activeSet?.color} setName={activeSet?.name} />
               <ResultChart setsData={setsData} />
             </div>
-            <PitchTypeTable data={activeSetData?.pitchTypeData || []} outcomeData={activeSetData?.outcomeData} />
-            <OutcomeDistribution data={activeSetData?.outcomeData} />
+            <PitchTypeTable data={activeSetData?.pitchTypeData || []} outcomeData={activeSetData?.outcomeData} filters={activeFilters} />
+            <OutcomeDistribution data={activeSetData?.outcomeData} filters={activeFilters} />
           </Content>
         </Layout>
       </Layout>
