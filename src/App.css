@@ -1,50 +1,80 @@
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  letter-spacing: 0!important;
+}
+
+html,
+body,
+#root,
+button,
+input,
+textarea,
+select,
+.ant-typography,
+.ant-btn,
+.ant-select,
+.ant-input,
+.ant-input-number,
+.ant-table,
+.ant-tooltip {
+  font-family: Helvetica, Arial, system-ui, sans-serif!important;
+}
 
 body {
   margin: 0;
   padding: 0;
-  background: #111827;
+  background: #111c2b;
+  color: #e8eef6;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 #root { width: 100%; }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #111827; }
+::-webkit-scrollbar-track { background: #111c2b; }
 ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-.ant-layout { background: #111827!important; }
+.ant-layout { background: #111c2b!important; }
 .ant-table-wrapper .ant-table { background: transparent!important; }
 .ant-table-wrapper .ant-table-tbody > tr > td { border-bottom-color: #21262d!important; }
 .ant-table-wrapper .ant-table-thead > tr > th {
-  background: #1c2128!important;
-  border-bottom-color: #30363d!important;
-  color: #7c8798!important;
-  font-size: 11px!important;
-  letter-spacing: 0.1em!important;
-  font-family: 'Barlow Condensed', sans-serif!important;
+  background: #24344c!important;
+  border-bottom-color: #3a4d67!important;
+  color: #c6d2e1!important;
+  font-size: 13px!important;
+  font-weight: 700!important;
 }
-.ant-table-wrapper .ant-table-tbody > tr:hover > td { background: #1c2128!important; }
+.ant-table-wrapper .ant-table-tbody > tr:hover > td { background: #21314a!important; }
 .ant-select .ant-select-selection-placeholder,
 .ant-input-number .ant-input-number-input::placeholder {
-  color: #a5b0c0!important;
+  color: #b8c5d5!important;
 }
 
 .ant-select .ant-select-selection-item,
 .ant-input-number .ant-input-number-input {
   color: #e6edf3!important;
+  font-size: 15px!important;
 }
 
 .ant-select-selector,
 .ant-input-number {
-  border-color: #3b4656!important;
+  background: #1c2b42!important;
+  border-color: #465b78!important;
+}
+
+[style*="font-size: 9px"],
+[style*="font-size: 10px"],
+[style*="font-size: 11px"] {
+  font-size: 13px!important;
 }
 
 .analysis-card {
-  background: #161b22;
-  border: 1px solid #21262d;
-  border-radius: 8px;
-  padding: 16px;
+  background: #1b2a40;
+  border: 1px solid #334761;
+  border-radius: 10px;
+  padding: 18px;
   text-align: left;
 }
 
@@ -68,18 +98,16 @@ body {
 .analysis-heading h2 {
   margin: 0;
   color: #e6edf3;
-  font-family: 'Barlow Condensed', system-ui, sans-serif;
-  font-size: 13px;
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: 0.08em;
   text-transform: uppercase;
   line-height: 1.2;
 }
 
 .analysis-heading p {
   margin: 6px 0 0;
-  color: #8d99aa;
-  font-size: 11px;
+  color: #bac7d8;
+  font-size: 14px;
   line-height: 1.4;
 }
 
@@ -95,28 +123,24 @@ body {
 }
 
 .metric-context-card {
-  background: #0f1621;
-  border: 1px solid #21262d;
-  border-radius: 6px;
-  padding: 12px 14px;
+  background: #162235;
+  border: 1px solid #334761;
+  border-radius: 8px;
+  padding: 14px 16px;
 }
 
 .metric-context-label {
   color: #7c8798;
-  font-family: 'Barlow Condensed', system-ui, sans-serif;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.12em;
   line-height: 1;
   text-transform: uppercase;
 }
 
 .metric-context-title {
   color: #e6edf3;
-  font-family: 'Barlow Condensed', system-ui, sans-serif;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
-  letter-spacing: 0.06em;
   line-height: 1.15;
   margin-top: 7px;
   text-transform: uppercase;
@@ -124,7 +148,7 @@ body {
 
 .metric-context-card p {
   color: #b7c0cc;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.45;
   margin: 6px 0 0;
 }
@@ -143,8 +167,7 @@ body {
 
 .tracking-number {
   color: #aeb8c6;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-size: 15px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -156,23 +179,23 @@ body {
 .analysis-empty-state {
   min-height: 88px;
   border: 1px dashed #30363d;
-  border-radius: 6px;
-  background: #0f1621;
+  border-radius: 8px;
+  background: #162235;
   color: #a5b0c0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.4;
   text-align: center;
 }
 
 .outcome-chip {
-  border: 1px solid #30363d;
-  border-radius: 4px;
-  padding: 3px 6px;
+  border: 1px solid #465b78;
+  border-radius: 6px;
+  padding: 5px 8px;
   color: #aeb8c6;
-  font-size: 10px;
+  font-size: 12px;
   white-space: nowrap;
 }
 

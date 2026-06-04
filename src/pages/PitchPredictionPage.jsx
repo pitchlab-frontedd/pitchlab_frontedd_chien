@@ -6,10 +6,10 @@ import { pitchTypeColor, pitchTypeLabel } from '../utils/pitchTypes'
 const { Sider, Content } = Layout
 const { Text } = Typography
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://new-baseball-app-backend-fn6w.onrender.com'
-const TEXT_SUBTLE = '#7c8798'
-const TEXT_MUTED = '#a5b0c0'
-const TEXT_SECONDARY = '#b7c0cc'
-const TEXT_PRIMARY = '#e6edf3'
+const TEXT_SUBTLE = '#9fb0c6'
+const TEXT_MUTED = '#c1ccda'
+const TEXT_SECONDARY = '#d3dce8'
+const TEXT_PRIMARY = '#f3f7fb'
 
 const RECOMMENDATION_GOALS = [
   {
@@ -95,9 +95,8 @@ function formatSignedPct(value) {
 function SectionLabel({ children }) {
   return (
     <Text style={{
-      display: 'block', fontSize: 10, fontWeight: 700, color: TEXT_SUBTLE,
-      textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8,
-      fontFamily: "'Barlow Condensed', sans-serif",
+      display: 'block', fontSize: 13, fontWeight: 700, color: TEXT_MUTED,
+      textTransform: 'uppercase', marginBottom: 9,
     }}>
       {children}
     </Text>
@@ -110,12 +109,12 @@ function Pill({ label, selected, onClick, color, disabled = false }) {
     <div
       onClick={disabled ? undefined : onClick}
       style={{
-        padding: '4px 10px', borderRadius: 4,
+        padding: '7px 12px', borderRadius: 6,
         border: `1px solid ${selected ? c : '#3b4656'}`,
         background: selected ? `${c}25` : 'transparent',
         color: disabled ? TEXT_SUBTLE : (selected ? c : TEXT_SECONDARY),
-        cursor: disabled ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: selected ? 700 : 400,
-        letterSpacing: '0.05em', userSelect: 'none', transition: 'all 0.15s',
+        cursor: disabled ? 'not-allowed' : 'pointer', fontSize: 14, fontWeight: selected ? 700 : 500,
+        userSelect: 'none', transition: 'all 0.15s',
       }}
     >
       {label}
@@ -128,12 +127,12 @@ function CountSelector({ value, onChange }) {
     <div>
       <div style={{ display: 'flex', marginBottom: 3, paddingLeft: 26 }}>
         {['0S', '1S', '2S'].map(s => (
-          <div key={s} style={{ width: 34, textAlign: 'center', fontSize: 10, color: TEXT_SUBTLE, fontFamily: 'JetBrains Mono, monospace' }}>{s}</div>
+          <div key={s} style={{ width: 38, textAlign: 'center', fontSize: 12, color: TEXT_MUTED }}>{s}</div>
         ))}
       </div>
       {[0, 1, 2, 3].map(b => (
         <div key={b} style={{ display: 'flex', alignItems: 'center', marginBottom: 3 }}>
-          <div style={{ width: 22, fontSize: 10, color: TEXT_SUBTLE, textAlign: 'right', marginRight: 4, fontFamily: 'JetBrains Mono, monospace' }}>{b}B</div>
+          <div style={{ width: 24, fontSize: 12, color: TEXT_MUTED, textAlign: 'right', marginRight: 5 }}>{b}B</div>
           {[0, 1, 2].map(s => {
             const key = `${b}-${s}`
             const sel = value === key
@@ -142,14 +141,13 @@ function CountSelector({ value, onChange }) {
                 key={key}
                 onClick={() => onChange(sel ? '' : key)}
                 style={{
-                  width: 32, height: 24, marginRight: 2, borderRadius: 3,
+                  width: 36, height: 28, marginRight: 3, borderRadius: 5,
                   border: `1px solid ${sel ? '#f0883e' : '#3b4656'}`,
                   background: sel ? 'rgba(240,136,62,0.2)' : '#161b22',
                   color: sel ? '#f0883e' : TEXT_MUTED,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', fontSize: 10, fontWeight: sel ? 700 : 400,
+                  cursor: 'pointer', fontSize: 13, fontWeight: sel ? 700 : 500,
                   userSelect: 'none', transition: 'all 0.12s',
-                  fontFamily: 'JetBrains Mono, monospace',
                 }}
               >
                 {b}-{s}
@@ -190,14 +188,14 @@ function BaseDiamond({ bases, onChange }) {
   const toggle = (base) => onChange({ ...bases, [base]: !bases[base] })
 
   return (
-    <div style={{ position: 'relative', width: 100, height: 96 }}>
-      <div style={{ position: 'absolute', left: 41, top: 4 }}><DiamondBaseSquare active={bases.second} onClick={() => toggle('second')} /></div>
-      <div style={{ position: 'absolute', left: 5, top: 38 }}><DiamondBaseSquare active={bases.third} onClick={() => toggle('third')} /></div>
-      <div style={{ position: 'absolute', left: 77, top: 38 }}><DiamondBaseSquare active={bases.first} onClick={() => toggle('first')} /></div>
-      <div style={{ position: 'absolute', left: 41, top: 72, width: 18, height: 18, transform: 'rotate(45deg)', border: '2px solid #3b4656', background: '#161b22' }} />
-      <span style={{ position: 'absolute', left: 39, top: -13, fontSize: 9, color: TEXT_SUBTLE, letterSpacing: '0.05em' }}>2B</span>
-      <span style={{ position: 'absolute', left: -17, top: 42, fontSize: 9, color: TEXT_SUBTLE, letterSpacing: '0.05em' }}>3B</span>
-      <span style={{ position: 'absolute', left: 99, top: 42, fontSize: 9, color: TEXT_SUBTLE, letterSpacing: '0.05em' }}>1B</span>
+    <div style={{ position: 'relative', width: 112, height: 104 }}>
+      <div style={{ position: 'absolute', left: 47, top: 5 }}><DiamondBaseSquare active={bases.second} onClick={() => toggle('second')} /></div>
+      <div style={{ position: 'absolute', left: 9, top: 42 }}><DiamondBaseSquare active={bases.third} onClick={() => toggle('third')} /></div>
+      <div style={{ position: 'absolute', left: 84, top: 42 }}><DiamondBaseSquare active={bases.first} onClick={() => toggle('first')} /></div>
+      <div style={{ position: 'absolute', left: 47, top: 78, width: 18, height: 18, transform: 'rotate(45deg)', border: '2px solid #3b4656', background: '#161b22' }} />
+      <span style={{ position: 'absolute', left: 45, top: -14, fontSize: 12, color: TEXT_MUTED, fontWeight: 700 }}>2B</span>
+      <span style={{ position: 'absolute', left: -12, top: 45, fontSize: 12, color: TEXT_MUTED, fontWeight: 700 }}>3B</span>
+      <span style={{ position: 'absolute', left: 104, top: 45, fontSize: 12, color: TEXT_MUTED, fontWeight: 700 }}>1B</span>
     </div>
   )
 }
@@ -240,10 +238,10 @@ function PitchCard({ rank, result, isTop, selected = false, onSelect }) {
         }
       }}
       style={{
-      background: '#161b22',
+      background: '#1b2a40',
       border: `1px solid ${selected ? '#f0883e' : (isTop ? '#1f6feb' : '#2b3544')}`,
-      borderRadius: 8,
-      padding: '16px',
+      borderRadius: 10,
+      padding: '18px',
       position: 'relative',
       opacity: isEmpty ? 0.72 : 1,
       cursor: isEmpty ? 'default' : 'pointer',
@@ -251,21 +249,20 @@ function PitchCard({ rank, result, isTop, selected = false, onSelect }) {
     }}>
       <div style={{
         position: 'absolute', top: 12, right: 12,
-        width: 22, height: 22, borderRadius: '50%',
+        width: 26, height: 26, borderRadius: '50%',
         background: isTop ? '#1f6feb' : '#253044',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 11, fontWeight: 700,
+        fontSize: 13, fontWeight: 700,
         color: isTop ? '#fff' : TEXT_MUTED,
-        fontFamily: 'JetBrains Mono, monospace',
       }}>
         {rank}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
         <div style={{ width: 10, height: 10, borderRadius: '50%', background: color, flexShrink: 0 }} />
-        <span style={{ fontSize: 22, fontWeight: 700, color, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.05em', lineHeight: 1 }}>
+        <span style={{ fontSize: 24, fontWeight: 800, color, lineHeight: 1 }}>
           {isEmpty ? '-' : result.pitchType}
         </span>
-        <span style={{ fontSize: 12, color: TEXT_SECONDARY }}>
+        <span style={{ fontSize: 14, color: TEXT_SECONDARY }}>
           {isEmpty ? '' : pitchTypeLabel(result.pitchType)}
         </span>
       </div>
@@ -274,8 +271,8 @@ function PitchCard({ rank, result, isTop, selected = false, onSelect }) {
           display: 'inline-flex', alignItems: 'center', gap: 6,
           color: sample.color, border: `1px solid ${sample.color}66`,
           background: `${sample.color}18`, borderRadius: 4,
-          padding: '3px 7px', fontSize: 10, fontWeight: 700,
-          textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10,
+          padding: '5px 9px', fontSize: 12, fontWeight: 700,
+          textTransform: 'uppercase', marginBottom: 12,
         }}>
           {sample.label}
         </div>
@@ -314,20 +311,20 @@ function PitchCard({ rank, result, isTop, selected = false, onSelect }) {
             color: sample.color,
           },
         ].map(({ label, help, hint, subhint, value, color: metricColor }) => (
-          <div key={label} style={{ background: '#101824', borderRadius: 6, padding: '8px 10px' }}>
-            <div style={{ fontSize: 9, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
+          <div key={label} style={{ background: '#142033', borderRadius: 8, padding: '12px 12px' }}>
+            <div style={{ fontSize: 12, color: TEXT_MUTED, textTransform: 'uppercase', marginBottom: 6, fontWeight: 700 }}>
               <Tooltip title={help} placement="top">
                 <span style={{ cursor: 'help' }}>{label}</span>
               </Tooltip>
             </div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: isEmpty ? TEXT_MUTED : metricColor, fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>
+            <div style={{ fontSize: 26, fontWeight: 800, color: isEmpty ? TEXT_MUTED : metricColor, lineHeight: 1 }}>
               {value}
             </div>
-            <div style={{ fontSize: 10, color: isEmpty ? TEXT_MUTED : metricColor, marginTop: 5, lineHeight: 1.2, fontWeight: 700 }}>
+            <div style={{ fontSize: 12, color: isEmpty ? TEXT_MUTED : metricColor, marginTop: 7, lineHeight: 1.25, fontWeight: 700 }}>
               {hint}
             </div>
             {subhint && (
-              <div style={{ fontSize: 9, color: TEXT_SUBTLE, marginTop: 3, lineHeight: 1.25 }}>
+              <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4, lineHeight: 1.35 }}>
                 {subhint}
               </div>
             )}
@@ -353,13 +350,11 @@ function EmptyResultsNotice({ hasResults }) {
         color: TEXT_PRIMARY,
         fontSize: 18,
         fontWeight: 700,
-        fontFamily: "'Barlow Condensed', sans-serif",
-        letterSpacing: '0.08em',
         marginBottom: 6,
       }}>
         No matching historical pitches
       </div>
-      <div style={{ fontSize: 13, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 15, lineHeight: 1.5 }}>
         Try removing a player, count, runner, or pitcher-profile filter to increase the sample.
       </div>
     </div>
@@ -377,7 +372,7 @@ function PitchDetailPanel({ result, goal }) {
         color: TEXT_MUTED,
         background: '#0d1117',
         textAlign: 'center',
-        fontSize: 12,
+        fontSize: 15,
       }}>
         Select a recommendation to view outcome distribution.
       </div>
@@ -393,10 +388,10 @@ function PitchDetailPanel({ result, goal }) {
   return (
     <div style={{
       marginTop: 16,
-      background: '#161b22',
-      border: '1px solid #21262d',
-      borderRadius: 8,
-      padding: 16,
+      background: '#1b2a40',
+      border: '1px solid #334761',
+      borderRadius: 10,
+      padding: 18,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 14 }}>
         <div>
@@ -404,16 +399,14 @@ function PitchDetailPanel({ result, goal }) {
             <span style={{ width: 9, height: 9, borderRadius: '50%', background: color }} />
             <span style={{
               color,
-              fontSize: 22,
+              fontSize: 24,
               fontWeight: 700,
-              fontFamily: "'Bebas Neue', sans-serif",
-              letterSpacing: '0.06em',
               lineHeight: 1,
             }}>
               {pitchTypeLabel(result.pitchType)}
             </span>
           </div>
-          <Text style={{ color: TEXT_MUTED, fontSize: 12 }}>
+          <Text style={{ color: TEXT_MUTED, fontSize: 15 }}>
             {goalInfo.title} · {result.count} similar pitches
           </Text>
         </div>
@@ -423,9 +416,9 @@ function PitchDetailPanel({ result, goal }) {
             { label: 'Run Value', value: formatRunValue(result), color: Number(result.avgRunValue ?? result.expectedRuns ?? 0) > 0 ? '#ff6b6b' : '#3fb950' },
             { label: 'WPA', value: formatSignedPct(result.winProbChange), color: Number(result.winProbChange || 0) >= 0 ? '#3fb950' : '#ff6b6b' },
           ].map(item => (
-            <div key={item.label} style={{ background: '#101824', border: '1px solid #2b3544', borderRadius: 6, padding: '8px 10px', textAlign: 'right' }}>
-              <div style={{ fontSize: 9, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 5 }}>{item.label}</div>
-              <div style={{ color: item.color, fontFamily: 'JetBrains Mono, monospace', fontSize: 18, fontWeight: 700, lineHeight: 1 }}>{item.value}</div>
+            <div key={item.label} style={{ background: '#142033', border: '1px solid #334761', borderRadius: 8, padding: '10px 12px', textAlign: 'right' }}>
+              <div style={{ fontSize: 12, color: TEXT_MUTED, textTransform: 'uppercase', marginBottom: 6, fontWeight: 700 }}>{item.label}</div>
+              <div style={{ color: item.color, fontSize: 21, fontWeight: 800, lineHeight: 1 }}>{item.value}</div>
             </div>
           ))}
         </div>
@@ -436,11 +429,11 @@ function PitchDetailPanel({ result, goal }) {
           const pct = Number(item.pct || 0)
           return (
             <div key={item.outcome} style={{ display: 'grid', gridTemplateColumns: '54px 1fr 56px', alignItems: 'center', gap: 10 }}>
-              <div style={{ color: TEXT_PRIMARY, fontWeight: 700, fontSize: 12 }}>{item.outcome}</div>
-              <div style={{ height: 10, borderRadius: 999, background: '#101824', overflow: 'hidden', border: '1px solid #2b3544' }}>
+              <div style={{ color: TEXT_PRIMARY, fontWeight: 700, fontSize: 14 }}>{item.outcome}</div>
+              <div style={{ height: 12, borderRadius: 999, background: '#142033', overflow: 'hidden', border: '1px solid #334761' }}>
                 <div style={{ width: `${Math.min(100, pct)}%`, height: '100%', background: color, opacity: 0.82 }} />
               </div>
-              <div style={{ color: TEXT_SECONDARY, fontFamily: 'JetBrains Mono, monospace', fontSize: 12, textAlign: 'right' }}>{pct}%</div>
+              <div style={{ color: TEXT_SECONDARY, fontSize: 14, textAlign: 'right', fontWeight: 700 }}>{pct}%</div>
             </div>
           )
         })}
@@ -545,21 +538,21 @@ export default function PitchPredictionPage({ page, onNavigate }) {
       colorBorderSecondary: '#21262d',
       colorText: TEXT_PRIMARY,
       colorTextSecondary: TEXT_SECONDARY,
-      fontFamily: "'Barlow Condensed', system-ui, sans-serif",
+      fontFamily: "Helvetica, Arial, system-ui, sans-serif",
       borderRadius: 6,
     } }}>
-      <div style={{ minHeight: '100vh', background: '#0d1117', display: 'flex', flexDirection: 'column' }}>
+      <div className="prediction-page" style={{ minHeight: '100vh', background: '#111c2b', display: 'flex', flexDirection: 'column' }}>
         <PageNavbar page={page} onNavigate={onNavigate} />
-        <div style={{ display: 'flex', alignItems: 'center', padding: '0 24px', background: '#0d1117', borderBottom: '1px solid #21262d', height: 48 }}>
-          <Text style={{ color: TEXT_SUBTLE, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+        <div className="prediction-subbar" style={{ display: 'flex', alignItems: 'center', padding: '0 24px', background: '#162235', borderBottom: '1px solid #2f4058', height: 52 }}>
+          <Text style={{ color: TEXT_MUTED, fontSize: 14, textTransform: 'uppercase', fontWeight: 700 }}>
             Pitch Prediction / Empirical Baseline
           </Text>
           {metaLoading && <Spin size="small" style={{ marginLeft: 12 }} />}
         </div>
 
-        <Layout style={{ background: '#0d1117', flex: 1 }}>
-          <Sider width={270} style={{ background: '#0d1117', borderRight: '1px solid #21262d', overflow: 'auto' }}>
-            <div style={{ padding: '16px 14px', color: TEXT_PRIMARY }}>
+        <Layout style={{ background: '#111c2b', flex: 1 }}>
+          <Sider className="prediction-sidebar" width={290} style={{ background: '#142033', borderRight: '1px solid #2f4058', overflow: 'auto' }}>
+            <div style={{ padding: '18px 16px', color: TEXT_PRIMARY }}>
               <SectionLabel>Pitcher</SectionLabel>
               <Select showSearch allowClear placeholder="Search pitcher..." value={pitcherId || undefined} onChange={v => setPitcherId(v || '')} options={pitchers.map(p => ({ value: String(p.id), label: p.name }))} style={{ width: '100%' }} filterOption={(input, opt) => (opt?.label || '').toLowerCase().includes(input.toLowerCase())} />
 
@@ -588,7 +581,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
                 </div>
                 <InputNumber min={1} max={20} value={inning} onChange={v => setInning(v || 1)} style={{ width: 76 }} />
               </div>
-              <Text style={{ display: 'block', color: TEXT_MUTED, fontSize: 11, marginTop: 6 }}>
+              <Text style={{ display: 'block', color: TEXT_MUTED, fontSize: 13, marginTop: 7 }}>
                 Context for result review.
               </Text>
 
@@ -599,7 +592,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
                 <span style={{ color: TEXT_SUBTLE, fontSize: 18, lineHeight: '32px', marginBottom: 2 }}>-</span>
                 <InputNumber min={0} max={30} value={scoreThem} onChange={v => setScoreThem(v ?? 0)} style={{ width: 65 }} />
               </div>
-              <Text style={{ display: 'block', color: TEXT_MUTED, fontSize: 11, marginTop: 6 }}>
+              <Text style={{ display: 'block', color: TEXT_MUTED, fontSize: 13, marginTop: 7 }}>
                 Context for result review.
               </Text>
 
@@ -620,14 +613,14 @@ export default function PitchPredictionPage({ page, onNavigate }) {
               </div>
 
               <Divider style={{ borderColor: '#21262d', margin: '16px 0 12px' }} />
-              <Button type="primary" onClick={handleAnalyze} loading={loading} block style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, letterSpacing: '0.12em', height: 42 }}>
+              <Button type="primary" onClick={handleAnalyze} loading={loading} block style={{ fontSize: 16, fontWeight: 800, height: 44 }}>
                 Analyze
               </Button>
             </div>
           </Sider>
 
-          <Content style={{ padding: '20px', background: '#0d1117', overflow: 'auto' }}>
-            <div style={{ background: '#161b22', border: '1px solid #21262d', borderRadius: 8, padding: '12px 20px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 0, flexWrap: 'wrap' }}>
+          <Content style={{ padding: '22px', background: '#111c2b', overflow: 'auto' }}>
+            <div className="prediction-panel prediction-context-strip" style={{ background: '#1b2a40', border: '1px solid #334761', borderRadius: 10, padding: '16px 22px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 0, flexWrap: 'wrap' }}>
               {[
                 { label: 'Inning', content: `${inningHalf} ${inning}` },
                 { label: 'Score', content: `${scoreUs}-${scoreThem}` },
@@ -635,23 +628,23 @@ export default function PitchPredictionPage({ page, onNavigate }) {
                 { label: 'Outs', content: `${outs}` },
                 { label: 'Pitcher', content: `${pitcherHand || 'ALL'} ${pitcherRole}` },
               ].map(({ label, content }) => (
-                <div key={label} style={{ paddingRight: 22, marginRight: 22, borderRight: '1px solid #21262d' }}>
-                  <div style={{ fontSize: 9, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>{label}</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: TEXT_PRIMARY, fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>{content}</div>
+                <div key={label} style={{ paddingRight: 24, marginRight: 24, borderRight: '1px solid #334761' }}>
+                  <div style={{ fontSize: 13, color: TEXT_MUTED, textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>{label}</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: TEXT_PRIMARY, lineHeight: 1 }}>{content}</div>
                 </div>
               ))}
               <div>
-                <div style={{ fontSize: 9, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Runners</div>
+                <div style={{ fontSize: 13, color: TEXT_MUTED, textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>Runners</div>
                 <MiniDiamond bases={bases} />
               </div>
             </div>
 
-            <div style={{
-              background: '#161b22',
-              border: '1px solid #21262d',
-              borderRadius: 8,
-              padding: 16,
-              marginBottom: 14,
+            <div className="prediction-panel" style={{
+              background: '#1b2a40',
+              border: '1px solid #334761',
+              borderRadius: 10,
+              padding: 20,
+              marginBottom: 16,
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-start',
@@ -659,7 +652,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
               flexWrap: 'wrap',
             }}>
               <div>
-                <Text style={{ fontSize: 10, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                <Text style={{ fontSize: 13, color: TEXT_MUTED, textTransform: 'uppercase', fontWeight: 700 }}>
                   Recommendation Goal
                 </Text>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 9 }}>
@@ -677,7 +670,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
                 </div>
               </div>
               <div style={{ minWidth: 170 }}>
-                <Text style={{ fontSize: 10, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                <Text style={{ fontSize: 13, color: TEXT_MUTED, textTransform: 'uppercase', fontWeight: 700 }}>
                   Top K
                 </Text>
                 <div style={{ display: 'flex', gap: 6, marginTop: 9, justifyContent: 'flex-end' }}>
@@ -686,17 +679,17 @@ export default function PitchPredictionPage({ page, onNavigate }) {
                   ))}
                 </div>
               </div>
-              <div style={{ flexBasis: '100%', borderTop: '1px solid #21262d', paddingTop: 11 }}>
-                <Text style={{ fontSize: 18, color: TEXT_PRIMARY, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.08em' }}>
+              <div style={{ flexBasis: '100%', borderTop: '1px solid #334761', paddingTop: 14 }}>
+                <Text style={{ fontSize: 22, color: TEXT_PRIMARY, fontWeight: 800 }}>
                   {currentGoal.title}
                 </Text>
-                <Text style={{ display: 'block', marginTop: 4, fontSize: 12, color: TEXT_MUTED }}>
+                <Text style={{ display: 'block', marginTop: 6, fontSize: 14, color: TEXT_MUTED }}>
                   Empirical results from historical Statcast outcomes · {resultMeta?.total ?? 0} matching pitches
                 </Text>
               </div>
             </div>
             {results && results.length === 0 && <EmptyResultsNotice hasResults={false} />}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
+            <div className="prediction-card-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
               {Array.from({ length: topK }).map((_, i) => {
                 const result = visibleResults[i] ?? null
                 return (

@@ -12,8 +12,8 @@ export default function PageNavbar({ page, onNavigate }) {
       justifyContent: 'space-between',
       padding: '0 48px',
       height: 56,
-      borderBottom: '1px solid #21262d',
-      background: '#0d1117',
+      borderBottom: '1px solid #2f4058',
+      background: '#142033',
       position: 'sticky',
       top: 0,
       zIndex: 100,
@@ -25,10 +25,8 @@ export default function PageNavbar({ page, onNavigate }) {
         <img src="/logo.jpg" alt="logo" style={{ width: 48, height: 27, borderRadius: 4 }} />
         <span style={{
           color: '#e6edf3',
-          fontSize: 16,
+          fontSize: 18,
           fontWeight: 700,
-          letterSpacing: '0.15em',
-          fontFamily: "'Barlow Condensed', sans-serif",
         }}>
           PitchLab
         </span>
@@ -47,9 +45,8 @@ export default function PageNavbar({ page, onNavigate }) {
                 cursor: 'pointer',
                 padding: '0 0 2px 0',
                 color: isActive ? '#f0883e' : '#b7c0cc',
-                fontSize: 14,
-                letterSpacing: '0.08em',
-                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: 15,
+                fontWeight: isActive ? 700 : 500,
                 borderBottom: isActive ? '2px solid #f0883e' : '2px solid transparent',
                 transition: 'color 0.2s',
               }}
