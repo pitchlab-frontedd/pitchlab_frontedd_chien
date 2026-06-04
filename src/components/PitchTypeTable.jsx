@@ -6,6 +6,8 @@ const METRIC_HELP = {
   '#': 'Total pitches.',
   'vs RHB': 'Pitches vs right-handed batters.',
   'vs LHB': 'Pitches vs left-handed batters.',
+  'EMP xRUNS': 'Average runs added per pitch from the batting team perspective.',
+  WPA: 'Average win probability change for the perspective shown below.',
   '%': 'Pitch usage rate.',
   MPH: 'Average pitch speed.',
   PA: 'Plate appearances.',
@@ -51,6 +53,26 @@ const pctCell = value => (
   <span className="tracking-number">{pct(value)}</span>
 )
 
+const signedPctCell = value => {
+  if (value === null || value === undefined) return <span className="tracking-number">-</span>
+  const numeric = Number(value)
+  return (
+    <span className="tracking-number" style={{ color: numeric >= 0 ? '#3fb950' : '#ff6b6b' }}>
+      {`${numeric > 0 ? '+' : ''}${numeric}%`}
+    </span>
+  )
+}
+
+const runValueCell = value => {
+  if (value === null || value === undefined) return <span className="tracking-number">-</span>
+  const numeric = Number(value)
+  return (
+    <span className="tracking-number" style={{ color: numeric > 0 ? '#ff6b6b' : '#3fb950' }}>
+      {numeric.toFixed(3)}
+    </span>
+  )
+}
+
 const right = {
   align: 'right',
 }
@@ -81,6 +103,8 @@ const columns = [
   },
   { title: metricTitle('vs RHB'), dataIndex: 'rhb', sorter: (a, b) => (a.rhb || 0) - (b.rhb || 0), width: 82, render: numericCell, ...right },
   { title: metricTitle('vs LHB'), dataIndex: 'lhb', sorter: (a, b) => (a.lhb || 0) - (b.lhb || 0), width: 82, render: numericCell, ...right },
+  { title: metricTitle('EMP xRUNS'), dataIndex: 'expectedRuns', sorter: (a, b) => (a.expectedRuns || 0) - (b.expectedRuns || 0), width: 104, render: runValueCell, ...right },
+  { title: metricTitle('WPA'), dataIndex: 'winProbChange', sorter: (a, b) => (a.winProbChange || 0) - (b.winProbChange || 0), width: 82, render: signedPctCell, ...right },
   { title: metricTitle('%'), dataIndex: 'pct', sorter: (a, b) => a.pct - b.pct, width: 62, render: pctCell, ...right },
   { title: metricTitle('MPH'), dataIndex: 'mph', sorter: (a, b) => (a.mph || 0) - (b.mph || 0), width: 66, render: value => <span className="tracking-number">{oneDecimal(value)}</span>, ...right },
   { title: metricTitle('PA'), dataIndex: 'pa', sorter: (a, b) => (a.pa || 0) - (b.pa || 0), width: 56, render: numericCell, ...right },
@@ -99,8 +123,17 @@ const columns = [
   { title: metricTitle('PutAway%'), dataIndex: 'putAwayPct', sorter: (a, b) => (a.putAwayPct || 0) - (b.putAwayPct || 0), width: 96, render: pctCell, ...right },
 ]
 
-export default function PitchTypeTable({ data }) {
-  const rows = data || []
+export default function PitchTypeTable({ data, outcomeData }) {
+  const outcomeByPitchType = new Map((outcomeData?.pitchTypeOutcomes || []).map(item => [item.pitchType, item]))
+  const rows = (data || []).map(row => {
+    const outcome = outcomeByPitchType.get(row.pitchType)
+    if (!outcome) return row
+    return {
+      ...row,
+      expectedRuns: outcome.expectedRuns,
+      winProbChange: outcome.winProbChange,
+    }
+  })
   const hasData = rows.length > 0
 
   return (
@@ -119,7 +152,7 @@ export default function PitchTypeTable({ data }) {
           rowKey="pitchType"
           pagination={false}
           size="small"
-          scroll={{ x: 1320 }}
+          scroll={{ x: 1510 }}
           showSorterTooltip={false}
         />
       ) : (
