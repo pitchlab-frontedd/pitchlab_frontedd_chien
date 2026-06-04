@@ -38,7 +38,7 @@ const hasBatterFilter = filters => Boolean(filters?.batterId)
 const getMetricHelp = (filters, outcomeData) => {
   const hasPitcher = hasPitcherFilter(filters)
   const hasBatter = hasBatterFilter(filters)
-  const wpaPerspective = outcomeData?.wpaPerspective || (hasPitcher ? 'pitcher' : 'batter')
+  const wpaPerspective = outcomeData?.wpaPerspective || (hasBatter ? 'batter' : hasPitcher ? 'pitcher' : 'batter')
   const wpaSide = wpaPerspective === 'pitcher' ? 'selected pitcher' : 'selected batter'
   const wpaDirection = wpaPerspective === 'pitcher'
     ? 'Positive helps the pitcher; negative helps the batting team.'

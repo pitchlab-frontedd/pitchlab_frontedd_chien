@@ -1,13 +1,13 @@
 function getMetricContext(data, filters = {}) {
   const hasPitcher = Array.isArray(filters.pitcherIds) && filters.pitcherIds.length > 0
   const hasBatter = Boolean(filters.batterId)
-  const expectedPerspective = hasPitcher ? 'pitcher' : 'batter'
+  const expectedPerspective = hasBatter ? 'batter' : hasPitcher ? 'pitcher' : 'batter'
   const wpaPerspective = data?.wpaPerspective || expectedPerspective
 
   if (hasPitcher && hasBatter) {
     return {
       selectionTitle: 'Pitcher vs batter matchup',
-      selectionCopy: 'Both sides are selected, so the numbers describe this matchup under the current filters.',
+      selectionCopy: 'Both sides are selected, so the numbers describe this matchup from the selected batter side.',
       wpaTitle: wpaPerspective === 'pitcher' ? 'Pitcher perspective' : 'Batter perspective',
       wpaCopy: wpaPerspective === 'pitcher'
         ? 'WPA is shown from the selected pitcher side. Positive helps the pitcher; negative helps the batter.'
