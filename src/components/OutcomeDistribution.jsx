@@ -1,168 +1,41 @@
-import { Table, Tooltip } from 'antd'
-import { pitchTypeColor, pitchTypeLabel } from '../utils/pitchTypes'
-
-const OUTCOME_LABELS = {
-  BB: 'Walk',
-  HBP: 'Hit By Pitch',
-  '1B': 'Single',
-  '2B': 'Double',
-  '3B': 'Triple',
-  HR: 'Home Run',
-  K: 'Strikeout',
-  Out: 'Out',
-  DP: 'Double Play',
-  FC: 'Fielder Choice',
-  ROE: 'Reached on Error',
-  Ball: 'Ball',
-  'Called Strike': 'Called Strike',
-  'Swinging Strike': 'Swinging Strike',
-  Foul: 'Foul',
-  'In Play': 'In Play',
-  Other: 'Other',
-}
-
-const IMPORTANT_OUTCOMES = ['BB', 'HBP', '1B', '2B', '3B', 'HR', 'K', 'Out', 'DP', 'FC', 'ROE']
-
-const numberText = (value, color) => (
-  <span className="tracking-number" style={color ? { color } : undefined}>{value}</span>
-)
-
-const METRIC_HELP = {
-  'Pitch Type': 'Pitch category.',
-  '#': 'Total pitches.',
-  'EMP xRUNS': 'Average runs added per pitch.',
-  WPA: 'Average win probability change.',
-  'RESULT DISTRIBUTION': 'Result frequency by pitch type.',
-}
-
-const metricTitle = (label) => (
-  <Tooltip title={METRIC_HELP[label]} placement="top">
-    <span style={{ cursor: 'help' }}>{label}</span>
-  </Tooltip>
-)
-
-const right = {
-  align: 'right',
-}
-
-function MetricContext({ wpaPerspective = 'batter' }) {
+function MetricContext({ wpaPerspective = 'batter', hasData }) {
   const perspectiveLabel = wpaPerspective === 'pitcher' ? 'Pitcher' : 'Batter'
   const wpaDirection = wpaPerspective === 'pitcher'
-    ? 'Positive favors the pitcher; negative favors the batting team.'
-    : 'Positive favors the batter; negative favors the pitcher/defense.'
+    ? 'Positive WPA favors the pitcher; negative WPA favors the batting team.'
+    : 'Positive WPA favors the batter; negative WPA favors the pitcher/defense.'
 
   return (
     <div className="metric-context-grid">
       <div className="metric-context-card">
         <div className="metric-context-label">EMP xRUNS</div>
-        <div className="metric-context-title">Batting run value</div>
-        <p>Average runs added per pitch from the batting team perspective. Lower values favor the pitcher.</p>
+        <div className="metric-context-title">Batter-side run value</div>
+        <p>
+          Calculated from the batting team perspective. Positive means the pitch result added runs for the offense;
+          negative means it helped the pitcher prevent runs.
+        </p>
       </div>
       <div className="metric-context-card">
         <div className="metric-context-label">WPA</div>
-        <div className="metric-context-title">{perspectiveLabel} perspective</div>
-        <p>{wpaDirection}</p>
+        <div className="metric-context-title">{hasData ? `${perspectiveLabel} perspective` : 'Perspective appears after data loads'}</div>
+        <p>{hasData ? wpaDirection : 'Select a pitcher or batter to show which side the WPA values are using.'}</p>
       </div>
     </div>
   )
 }
 
-const columns = [
-  {
-    title: metricTitle('Pitch Type'),
-    dataIndex: 'pitchType',
-    align: 'left',
-    width: 132,
-    render: value => (
-      <span
-        className="tracking-pitch-type"
-        style={{ color: pitchTypeColor(value) }}
-      >
-        {pitchTypeLabel(value)}
-      </span>
-    ),
-  },
-  {
-    title: metricTitle('#'),
-    dataIndex: 'count',
-    width: 64,
-    sorter: (a, b) => a.count - b.count,
-    render: value => numberText(value),
-    ...right,
-  },
-  {
-    title: metricTitle('EMP xRUNS'),
-    dataIndex: 'expectedRuns',
-    width: 110,
-    sorter: (a, b) => a.expectedRuns - b.expectedRuns,
-    render: value => numberText(value, value > 0 ? '#ff6b6b' : '#3fb950'),
-    ...right,
-  },
-  {
-    title: metricTitle('WPA'),
-    dataIndex: 'winProbChange',
-    width: 90,
-    sorter: (a, b) => a.winProbChange - b.winProbChange,
-    render: value => numberText(`${value > 0 ? '+' : ''}${value}%`, value >= 0 ? '#3fb950' : '#ff6b6b'),
-    ...right,
-  },
-  {
-    title: metricTitle('RESULT DISTRIBUTION'),
-    dataIndex: 'outcomes',
-    render: outcomes => {
-      const byOutcome = new Map((outcomes || []).map(item => [item.outcome, item]))
-      return (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {IMPORTANT_OUTCOMES.map(outcome => {
-            const item = byOutcome.get(outcome)
-            if (!item) return null
-            return (
-              <span
-                key={outcome}
-                className="outcome-chip"
-                title={OUTCOME_LABELS[outcome] || outcome}
-              >
-                <b>{outcome}</b> {item.pct}%
-              </span>
-            )
-          })}
-        </div>
-      )
-    },
-  },
-]
-
 export default function OutcomeDistribution({ data }) {
-  const rows = data?.pitchTypeOutcomes || []
-  const hasData = rows.length > 0
+  const hasData = Boolean(data?.pitchTypeOutcomes?.length)
   const wpaPerspective = data?.wpaPerspective || 'batter'
 
   return (
     <section className="analysis-card analysis-card-spaced">
       <div className="analysis-heading">
         <div>
-          <h2>Outcome Distribution</h2>
-          <p>Empirical expected runs from the historical outcome distribution under the selected filters.</p>
+          <h2>Metric Perspective</h2>
+          <p>Use this guide when reading EMP xRUNS and WPA in Pitch Tracking.</p>
         </div>
       </div>
-      {hasData ? (
-        <>
-          <MetricContext wpaPerspective={wpaPerspective} />
-          <Table
-            className="analysis-table"
-            dataSource={rows}
-            columns={columns}
-            rowKey="pitchType"
-            pagination={false}
-            size="small"
-            showSorterTooltip={false}
-          />
-        </>
-      ) : (
-        <div className="analysis-empty-state">
-          Select a pitcher or batter to view outcome distribution.
-        </div>
-      )}
+      <MetricContext wpaPerspective={wpaPerspective} hasData={hasData} />
     </section>
   )
 }

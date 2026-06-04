@@ -273,7 +273,7 @@ function HistoricalDataPage({ page, onNavigate }) {
           colorBorderSecondary: '#334155',
           colorText: '#f8fafc',
           colorTextSecondary: '#cbd5e1',
-          fontFamily: "'Barlow Condensed', system-ui, sans-serif",
+          fontFamily: 'Helvetica, Arial, system-ui, sans-serif',
           borderRadius: 6,
         },
         components: {
@@ -284,14 +284,14 @@ function HistoricalDataPage({ page, onNavigate }) {
     >
       <>
         <PageNavbar page={page} onNavigate={onNavigate} />
-      <Layout style={{ minHeight: '100vh', background: '#111827' }}>
+      <Layout style={{ minHeight: '100vh', background: '#111c2b' }}>
         <Header style={{
           display: 'flex', alignItems: 'center', gap: 32,
-          padding: '0 24px', background: '#111827',
-          borderBottom: '1px solid #334155', height: 48, position: 'sticky', top: 56, zIndex: 99,
+          padding: '0 24px', background: '#162235',
+          borderBottom: '1px solid #2f4058', height: 54, position: 'sticky', top: 56, zIndex: 99,
         }}>
           <Space size={8} align="center">
-            <Text style={{ color: '#94a3b8', fontSize: 11, textTransform: 'uppercase' }}>Batter</Text>
+            <Text style={{ color: '#c1ccda', fontSize: 14, textTransform: 'uppercase', fontWeight: 700 }}>Batter</Text>
             <Select
               allowClear
               showSearch
@@ -309,12 +309,12 @@ function HistoricalDataPage({ page, onNavigate }) {
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
             {dataLoading && <Spin size="small" style={{ marginRight: 8 }} />}
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: loading ? '#f0883e' : '#3fb950' }} />
-            <Text style={{ color: '#94a3b8', fontSize: 11 }}>{loading ? 'API CONNECTING...' : 'LIVE BACKEND'}</Text>
+            <Text style={{ color: '#c1ccda', fontSize: 13, fontWeight: 600 }}>{loading ? 'API CONNECTING...' : 'LIVE BACKEND'}</Text>
           </div>
         </Header>
 
-        <Layout style={{ background: '#111827' }}>
-          <Sider width={270} style={{ background: '#111827', borderRight: '1px solid #334155', height: 'calc(100vh - 104px)', overflow: 'auto', position: 'sticky', top: 104 }}>
+        <Layout style={{ background: '#111c2b' }}>
+          <Sider width={300} style={{ background: '#142033', borderRight: '1px solid #2f4058', height: 'calc(100vh - 110px)', overflow: 'auto', position: 'sticky', top: 110 }}>
             <SetTabs sets={sets} activeSetId={activeSetId} onSelect={setActiveSetId} onAdd={addSet} onRemove={removeSet} />
             {activeSet && (
               <FilterPanel
@@ -327,7 +327,7 @@ function HistoricalDataPage({ page, onNavigate }) {
             )}
           </Sider>
 
-          <Content style={{ padding: '20px', background: '#111827', minHeight: 'calc(100vh - 104px)', overflow: 'auto' }}>
+          <Content style={{ padding: '20px', background: '#111c2b', minHeight: 'calc(100vh - 110px)', overflow: 'auto' }}>
             <SummaryStats setsData={setsData} />
             <div style={{ display: 'grid', gridTemplateColumns: '310px 1fr', gap: 16, marginBottom: 16 }}>
               <ZoneHeatmap zoneData={activeSetData?.zoneData} totalPitches={activeSetData?.total || 0} setColor={activeSet?.color} setName={activeSet?.name} />

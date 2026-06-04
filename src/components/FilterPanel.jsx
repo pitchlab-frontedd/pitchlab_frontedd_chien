@@ -27,9 +27,8 @@ const COUNT_ROWS = [
 function SectionLabel({ children }) {
   return (
     <Text style={{
-      display: 'block', fontSize: 10, fontWeight: 700, color: '#484f58',
-      textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8,
-      fontFamily: "'Barlow Condensed', sans-serif",
+      display: 'block', fontSize: 13, fontWeight: 700, color: '#c1ccda',
+      textTransform: 'uppercase', marginBottom: 9,
     }}>
       {children}
     </Text>
@@ -42,12 +41,12 @@ function Pill({ label, selected, onClick, color }) {
     <div
       onClick={onClick}
       style={{
-        padding: '4px 12px', borderRadius: 4,
-        border: `1px solid ${selected ? c : '#30363d'}`,
+        padding: '7px 12px', borderRadius: 6,
+        border: `1px solid ${selected ? c : '#465b78'}`,
         background: selected ? `${c}25` : 'transparent',
-        color: selected ? c : '#8b949e',
-        cursor: 'pointer', fontSize: 12, fontWeight: selected ? 700 : 400,
-        letterSpacing: '0.05em', userSelect: 'none', transition: 'all 0.15s',
+        color: selected ? c : '#d3dce8',
+        cursor: 'pointer', fontSize: 14, fontWeight: selected ? 700 : 500,
+        userSelect: 'none', transition: 'all 0.15s',
       }}
     >
       {label}
@@ -103,17 +102,16 @@ function CountGrid({ selectedCounts, onChange }) {
       <div style={{ display: 'flex', marginBottom: 3, paddingLeft: 26 }}>
         {['0S', '1S', '2S'].map(s => (
           <div key={s} style={{
-            width: 34, textAlign: 'center', fontSize: 10,
-            color: '#484f58', fontFamily: 'JetBrains Mono, monospace',
+            width: 38, textAlign: 'center', fontSize: 12,
+            color: '#c1ccda',
           }}>{s}</div>
         ))}
       </div>
       {COUNT_ROWS.map((row, ri) => (
         <div key={ri} style={{ display: 'flex', alignItems: 'center', marginBottom: 3 }}>
           <div style={{
-            width: 22, fontSize: 10, color: '#484f58',
+            width: 24, fontSize: 12, color: '#c1ccda',
             textAlign: 'right', marginRight: 4,
-            fontFamily: 'JetBrains Mono, monospace',
           }}>{ri}B</div>
           {row.map(({ b, s }) => {
             const key = `${b}-${s}`
@@ -123,14 +121,13 @@ function CountGrid({ selectedCounts, onChange }) {
                 key={key}
                 onClick={() => toggle(key)}
                 style={{
-                  width: 32, height: 24, marginRight: 2, borderRadius: 3,
-                  border: `1px solid ${sel ? '#f0883e' : '#30363d'}`,
-                  background: sel ? 'rgba(240,136,62,0.2)' : '#161b22',
-                  color: sel ? '#f0883e' : '#484f58',
+                  width: 36, height: 28, marginRight: 3, borderRadius: 5,
+                  border: `1px solid ${sel ? '#f0883e' : '#465b78'}`,
+                  background: sel ? 'rgba(240,136,62,0.2)' : '#1c2b42',
+                  color: sel ? '#f0883e' : '#c1ccda',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', fontSize: 10, fontWeight: sel ? 700 : 400,
+                  cursor: 'pointer', fontSize: 13, fontWeight: sel ? 700 : 500,
                   userSelect: 'none', transition: 'all 0.12s',
-                  fontFamily: 'JetBrains Mono, monospace',
                 }}
               >
                 {b}-{s}
@@ -151,8 +148,8 @@ function BaseSquare({ active, onClick }) {
         width: 18,
         height: 18,
         transform: 'rotate(45deg)',
-        border: `2px solid ${active ? '#f0883e' : '#30363d'}`,
-        background: active ? 'rgba(240,136,62,0.35)' : '#161b22',
+        border: `2px solid ${active ? '#f0883e' : '#465b78'}`,
+        background: active ? 'rgba(240,136,62,0.35)' : '#1c2b42',
         cursor: 'pointer',
         transition: 'all 0.15s',
       }}
@@ -181,12 +178,12 @@ function BaseDiamond({ bases = {}, onChange }) {
         width: 18,
         height: 18,
         transform: 'rotate(45deg)',
-        border: '2px solid #30363d',
-        background: '#161b22',
+        border: '2px solid #465b78',
+        background: '#1c2b42',
       }} />
-      <span style={{ position: 'absolute', left: 40, top: -12, fontSize: 9, color: '#484f58', letterSpacing: '0.05em' }}>2B</span>
-      <span style={{ position: 'absolute', left: -12, top: 42, fontSize: 9, color: '#484f58', letterSpacing: '0.05em' }}>3B</span>
-      <span style={{ position: 'absolute', left: 98, top: 42, fontSize: 9, color: '#484f58', letterSpacing: '0.05em' }}>1B</span>
+      <span style={{ position: 'absolute', left: 40, top: -14, fontSize: 12, color: '#c1ccda', fontWeight: 700 }}>2B</span>
+      <span style={{ position: 'absolute', left: -12, top: 42, fontSize: 12, color: '#c1ccda', fontWeight: 700 }}>3B</span>
+      <span style={{ position: 'absolute', left: 98, top: 42, fontSize: 12, color: '#c1ccda', fontWeight: 700 }}>1B</span>
     </div>
   )
 }
@@ -208,12 +205,11 @@ function ZoneSelector({ selectedZones, onChange }) {
                 onClick={() => toggle(zone)}
                 style={{
                   width: 40, height: 40, border: '1px solid #21262d',
-                  background: sel ? 'rgba(240,136,62,0.2)' : '#161b22',
-                  color: sel ? '#f0883e' : '#484f58',
+                  background: sel ? 'rgba(240,136,62,0.2)' : '#1c2b42',
+                  color: sel ? '#f0883e' : '#c1ccda',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer', fontSize: 14, fontWeight: 700,
                   userSelect: 'none', transition: 'all 0.12s',
-                  fontFamily: 'JetBrains Mono, monospace',
                 }}
               >
                 {zone}
@@ -239,14 +235,14 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
   }))
 
   return (
-    <div style={{ padding: '16px 14px', color: '#e6edf3' }}>
+    <div style={{ padding: '18px 16px', color: '#f3f7fb' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <Text style={{ color: '#484f58', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+        <Text style={{ color: '#c1ccda', fontSize: 14, textTransform: 'uppercase', fontWeight: 700 }}>
           Filters
         </Text>
         <Button
           size="small" type="text" icon={<ReloadOutlined />} onClick={onReset}
-          style={{ color: '#484f58', fontSize: 11 }}
+          style={{ color: '#c1ccda', fontSize: 13 }}
         >
           Reset
         </Button>
@@ -283,7 +279,7 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
       />
       <div style={{ opacity: filters.pitcherIds?.length > 0 ? 0.3 : 1, pointerEvents: filters.pitcherIds?.length > 0 ? 'none' : 'auto' }}>
         <div style={{ marginBottom: 4 }}>
-          <Text style={{ fontSize: 10, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <Text style={{ fontSize: 13, color: '#c1ccda', textTransform: 'uppercase', fontWeight: 700 }}>
             or filter by label
           </Text>
         </div>
@@ -373,7 +369,7 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
           onChange={setRunnerBases}
         />
       </div>
-      <Text style={{ display: 'block', fontSize: 10, color: '#484f58', marginTop: 4 }}>
+      <Text style={{ display: 'block', fontSize: 13, color: '#c1ccda', marginTop: 6 }}>
         Select exact base occupancy
       </Text>
 
@@ -392,14 +388,14 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
               }}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
-                padding: '5px 8px', borderRadius: 4,
+                padding: '7px 8px', borderRadius: 6,
                 border: `1px solid ${sel ? pitchTypeColor(pt) : 'transparent'}`,
                 background: sel ? `${pitchTypeColor(pt)}18` : 'transparent',
                 cursor: 'pointer', transition: 'all 0.12s',
               }}
             >
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: pitchTypeColor(pt), flexShrink: 0 }} />
-              <Text style={{ fontSize: 12, color: sel ? '#e6edf3' : '#8b949e', fontWeight: sel ? 600 : 400 }}>
+              <Text style={{ fontSize: 14, color: sel ? '#f3f7fb' : '#d3dce8', fontWeight: sel ? 700 : 500 }}>
                 <span style={{ fontWeight: 700, marginRight: 4 }}>{pt}</span>
                 {pitchTypeLabel(pt)}
               </Text>
@@ -412,7 +408,7 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
 
       <SectionLabel>Zone</SectionLabel>
       <ZoneSelector selectedZones={filters.zones} onChange={set('zones')} />
-      <Text style={{ display: 'block', fontSize: 10, color: '#484f58', marginTop: 4 }}>
+      <Text style={{ display: 'block', fontSize: 13, color: '#c1ccda', marginTop: 6 }}>
         Click to select zones
       </Text>
     </div>

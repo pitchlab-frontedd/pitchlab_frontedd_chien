@@ -7,7 +7,7 @@ export default function SetTabs({ sets, activeSetId, onSelect, onAdd, onRemove }
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 6,
-      padding: '10px 14px', borderBottom: '1px solid #21262d',
+      padding: '12px 16px', borderBottom: '1px solid #2f4058',
       flexWrap: 'wrap',
     }}>
       {sets.map(set => {
@@ -18,20 +18,20 @@ export default function SetTabs({ sets, activeSetId, onSelect, onAdd, onRemove }
             onClick={() => onSelect(set.id)}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
-              padding: '4px 10px', borderRadius: 4, cursor: 'pointer',
-              border: `1px solid ${active ? set.color : '#30363d'}`,
+              padding: '7px 12px', borderRadius: 6, cursor: 'pointer',
+              border: `1px solid ${active ? set.color : '#465b78'}`,
               background: active ? `${set.color}20` : 'transparent',
-              color: active ? set.color : '#484f58',
-              fontSize: 12, fontWeight: active ? 700 : 400,
+              color: active ? set.color : '#d3dce8',
+              fontSize: 14, fontWeight: active ? 700 : 500,
               transition: 'all 0.15s', userSelect: 'none',
             }}
           >
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: set.color, flexShrink: 0 }} />
-            <Text style={{ color: 'inherit', fontSize: 12, fontWeight: 'inherit' }}>{set.name}</Text>
+            <Text style={{ color: 'inherit', fontSize: 14, fontWeight: 'inherit' }}>{set.name}</Text>
             {sets.length > 1 && (
               <CloseOutlined
                 onClick={e => { e.stopPropagation(); onRemove(set.id) }}
-                style={{ fontSize: 9, color: '#484f58', marginLeft: 2 }}
+                style={{ fontSize: 12, color: '#c1ccda', marginLeft: 2 }}
               />
             )}
           </div>
@@ -43,12 +43,12 @@ export default function SetTabs({ sets, activeSetId, onSelect, onAdd, onRemove }
           onClick={onAdd}
           style={{
             display: 'flex', alignItems: 'center', gap: 4,
-            padding: '4px 10px', borderRadius: 4, cursor: 'pointer',
-            border: '1px dashed #30363d', color: '#484f58',
-            fontSize: 12, transition: 'all 0.15s', userSelect: 'none',
+            padding: '7px 12px', borderRadius: 6, cursor: 'pointer',
+            border: '1px dashed #465b78', color: '#c1ccda',
+            fontSize: 14, transition: 'all 0.15s', userSelect: 'none',
           }}
         >
-          <PlusOutlined style={{ fontSize: 10 }} />
+          <PlusOutlined style={{ fontSize: 12 }} />
           Compare
         </div>
       )}
