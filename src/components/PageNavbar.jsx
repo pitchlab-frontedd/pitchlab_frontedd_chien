@@ -46,7 +46,7 @@ export default function PageNavbar({ page, onNavigate }) {
                 border: 'none',
                 cursor: 'pointer',
                 padding: '0 0 2px 0',
-                color: isActive ? '#f0883e' : '#8b949e',
+                color: isActive ? '#f0883e' : '#b7c0cc',
                 fontSize: 14,
                 letterSpacing: '0.08em',
                 fontFamily: "'Barlow Condensed', sans-serif",

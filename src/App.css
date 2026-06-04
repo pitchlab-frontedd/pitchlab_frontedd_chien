@@ -19,12 +19,26 @@ body {
 .ant-table-wrapper .ant-table-thead > tr > th {
   background: #1c2128!important;
   border-bottom-color: #30363d!important;
-  color: #484f58!important;
+  color: #7c8798!important;
   font-size: 11px!important;
   letter-spacing: 0.1em!important;
   font-family: 'Barlow Condensed', sans-serif!important;
 }
 .ant-table-wrapper .ant-table-tbody > tr:hover > td { background: #1c2128!important; }
+.ant-select .ant-select-selection-placeholder,
+.ant-input-number .ant-input-number-input::placeholder {
+  color: #a5b0c0!important;
+}
+
+.ant-select .ant-select-selection-item,
+.ant-input-number .ant-input-number-input {
+  color: #e6edf3!important;
+}
+
+.ant-select-selector,
+.ant-input-number {
+  border-color: #3b4656!important;
+}
 
 .analysis-card {
   background: #161b22;
@@ -64,7 +78,7 @@ body {
 
 .analysis-heading p {
   margin: 6px 0 0;
-  color: #484f58;
+  color: #8d99aa;
   font-size: 11px;
   line-height: 1.4;
 }
@@ -88,7 +102,7 @@ body {
 }
 
 .metric-context-label {
-  color: #484f58;
+  color: #7c8798;
   font-family: 'Barlow Condensed', system-ui, sans-serif;
   font-size: 10px;
   font-weight: 700;
@@ -109,7 +123,7 @@ body {
 }
 
 .metric-context-card p {
-  color: #8b949e;
+  color: #b7c0cc;
   font-size: 12px;
   line-height: 1.45;
   margin: 6px 0 0;
@@ -128,7 +142,7 @@ body {
 }
 
 .tracking-number {
-  color: #8b949e;
+  color: #aeb8c6;
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
@@ -144,7 +158,7 @@ body {
   border: 1px dashed #30363d;
   border-radius: 6px;
   background: #0f1621;
-  color: #6e7681;
+  color: #a5b0c0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -157,7 +171,7 @@ body {
   border: 1px solid #30363d;
   border-radius: 4px;
   padding: 3px 6px;
-  color: #8b949e;
+  color: #aeb8c6;
   font-size: 10px;
   white-space: nowrap;
 }

@@ -6,6 +6,10 @@ import { pitchTypeColor, pitchTypeLabel } from '../utils/pitchTypes'
 const { Sider, Content } = Layout
 const { Text } = Typography
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://new-baseball-app-backend-fn6w.onrender.com'
+const TEXT_SUBTLE = '#7c8798'
+const TEXT_MUTED = '#a5b0c0'
+const TEXT_SECONDARY = '#b7c0cc'
+const TEXT_PRIMARY = '#e6edf3'
 
 const RECOMMENDATION_GOALS = [
   {
@@ -45,7 +49,7 @@ function sampleSignal(count = 0) {
 
 function valueSignal(value, lowerFavorsPitcher = true) {
   const numeric = Number(value || 0)
-  if (Math.abs(numeric) < 0.005) return { label: 'Neutral', color: '#8b949e' }
+  if (Math.abs(numeric) < 0.005) return { label: 'Neutral', color: TEXT_SECONDARY }
   const pitcherEdge = lowerFavorsPitcher ? numeric < 0 : numeric > 0
   return pitcherEdge
     ? { label: 'Pitcher edge', color: '#3fb950' }
@@ -91,7 +95,7 @@ function formatSignedPct(value) {
 function SectionLabel({ children }) {
   return (
     <Text style={{
-      display: 'block', fontSize: 10, fontWeight: 700, color: '#484f58',
+      display: 'block', fontSize: 10, fontWeight: 700, color: TEXT_SUBTLE,
       textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8,
       fontFamily: "'Barlow Condensed', sans-serif",
     }}>
@@ -107,9 +111,9 @@ function Pill({ label, selected, onClick, color, disabled = false }) {
       onClick={disabled ? undefined : onClick}
       style={{
         padding: '4px 10px', borderRadius: 4,
-        border: `1px solid ${selected ? c : '#30363d'}`,
+        border: `1px solid ${selected ? c : '#3b4656'}`,
         background: selected ? `${c}25` : 'transparent',
-        color: disabled ? '#484f58' : (selected ? c : '#8b949e'),
+        color: disabled ? TEXT_SUBTLE : (selected ? c : TEXT_SECONDARY),
         cursor: disabled ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: selected ? 700 : 400,
         letterSpacing: '0.05em', userSelect: 'none', transition: 'all 0.15s',
       }}
@@ -124,12 +128,12 @@ function CountSelector({ value, onChange }) {
     <div>
       <div style={{ display: 'flex', marginBottom: 3, paddingLeft: 26 }}>
         {['0S', '1S', '2S'].map(s => (
-          <div key={s} style={{ width: 34, textAlign: 'center', fontSize: 10, color: '#484f58', fontFamily: 'JetBrains Mono, monospace' }}>{s}</div>
+          <div key={s} style={{ width: 34, textAlign: 'center', fontSize: 10, color: TEXT_SUBTLE, fontFamily: 'JetBrains Mono, monospace' }}>{s}</div>
         ))}
       </div>
       {[0, 1, 2, 3].map(b => (
         <div key={b} style={{ display: 'flex', alignItems: 'center', marginBottom: 3 }}>
-          <div style={{ width: 22, fontSize: 10, color: '#484f58', textAlign: 'right', marginRight: 4, fontFamily: 'JetBrains Mono, monospace' }}>{b}B</div>
+          <div style={{ width: 22, fontSize: 10, color: TEXT_SUBTLE, textAlign: 'right', marginRight: 4, fontFamily: 'JetBrains Mono, monospace' }}>{b}B</div>
           {[0, 1, 2].map(s => {
             const key = `${b}-${s}`
             const sel = value === key
@@ -139,9 +143,9 @@ function CountSelector({ value, onChange }) {
                 onClick={() => onChange(sel ? '' : key)}
                 style={{
                   width: 32, height: 24, marginRight: 2, borderRadius: 3,
-                  border: `1px solid ${sel ? '#f0883e' : '#30363d'}`,
+                  border: `1px solid ${sel ? '#f0883e' : '#3b4656'}`,
                   background: sel ? 'rgba(240,136,62,0.2)' : '#161b22',
-                  color: sel ? '#f0883e' : '#484f58',
+                  color: sel ? '#f0883e' : TEXT_MUTED,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer', fontSize: 10, fontWeight: sel ? 700 : 400,
                   userSelect: 'none', transition: 'all 0.12s',
@@ -164,7 +168,7 @@ function DiamondBaseSquare({ active, onClick, size = 18 }) {
       onClick={onClick}
       style={{
         width: size, height: size, transform: 'rotate(45deg)',
-        border: `2px solid ${active ? '#f0883e' : '#30363d'}`,
+        border: `2px solid ${active ? '#f0883e' : '#3b4656'}`,
         background: active ? 'rgba(240,136,62,0.35)' : '#161b22',
         cursor: onClick ? 'pointer' : 'default', transition: 'all 0.15s',
       }}
@@ -176,8 +180,8 @@ function MiniBaseSquare({ active }) {
   return (
     <div style={{
       width: 10, height: 10, transform: 'rotate(45deg)',
-      background: active ? '#f0883e' : '#21262d',
-      border: `1px solid ${active ? '#f0883e' : '#30363d'}`,
+      background: active ? '#f0883e' : '#263241',
+      border: `1px solid ${active ? '#f0883e' : '#3b4656'}`,
     }} />
   )
 }
@@ -190,10 +194,10 @@ function BaseDiamond({ bases, onChange }) {
       <div style={{ position: 'absolute', left: 41, top: 4 }}><DiamondBaseSquare active={bases.second} onClick={() => toggle('second')} /></div>
       <div style={{ position: 'absolute', left: 5, top: 38 }}><DiamondBaseSquare active={bases.third} onClick={() => toggle('third')} /></div>
       <div style={{ position: 'absolute', left: 77, top: 38 }}><DiamondBaseSquare active={bases.first} onClick={() => toggle('first')} /></div>
-      <div style={{ position: 'absolute', left: 41, top: 72, width: 18, height: 18, transform: 'rotate(45deg)', border: '2px solid #30363d', background: '#161b22' }} />
-      <span style={{ position: 'absolute', left: 39, top: -13, fontSize: 9, color: '#484f58', letterSpacing: '0.05em' }}>2B</span>
-      <span style={{ position: 'absolute', left: -17, top: 42, fontSize: 9, color: '#484f58', letterSpacing: '0.05em' }}>3B</span>
-      <span style={{ position: 'absolute', left: 99, top: 42, fontSize: 9, color: '#484f58', letterSpacing: '0.05em' }}>1B</span>
+      <div style={{ position: 'absolute', left: 41, top: 72, width: 18, height: 18, transform: 'rotate(45deg)', border: '2px solid #3b4656', background: '#161b22' }} />
+      <span style={{ position: 'absolute', left: 39, top: -13, fontSize: 9, color: TEXT_SUBTLE, letterSpacing: '0.05em' }}>2B</span>
+      <span style={{ position: 'absolute', left: -17, top: 42, fontSize: 9, color: TEXT_SUBTLE, letterSpacing: '0.05em' }}>3B</span>
+      <span style={{ position: 'absolute', left: 99, top: 42, fontSize: 9, color: TEXT_SUBTLE, letterSpacing: '0.05em' }}>1B</span>
     </div>
   )
 }
@@ -211,13 +215,13 @@ function MiniDiamond({ bases }) {
 
 function PitchCard({ rank, result, isTop, selected = false, onSelect }) {
   const isEmpty = !result
-  const color = isEmpty ? '#484f58' : pitchTypeColor(result.pitchType)
-  const sample = isEmpty ? { label: '-', color: '#484f58' } : sampleSignal(result.count)
+  const color = isEmpty ? TEXT_SUBTLE : pitchTypeColor(result.pitchType)
+  const sample = isEmpty ? { label: '-', color: TEXT_SUBTLE } : sampleSignal(result.count)
   const runValue = isEmpty ? 0 : (result.avgRunValue ?? result.expectedRuns)
   const runValueSignal = valueSignal(runValue, true)
-  const wpaColor = isEmpty ? '#484f58' : (Number(result.winProbChange || 0) >= 0 ? '#3fb950' : '#ff6b6b')
+  const wpaColor = isEmpty ? TEXT_SUBTLE : (Number(result.winProbChange || 0) >= 0 ? '#3fb950' : '#ff6b6b')
   const outRateSignal = isEmpty
-    ? { label: '-', color: '#484f58' }
+    ? { label: '-', color: TEXT_SUBTLE }
     : result.outRate >= 35
       ? { label: 'High out rate', color: '#3fb950' }
       : result.outRate >= 25
@@ -237,21 +241,21 @@ function PitchCard({ rank, result, isTop, selected = false, onSelect }) {
       }}
       style={{
       background: '#161b22',
-      border: `1px solid ${selected ? '#f0883e' : (isTop ? '#1f6feb' : '#21262d')}`,
+      border: `1px solid ${selected ? '#f0883e' : (isTop ? '#1f6feb' : '#2b3544')}`,
       borderRadius: 8,
       padding: '16px',
       position: 'relative',
-      opacity: isEmpty ? 0.35 : 1,
+      opacity: isEmpty ? 0.72 : 1,
       cursor: isEmpty ? 'default' : 'pointer',
       boxShadow: selected ? '0 0 0 1px rgba(240,136,62,0.35)' : 'none',
     }}>
       <div style={{
         position: 'absolute', top: 12, right: 12,
         width: 22, height: 22, borderRadius: '50%',
-        background: isTop ? '#1f6feb' : '#21262d',
+        background: isTop ? '#1f6feb' : '#253044',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: 11, fontWeight: 700,
-        color: isTop ? '#fff' : '#484f58',
+        color: isTop ? '#fff' : TEXT_MUTED,
         fontFamily: 'JetBrains Mono, monospace',
       }}>
         {rank}
@@ -261,7 +265,7 @@ function PitchCard({ rank, result, isTop, selected = false, onSelect }) {
         <span style={{ fontSize: 22, fontWeight: 700, color, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.05em', lineHeight: 1 }}>
           {isEmpty ? '-' : result.pitchType}
         </span>
-        <span style={{ fontSize: 12, color: '#8b949e' }}>
+        <span style={{ fontSize: 12, color: TEXT_SECONDARY }}>
           {isEmpty ? '' : pitchTypeLabel(result.pitchType)}
         </span>
       </div>
@@ -310,20 +314,20 @@ function PitchCard({ rank, result, isTop, selected = false, onSelect }) {
             color: sample.color,
           },
         ].map(({ label, help, hint, subhint, value, color: metricColor }) => (
-          <div key={label} style={{ background: '#0d1117', borderRadius: 6, padding: '8px 10px' }}>
-            <div style={{ fontSize: 9, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
+          <div key={label} style={{ background: '#101824', borderRadius: 6, padding: '8px 10px' }}>
+            <div style={{ fontSize: 9, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
               <Tooltip title={help} placement="top">
                 <span style={{ cursor: 'help' }}>{label}</span>
               </Tooltip>
             </div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: isEmpty ? '#484f58' : metricColor, fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: isEmpty ? TEXT_MUTED : metricColor, fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>
               {value}
             </div>
-            <div style={{ fontSize: 10, color: isEmpty ? '#6e7681' : metricColor, marginTop: 5, lineHeight: 1.2, fontWeight: 700 }}>
+            <div style={{ fontSize: 10, color: isEmpty ? TEXT_MUTED : metricColor, marginTop: 5, lineHeight: 1.2, fontWeight: 700 }}>
               {hint}
             </div>
             {subhint && (
-              <div style={{ fontSize: 9, color: '#6e7681', marginTop: 3, lineHeight: 1.25 }}>
+              <div style={{ fontSize: 9, color: TEXT_SUBTLE, marginTop: 3, lineHeight: 1.25 }}>
                 {subhint}
               </div>
             )}
@@ -341,12 +345,12 @@ function EmptyResultsNotice({ hasResults }) {
       border: '1px dashed #30363d',
       borderRadius: 8,
       padding: '18px 20px',
-      color: '#8b949e',
+      color: TEXT_SECONDARY,
       background: '#0d1117',
       marginBottom: 14,
     }}>
       <div style={{
-        color: '#e6edf3',
+        color: TEXT_PRIMARY,
         fontSize: 18,
         fontWeight: 700,
         fontFamily: "'Barlow Condensed', sans-serif",
@@ -370,7 +374,7 @@ function PitchDetailPanel({ result, goal }) {
         border: '1px dashed #30363d',
         borderRadius: 8,
         padding: 18,
-        color: '#6e7681',
+        color: TEXT_MUTED,
         background: '#0d1117',
         textAlign: 'center',
         fontSize: 12,
@@ -409,7 +413,7 @@ function PitchDetailPanel({ result, goal }) {
               {pitchTypeLabel(result.pitchType)}
             </span>
           </div>
-          <Text style={{ color: '#6e7681', fontSize: 12 }}>
+          <Text style={{ color: TEXT_MUTED, fontSize: 12 }}>
             {goalInfo.title} · {result.count} similar pitches
           </Text>
         </div>
@@ -419,8 +423,8 @@ function PitchDetailPanel({ result, goal }) {
             { label: 'Run Value', value: formatRunValue(result), color: Number(result.avgRunValue ?? result.expectedRuns ?? 0) > 0 ? '#ff6b6b' : '#3fb950' },
             { label: 'WPA', value: formatSignedPct(result.winProbChange), color: Number(result.winProbChange || 0) >= 0 ? '#3fb950' : '#ff6b6b' },
           ].map(item => (
-            <div key={item.label} style={{ background: '#0d1117', border: '1px solid #21262d', borderRadius: 6, padding: '8px 10px', textAlign: 'right' }}>
-              <div style={{ fontSize: 9, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 5 }}>{item.label}</div>
+            <div key={item.label} style={{ background: '#101824', border: '1px solid #2b3544', borderRadius: 6, padding: '8px 10px', textAlign: 'right' }}>
+              <div style={{ fontSize: 9, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 5 }}>{item.label}</div>
               <div style={{ color: item.color, fontFamily: 'JetBrains Mono, monospace', fontSize: 18, fontWeight: 700, lineHeight: 1 }}>{item.value}</div>
             </div>
           ))}
@@ -432,11 +436,11 @@ function PitchDetailPanel({ result, goal }) {
           const pct = Number(item.pct || 0)
           return (
             <div key={item.outcome} style={{ display: 'grid', gridTemplateColumns: '54px 1fr 56px', alignItems: 'center', gap: 10 }}>
-              <div style={{ color: '#e6edf3', fontWeight: 700, fontSize: 12 }}>{item.outcome}</div>
-              <div style={{ height: 10, borderRadius: 999, background: '#0d1117', overflow: 'hidden', border: '1px solid #21262d' }}>
+              <div style={{ color: TEXT_PRIMARY, fontWeight: 700, fontSize: 12 }}>{item.outcome}</div>
+              <div style={{ height: 10, borderRadius: 999, background: '#101824', overflow: 'hidden', border: '1px solid #2b3544' }}>
                 <div style={{ width: `${Math.min(100, pct)}%`, height: '100%', background: color, opacity: 0.82 }} />
               </div>
-              <div style={{ color: '#8b949e', fontFamily: 'JetBrains Mono, monospace', fontSize: 12, textAlign: 'right' }}>{pct}%</div>
+              <div style={{ color: TEXT_SECONDARY, fontFamily: 'JetBrains Mono, monospace', fontSize: 12, textAlign: 'right' }}>{pct}%</div>
             </div>
           )
         })}
@@ -539,15 +543,15 @@ export default function PitchPredictionPage({ page, onNavigate }) {
       colorBgLayout: '#0d1117',
       colorBorder: '#30363d',
       colorBorderSecondary: '#21262d',
-      colorText: '#e6edf3',
-      colorTextSecondary: '#8b949e',
+      colorText: TEXT_PRIMARY,
+      colorTextSecondary: TEXT_SECONDARY,
       fontFamily: "'Barlow Condensed', system-ui, sans-serif",
       borderRadius: 6,
     } }}>
       <div style={{ minHeight: '100vh', background: '#0d1117', display: 'flex', flexDirection: 'column' }}>
         <PageNavbar page={page} onNavigate={onNavigate} />
         <div style={{ display: 'flex', alignItems: 'center', padding: '0 24px', background: '#0d1117', borderBottom: '1px solid #21262d', height: 48 }}>
-          <Text style={{ color: '#484f58', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+          <Text style={{ color: TEXT_SUBTLE, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
             Pitch Prediction / Empirical Baseline
           </Text>
           {metaLoading && <Spin size="small" style={{ marginLeft: 12 }} />}
@@ -555,7 +559,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
 
         <Layout style={{ background: '#0d1117', flex: 1 }}>
           <Sider width={270} style={{ background: '#0d1117', borderRight: '1px solid #21262d', overflow: 'auto' }}>
-            <div style={{ padding: '16px 14px', color: '#e6edf3' }}>
+            <div style={{ padding: '16px 14px', color: TEXT_PRIMARY }}>
               <SectionLabel>Pitcher</SectionLabel>
               <Select showSearch allowClear placeholder="Search pitcher..." value={pitcherId || undefined} onChange={v => setPitcherId(v || '')} options={pitchers.map(p => ({ value: String(p.id), label: p.name }))} style={{ width: '100%' }} filterOption={(input, opt) => (opt?.label || '').toLowerCase().includes(input.toLowerCase())} />
 
@@ -584,7 +588,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
                 </div>
                 <InputNumber min={1} max={20} value={inning} onChange={v => setInning(v || 1)} style={{ width: 76 }} />
               </div>
-              <Text style={{ display: 'block', color: '#6e7681', fontSize: 11, marginTop: 6 }}>
+              <Text style={{ display: 'block', color: TEXT_MUTED, fontSize: 11, marginTop: 6 }}>
                 Context for result review.
               </Text>
 
@@ -592,10 +596,10 @@ export default function PitchPredictionPage({ page, onNavigate }) {
               <SectionLabel>Score</SectionLabel>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
                 <InputNumber min={0} max={30} value={scoreUs} onChange={v => setScoreUs(v ?? 0)} style={{ width: 65 }} />
-                <span style={{ color: '#484f58', fontSize: 18, lineHeight: '32px', marginBottom: 2 }}>-</span>
+                <span style={{ color: TEXT_SUBTLE, fontSize: 18, lineHeight: '32px', marginBottom: 2 }}>-</span>
                 <InputNumber min={0} max={30} value={scoreThem} onChange={v => setScoreThem(v ?? 0)} style={{ width: 65 }} />
               </div>
-              <Text style={{ display: 'block', color: '#6e7681', fontSize: 11, marginTop: 6 }}>
+              <Text style={{ display: 'block', color: TEXT_MUTED, fontSize: 11, marginTop: 6 }}>
                 Context for result review.
               </Text>
 
@@ -632,12 +636,12 @@ export default function PitchPredictionPage({ page, onNavigate }) {
                 { label: 'Pitcher', content: `${pitcherHand || 'ALL'} ${pitcherRole}` },
               ].map(({ label, content }) => (
                 <div key={label} style={{ paddingRight: 22, marginRight: 22, borderRight: '1px solid #21262d' }}>
-                  <div style={{ fontSize: 9, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>{label}</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: '#e6edf3', fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>{content}</div>
+                  <div style={{ fontSize: 9, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>{label}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: TEXT_PRIMARY, fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>{content}</div>
                 </div>
               ))}
               <div>
-                <div style={{ fontSize: 9, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Runners</div>
+                <div style={{ fontSize: 9, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Runners</div>
                 <MiniDiamond bases={bases} />
               </div>
             </div>
@@ -655,7 +659,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
               flexWrap: 'wrap',
             }}>
               <div>
-                <Text style={{ fontSize: 10, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                <Text style={{ fontSize: 10, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
                   Recommendation Goal
                 </Text>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 9 }}>
@@ -673,7 +677,7 @@ export default function PitchPredictionPage({ page, onNavigate }) {
                 </div>
               </div>
               <div style={{ minWidth: 170 }}>
-                <Text style={{ fontSize: 10, color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                <Text style={{ fontSize: 10, color: TEXT_SUBTLE, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
                   Top K
                 </Text>
                 <div style={{ display: 'flex', gap: 6, marginTop: 9, justifyContent: 'flex-end' }}>
@@ -683,10 +687,10 @@ export default function PitchPredictionPage({ page, onNavigate }) {
                 </div>
               </div>
               <div style={{ flexBasis: '100%', borderTop: '1px solid #21262d', paddingTop: 11 }}>
-                <Text style={{ fontSize: 18, color: '#e6edf3', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.08em' }}>
+                <Text style={{ fontSize: 18, color: TEXT_PRIMARY, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.08em' }}>
                   {currentGoal.title}
                 </Text>
-                <Text style={{ display: 'block', marginTop: 4, fontSize: 12, color: '#6e7681' }}>
+                <Text style={{ display: 'block', marginTop: 4, fontSize: 12, color: TEXT_MUTED }}>
                   Empirical results from historical Statcast outcomes · {resultMeta?.total ?? 0} matching pitches
                 </Text>
               </div>
