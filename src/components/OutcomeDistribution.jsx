@@ -45,6 +45,28 @@ const right = {
   align: 'right',
 }
 
+function MetricContext({ wpaPerspective = 'batter' }) {
+  const perspectiveLabel = wpaPerspective === 'pitcher' ? 'Pitcher' : 'Batter'
+  const wpaDirection = wpaPerspective === 'pitcher'
+    ? 'Positive favors the pitcher; negative favors the batting team.'
+    : 'Positive favors the batter; negative favors the pitcher/defense.'
+
+  return (
+    <div className="metric-context-grid">
+      <div className="metric-context-card">
+        <div className="metric-context-label">EMP xRUNS</div>
+        <div className="metric-context-title">Batting run value</div>
+        <p>Average runs added per pitch from the batting team perspective. Lower values favor the pitcher.</p>
+      </div>
+      <div className="metric-context-card">
+        <div className="metric-context-label">WPA</div>
+        <div className="metric-context-title">{perspectiveLabel} perspective</div>
+        <p>{wpaDirection}</p>
+      </div>
+    </div>
+  )
+}
+
 const columns = [
   {
     title: metricTitle('Pitch Type'),
@@ -113,6 +135,7 @@ const columns = [
 export default function OutcomeDistribution({ data }) {
   const rows = data?.pitchTypeOutcomes || []
   const hasData = rows.length > 0
+  const wpaPerspective = data?.wpaPerspective || 'batter'
 
   return (
     <section className="analysis-card analysis-card-spaced">
@@ -123,15 +146,18 @@ export default function OutcomeDistribution({ data }) {
         </div>
       </div>
       {hasData ? (
-        <Table
-          className="analysis-table"
-          dataSource={rows}
-          columns={columns}
-          rowKey="pitchType"
-          pagination={false}
-          size="small"
-          showSorterTooltip={false}
-        />
+        <>
+          <MetricContext wpaPerspective={wpaPerspective} />
+          <Table
+            className="analysis-table"
+            dataSource={rows}
+            columns={columns}
+            rowKey="pitchType"
+            pagination={false}
+            size="small"
+            showSorterTooltip={false}
+          />
+        </>
       ) : (
         <div className="analysis-empty-state">
           Select a pitcher or batter to view outcome distribution.

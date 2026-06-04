@@ -73,6 +73,54 @@ body {
   white-space: nowrap;
 }
 
+.metric-context-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.metric-context-card {
+  background: #0f1621;
+  border: 1px solid #21262d;
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.metric-context-label {
+  color: #484f58;
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.metric-context-title {
+  color: #e6edf3;
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+  margin-top: 7px;
+  text-transform: uppercase;
+}
+
+.metric-context-card p {
+  color: #8b949e;
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 6px 0 0;
+}
+
+@media (max-width: 900px) {
+  .metric-context-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .tracking-pitch-type {
   font-size: 13px;
   font-weight: 800;
