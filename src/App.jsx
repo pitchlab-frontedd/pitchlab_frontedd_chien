@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Layout, Select, ConfigProvider, theme, Typography, Space, Spin } from 'antd'
+import { Layout, Select, ConfigProvider, theme, Typography, Space, Spin, Button } from 'antd'
+import { CloseOutlined, FilterOutlined } from '@ant-design/icons'
 import FilterPanel from './components/FilterPanel'
 import SetTabs from './components/SetTabs'
 import SummaryStats from './components/SummaryStats'
@@ -64,6 +65,7 @@ function HistoricalDataPage({ page, onNavigate }) {
     { id: 1, name: 'Set A', color: SET_COLORS[0], filters: INITIAL_FILTERS },
   ]);
   const [activeSetId, setActiveSetId] = useState(1);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // 1. 初始載入
   useEffect(() => {
@@ -285,12 +287,12 @@ function HistoricalDataPage({ page, onNavigate }) {
       <>
         <PageNavbar page={page} onNavigate={onNavigate} />
       <Layout style={{ minHeight: '100vh', background: '#111c2b' }}>
-        <Header style={{
+        <Header className="history-topbar" style={{
           display: 'flex', alignItems: 'center', gap: 32,
           padding: '0 24px', background: '#162235',
           borderBottom: '1px solid #2f4058', height: 54, position: 'sticky', top: 56, zIndex: 99,
         }}>
-          <Space size={8} align="center">
+          <Space className="history-batter-control" size={8} align="center">
             <Text style={{ color: '#c1ccda', fontSize: 14, textTransform: 'uppercase', fontWeight: 700 }}>Batter</Text>
             <Select
               allowClear
@@ -306,7 +308,15 @@ function HistoricalDataPage({ page, onNavigate }) {
             />
           </Space>
 
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Button
+            className="mobile-filter-button"
+            icon={<FilterOutlined />}
+            onClick={() => setFiltersOpen(true)}
+          >
+            Filters
+          </Button>
+
+          <div className="history-backend-status" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
             {dataLoading && <Spin size="small" style={{ marginRight: 8 }} />}
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: loading ? '#f0883e' : '#3fb950' }} />
             <Text style={{ color: '#c1ccda', fontSize: 13, fontWeight: 600 }}>{loading ? 'API CONNECTING...' : 'LIVE BACKEND'}</Text>
@@ -314,7 +324,19 @@ function HistoricalDataPage({ page, onNavigate }) {
         </Header>
 
         <Layout style={{ background: '#111c2b' }}>
-          <Sider width={300} style={{ background: '#142033', borderRight: '1px solid #2f4058', height: 'calc(100vh - 110px)', overflow: 'auto', position: 'sticky', top: 110 }}>
+          <div
+            className={`mobile-filter-backdrop ${filtersOpen ? 'is-open' : ''}`}
+            onClick={() => setFiltersOpen(false)}
+          />
+          <Sider
+            className={`history-filter-sider ${filtersOpen ? 'is-open' : ''}`}
+            width={300}
+            style={{ background: '#142033', borderRight: '1px solid #2f4058', height: 'calc(100vh - 110px)', overflow: 'auto', position: 'sticky', top: 110 }}
+          >
+            <div className="mobile-filter-drawer-header">
+              <Text style={{ color: '#e6edf3', fontSize: 15, fontWeight: 800, textTransform: 'uppercase' }}>Filters</Text>
+              <Button type="text" icon={<CloseOutlined />} onClick={() => setFiltersOpen(false)} />
+            </div>
             <SetTabs sets={sets} activeSetId={activeSetId} onSelect={setActiveSetId} onAdd={addSet} onRemove={removeSet} />
             {activeSet && (
               <FilterPanel
@@ -327,9 +349,9 @@ function HistoricalDataPage({ page, onNavigate }) {
             )}
           </Sider>
 
-          <Content style={{ padding: '20px', background: '#111c2b', minHeight: 'calc(100vh - 110px)', overflow: 'auto' }}>
+          <Content className="history-content" style={{ padding: '20px', background: '#111c2b', minHeight: 'calc(100vh - 110px)', overflow: 'auto' }}>
             <SummaryStats setsData={setsData} />
-            <div style={{ display: 'grid', gridTemplateColumns: '310px 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="history-visual-grid" style={{ display: 'grid', gridTemplateColumns: '310px 1fr', gap: 16, marginBottom: 16 }}>
               <ZoneHeatmap zoneData={activeSetData?.zoneData} totalPitches={activeSetData?.total || 0} setColor={activeSet?.color} setName={activeSet?.name} />
               <ResultChart setsData={setsData} />
             </div>

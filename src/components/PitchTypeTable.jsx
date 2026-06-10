@@ -99,6 +99,17 @@ const runValueCell = value => {
   )
 }
 
+const signedPctText = value => {
+  if (value === null || value === undefined) return '-'
+  const numeric = Number(value)
+  return `${numeric > 0 ? '+' : ''}${numeric}%`
+}
+
+const runValueText = value => {
+  if (value === null || value === undefined) return '-'
+  return Number(value).toFixed(3)
+}
+
 const right = {
   align: 'right',
 }
@@ -173,16 +184,63 @@ export default function PitchTypeTable({ data, outcomeData, filters }) {
         </div>
       </div>
       {hasData ? (
-        <Table
-          className="analysis-table"
-          dataSource={rows}
-          columns={columns}
-          rowKey="pitchType"
-          pagination={false}
-          size="small"
-          scroll={{ x: 1510 }}
-          showSorterTooltip={false}
-        />
+        <>
+          <Table
+            className="analysis-table pitch-tracking-table"
+            dataSource={rows}
+            columns={columns}
+            rowKey="pitchType"
+            pagination={false}
+            size="small"
+            scroll={{ x: 1510 }}
+            showSorterTooltip={false}
+          />
+          <div className="pitch-tracking-mobile-list">
+            {rows.map(row => {
+              const wpa = Number(row.winProbChange || 0)
+              const xRuns = Number(row.expectedRuns || 0)
+              return (
+                <article key={row.pitchType} className="pitch-mobile-card">
+                  <div className="pitch-mobile-card-head">
+                    <span
+                      className="tracking-pitch-type"
+                      style={{ color: pitchTypeColor(row.pitchType) }}
+                    >
+                      {pitchTypeLabel(row.pitchType)}
+                    </span>
+                    <span className="pitch-mobile-usage">{pct(row.pct)}%</span>
+                  </div>
+                  <div className="pitch-mobile-metrics">
+                    <div>
+                      <span>#</span>
+                      <b>{dash(row.count)}</b>
+                    </div>
+                    <div>
+                      <span>EMP xRUNS</span>
+                      <b style={{ color: xRuns > 0 ? '#ff6b6b' : '#3fb950' }}>{runValueText(row.expectedRuns)}</b>
+                    </div>
+                    <div>
+                      <span>WPA</span>
+                      <b style={{ color: wpa >= 0 ? '#3fb950' : '#ff6b6b' }}>{signedPctText(row.winProbChange)}</b>
+                    </div>
+                    <div>
+                      <span>MPH</span>
+                      <b>{oneDecimal(row.mph)}</b>
+                    </div>
+                    <div>
+                      <span>Whiff</span>
+                      <b>{pct(row.whiffPct)}%</b>
+                    </div>
+                    <div>
+                      <span>PutAway</span>
+                      <b>{pct(row.putAwayPct)}%</b>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        </>
       ) : (
         <div className="analysis-empty-state">
           Select a pitcher or batter to view pitch tracking.

@@ -6,7 +6,7 @@ const LINKS = [
 
 export default function PageNavbar({ page, onNavigate }) {
   return (
-    <nav style={{
+    <nav className="page-navbar" style={{
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -19,6 +19,7 @@ export default function PageNavbar({ page, onNavigate }) {
       zIndex: 100,
     }}>
       <div
+        className="page-brand"
         style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
         onClick={() => onNavigate('home')}
       >
@@ -32,7 +33,7 @@ export default function PageNavbar({ page, onNavigate }) {
         </span>
       </div>
 
-      <div style={{ display: 'flex', gap: 32 }}>
+      <div className="page-nav-links" style={{ display: 'flex', gap: 32 }}>
         {LINKS.map(link => {
           const isActive = page === link.page
           return (

@@ -23,6 +23,33 @@ const Title = () => (
   </Text>
 )
 
+const SingleTooltip = ({ active, payload }) => {
+  if (!active || !payload?.length) return null
+  const d = payload[0].payload
+  return (
+    <div style={{ background: '#1c2128', border: '1px solid #30363d', borderRadius: 6, padding: '8px 12px' }}>
+      <div style={{ fontWeight: 700, color: '#e6edf3', fontSize: 13, marginBottom: 2 }}>{d.name}</div>
+      <div style={{ color: '#8b949e', fontSize: 12, fontFamily: 'JetBrains Mono, monospace' }}>
+        {d.pct}% · {d.count} pitches
+      </div>
+    </div>
+  )
+}
+
+const ComparisonTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null
+  return (
+    <div style={{ background: '#1c2128', border: '1px solid #30363d', borderRadius: 6, padding: '8px 12px' }}>
+      <div style={{ fontWeight: 700, color: '#e6edf3', fontSize: 13, marginBottom: 6 }}>{label}</div>
+      {payload.map(p => (
+        <div key={p.dataKey} style={{ color: '#8b949e', fontSize: 12, fontFamily: 'JetBrains Mono, monospace', marginBottom: 2 }}>
+          <span style={{ color: p.fill, fontWeight: 700 }}>{p.dataKey}</span>: {p.value}%
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // Single set: colored bars
 function SingleChart({ data }) {
   const chartData = data.map(d => ({
@@ -30,19 +57,6 @@ function SingleChart({ data }) {
     name: RESULT_CONFIG[d.result]?.label || d.result,
     color: RESULT_CONFIG[d.result]?.color || '#484f58',
   }))
-
-  const CustomTooltip = ({ active, payload }) => {
-    if (!active || !payload?.length) return null
-    const d = payload[0].payload
-    return (
-      <div style={{ background: '#1c2128', border: '1px solid #30363d', borderRadius: 6, padding: '8px 12px' }}>
-        <div style={{ fontWeight: 700, color: '#e6edf3', fontSize: 13, marginBottom: 2 }}>{d.name}</div>
-        <div style={{ color: '#8b949e', fontSize: 12, fontFamily: 'JetBrains Mono, monospace' }}>
-          {d.pct}% · {d.count} pitches
-        </div>
-      </div>
-    )
-  }
 
   return (
     <ResponsiveContainer width="100%" height={240}>
@@ -52,7 +66,7 @@ function SingleChart({ data }) {
           axisLine={{ stroke: '#21262d' }} tickLine={false} />
         <YAxis type="category" dataKey="name"
           tick={{ fontSize: 12, fill: '#8b949e' }} axisLine={false} tickLine={false} width={112} />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+        <Tooltip content={<SingleTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
         <Bar dataKey="pct" radius={[0, 4, 4, 0]} maxBarSize={28}>
           {chartData.map((entry, i) => <Cell key={i} fill={entry.color} fillOpacity={0.85} />)}
           <LabelList dataKey="pct" position="right" formatter={v => `${v}%`}
@@ -75,20 +89,6 @@ function ComparisonChart({ setsData }) {
     return obj
   }).filter(d => setsData.some(set => d[set.name] > 0))
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (!active || !payload?.length) return null
-    return (
-      <div style={{ background: '#1c2128', border: '1px solid #30363d', borderRadius: 6, padding: '8px 12px' }}>
-        <div style={{ fontWeight: 700, color: '#e6edf3', fontSize: 13, marginBottom: 6 }}>{label}</div>
-        {payload.map(p => (
-          <div key={p.dataKey} style={{ color: '#8b949e', fontSize: 12, fontFamily: 'JetBrains Mono, monospace', marginBottom: 2 }}>
-            <span style={{ color: p.fill, fontWeight: 700 }}>{p.dataKey}</span>: {p.value}%
-          </div>
-        ))}
-      </div>
-    )
-  }
-
   return (
     <ResponsiveContainer width="100%" height={260}>
       <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 52, left: 114, bottom: 0 }}>
@@ -97,7 +97,7 @@ function ComparisonChart({ setsData }) {
           axisLine={{ stroke: '#21262d' }} tickLine={false} />
         <YAxis type="category" dataKey="name"
           tick={{ fontSize: 12, fill: '#8b949e' }} axisLine={false} tickLine={false} width={112} />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+        <Tooltip content={<ComparisonTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
         {setsData.map(set => (
           <Bar key={set.id} dataKey={set.name} fill={set.color} fillOpacity={0.85}
             radius={[0, 3, 3, 0]} maxBarSize={18} />

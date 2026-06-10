@@ -23,7 +23,7 @@ function MetricLabel({ label, help }) {
 function SingleStats({ stats }) {
   if (!stats) return null
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, marginBottom: 16 }}>
+    <div className="summary-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, marginBottom: 16 }}>
       {STAT_KEYS.map(({ key, label, format, color, help }) => (
         <div key={key} style={{
           background: '#161b22', border: '1px solid #21262d',
@@ -48,11 +48,11 @@ function SingleStats({ stats }) {
 // Multiple sets: table layout
 function ComparisonStats({ setsData }) {
   return (
-    <div style={{
+    <div className="summary-comparison" style={{
       background: '#161b22', border: '1px solid #21262d',
       borderRadius: 8, marginBottom: 16, overflow: 'hidden',
     }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '120px repeat(6, 1fr)', borderBottom: '1px solid #21262d' }}>
+      <div className="summary-comparison-row summary-comparison-head" style={{ display: 'grid', gridTemplateColumns: '120px repeat(6, 1fr)', borderBottom: '1px solid #21262d' }}>
         <div style={{ padding: '8px 14px' }} />
         {STAT_KEYS.map(({ key, label, help }) => (
           <div key={key} style={{
@@ -72,6 +72,7 @@ function ComparisonStats({ setsData }) {
             display: 'grid', gridTemplateColumns: '120px repeat(6, 1fr)',
             borderBottom: '1px solid #21262d',
           }}
+          className="summary-comparison-row"
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: set.color, flexShrink: 0 }} />
