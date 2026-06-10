@@ -268,7 +268,7 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
         showSearch
         placeholder="Search by name..."
         value={filters.pitcherIds}
-        onChange={(val) => onChange(f => ({ ...f, pitcherIds: val, ...(val.length > 0 ? { pitcherHands: '', pitcherLabels: [] } : {}) }))}
+        onChange={(val) => onChange(f => ({ ...f, pitcherIds: val, ...(val.length > 0 ? { pitcherLabels: [] } : {}) }))}
         options={pitcherOptions}
         loading={loadingPitchers}
         style={{ width: '100%', marginBottom: 8 }}
@@ -307,17 +307,15 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
       <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
 
       <SectionLabel>Pitcher Hand</SectionLabel>
-      <div style={{ opacity: filters.pitcherIds?.length > 0 ? 0.3 : 1, pointerEvents: filters.pitcherIds?.length > 0 ? 'none' : 'auto' }}>
-        <SingleTogglePills
-          options={[
-            { value: '', label: 'ALL' },
-            { value: 'R', label: 'RHP' },
-            { value: 'L', label: 'LHP' }
-          ]}
-          value={filters.pitcherHands}
-          onChange={set('pitcherHands')}
-        />
-      </div>
+      <SingleTogglePills
+        options={[
+          { value: '', label: 'ALL' },
+          { value: 'R', label: 'RHP' },
+          { value: 'L', label: 'LHP' }
+        ]}
+        value={filters.pitcherHands}
+        onChange={set('pitcherHands')}
+      />
       
       <div style={{ marginTop: 10 }}>
         <SectionLabel>Pitcher Role</SectionLabel>
