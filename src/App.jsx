@@ -8,7 +8,7 @@ import ZoneHeatmap from './components/ZoneHeatmap'
 import ResultChart from './components/ResultChart'
 import PitchTypeTable from './components/PitchTypeTable'
 import OutcomeDistribution from './components/OutcomeDistribution'
-import NextPitchMap from './components/NextPitchMap'
+import TendencyChartGuide from './components/TendencyChartGuide'
 import PageNavbar from './components/PageNavbar'
 import LandingPage from './pages/LandingPage'
 import FeaturesPage from './pages/FeaturesPage'
@@ -39,6 +39,7 @@ const EMPTY_SET_DATA = {
   pitchTypeData: [],
   zoneData: {},
   pitchZoneData: { total: 0, zones: {}, topCombos: [] },
+  pitchLocationData: { total: 0, xRange: [-2.6, 2.6], zRange: [0.4, 5.2], cells: [] },
   outcomeData: { total: 0, outcomes: [], pitchTypeOutcomes: [] },
 }
 
@@ -258,6 +259,7 @@ function HistoricalDataPage({ page, onNavigate }) {
         pitchTypeData: summary.pitchTypeData || [],
         zoneData: summary.zoneData || {},
         pitchZoneData: summary.pitchZoneData || EMPTY_SET_DATA.pitchZoneData,
+        pitchLocationData: summary.pitchLocationData || EMPTY_SET_DATA.pitchLocationData,
         outcomeData: summary.outcomeData || EMPTY_SET_DATA.outcomeData,
       };
     });
@@ -358,7 +360,11 @@ function HistoricalDataPage({ page, onNavigate }) {
               <ZoneHeatmap zoneData={activeSetData?.zoneData} totalPitches={activeSetData?.total || 0} setColor={activeSet?.color} setName={activeSet?.name} />
               <ResultChart setsData={setsData} />
             </div>
-            <NextPitchMap data={activeSetData?.pitchZoneData} filters={activeFilters} />
+            <TendencyChartGuide
+              pitchZoneData={activeSetData?.pitchZoneData}
+              pitchLocationData={activeSetData?.pitchLocationData}
+              filters={activeFilters}
+            />
             <PitchTypeTable data={activeSetData?.pitchTypeData || []} outcomeData={activeSetData?.outcomeData} filters={activeFilters} />
             <OutcomeDistribution data={activeSetData?.outcomeData} filters={activeFilters} />
           </Content>

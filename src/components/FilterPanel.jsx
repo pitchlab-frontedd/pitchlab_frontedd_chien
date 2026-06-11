@@ -17,6 +17,7 @@ const YEAR_OPTIONS = [
 ]
 
 const ZONE_GRID = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+const CHASE_ZONES = [11, 12, 13, 14]
 const COUNT_ROWS = [
   [{ b: 0, s: 0 }, { b: 0, s: 1 }, { b: 0, s: 2 }],
   [{ b: 1, s: 0 }, { b: 1, s: 1 }, { b: 1, s: 2 }],
@@ -193,31 +194,40 @@ function ZoneSelector({ selectedZones, onChange }) {
     if (selectedZones.includes(zone)) onChange(selectedZones.filter(z => z !== zone))
     else onChange([...selectedZones, zone])
   }
+  const renderZone = (zone, size = 40) => {
+    const sel = selectedZones.includes(zone)
+    return (
+      <div
+        key={zone}
+        onClick={() => toggle(zone)}
+        style={{
+          width: size, height: size, border: '1px solid #21262d',
+          background: sel ? 'rgba(240,136,62,0.2)' : '#1c2b42',
+          color: sel ? '#f0883e' : '#c1ccda',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', fontSize: 14, fontWeight: 700,
+          userSelect: 'none', transition: 'all 0.12s',
+        }}
+      >
+        {zone}
+      </div>
+    )
+  }
   return (
-    <div style={{ display: 'inline-block', border: '2px solid #30363d', borderRadius: 4, overflow: 'hidden' }}>
-      {ZONE_GRID.map((row, ri) => (
-        <div key={ri} style={{ display: 'flex' }}>
-          {row.map(zone => {
-            const sel = selectedZones.includes(zone)
-            return (
-              <div
-                key={zone}
-                onClick={() => toggle(zone)}
-                style={{
-                  width: 40, height: 40, border: '1px solid #21262d',
-                  background: sel ? 'rgba(240,136,62,0.2)' : '#1c2b42',
-                  color: sel ? '#f0883e' : '#c1ccda',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', fontSize: 14, fontWeight: 700,
-                  userSelect: 'none', transition: 'all 0.12s',
-                }}
-              >
-                {zone}
-              </div>
-            )
-          })}
-        </div>
-      ))}
+    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <div style={{ display: 'inline-block', border: '2px solid #30363d', borderRadius: 4, overflow: 'hidden' }}>
+        {ZONE_GRID.map((row, ri) => (
+          <div key={ri} style={{ display: 'flex' }}>
+            {row.map(zone => renderZone(zone))}
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, width: 128 }}>
+        {CHASE_ZONES.map(zone => renderZone(zone, 29))}
+      </div>
+      <Text style={{ display: 'block', fontSize: 11, color: '#7f8da1', fontWeight: 700 }}>
+        Zones 11-14
+      </Text>
     </div>
   )
 }

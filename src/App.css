@@ -207,11 +207,192 @@ body {
   margin-bottom: 16px;
 }
 
+.pitch-location-card {
+  margin-bottom: 16px;
+}
+
+.chart-guide-card {
+  margin-bottom: 16px;
+}
+
+.chart-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.chart-guide-button {
+  min-height: 74px;
+  border: 1px solid #334761;
+  border-radius: 8px;
+  background: #111c2b;
+  color: #e6edf3;
+  cursor: pointer;
+  padding: 14px 16px;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+
+.chart-guide-button:hover,
+.chart-guide-button.is-active {
+  border-color: #f0883e;
+  background: rgba(240, 136, 62, 0.12);
+}
+
+.chart-guide-button:active {
+  transform: translateY(1px);
+}
+
+.chart-guide-button span {
+  display: block;
+  color: inherit;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.chart-guide-button .ant-typography {
+  display: block;
+  margin-top: 7px;
+  color: #aeb8c6!important;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.chart-guide-panel {
+  margin-top: 14px;
+}
+
+.chart-guide-panel > .analysis-card {
+  margin-bottom: 0;
+  border-color: #27384f;
+  background: #162235;
+}
+
+.chart-guide-split-panel {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.9fr) minmax(360px, 1.1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.pitch-type-scatter-card {
+  position: relative;
+  border: 1px solid #27384f;
+  border-radius: 8px;
+  background: #162235;
+  padding: 14px;
+}
+
+.pitch-type-scatter-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: #f8f8f6;
+}
+
+.pitch-type-scatter-empty {
+  min-height: 180px;
+  border: 1px dashed #334761;
+  border-radius: 8px;
+  background: #162235;
+  color: #aeb8c6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+}
+
+.pitch-point-popover {
+  position: absolute;
+  left: 24px;
+  top: 24px;
+  z-index: 3;
+  width: min(340px, calc(100% - 48px));
+  border: 1px solid #111;
+  background: rgba(255, 255, 255, 0.96);
+  color: #1f1f1f;
+  padding: 12px 14px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+  text-align: left;
+}
+
+.pitch-point-popover button {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  border: 0;
+  background: transparent;
+  color: #222;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.pitch-point-popover h3 {
+  margin: 0 24px 7px 0;
+  color: #111;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.pitch-point-popover p {
+  margin: 2px 0;
+  color: #222;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.28;
+}
+
+.pitch-location-shell {
+  width: 100%;
+}
+
+.pitch-location-svg {
+  display: block;
+  width: 100%;
+  max-width: 760px;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 10px;
+  background: #f7f7f5;
+}
+
+.pitch-location-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pitch-location-legend span {
+  color: #aeb8c6;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pitch-location-legend div {
+  width: 96px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(to right, rgba(47, 94, 168, 0.2), rgba(111, 145, 200, 0.55), rgba(239, 52, 52, 0.9));
+}
+
 .next-pitch-layout {
   display: grid;
   grid-template-columns: minmax(270px, 360px) minmax(0, 1fr);
   gap: 16px;
   align-items: start;
+}
+
+.next-pitch-zone-wrap {
+  display: grid;
+  gap: 8px;
+  max-width: 360px;
 }
 
 .next-pitch-sample {
@@ -228,6 +409,29 @@ body {
   gap: 6px;
   width: 100%;
   max-width: 360px;
+}
+
+.next-pitch-grid-only {
+  margin: 0 auto;
+}
+
+.next-pitch-outer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+}
+
+.next-pitch-outer-grid .next-pitch-zone-cell {
+  min-height: 78px;
+}
+
+.next-pitch-outer-grid .next-pitch-zone-cell strong {
+  font-size: 12px;
+}
+
+.next-pitch-outer-grid .next-pitch-zone-cell b {
+  font-size: 16px;
 }
 
 .next-pitch-zone-cell {
@@ -285,6 +489,10 @@ body {
   border-radius: 8px;
   background: #162235;
   padding: 14px;
+}
+
+.next-pitch-combos-only {
+  width: 100%;
 }
 
 .next-pitch-list-title {
@@ -536,6 +744,44 @@ body {
     margin-bottom: 12px;
   }
 
+  .pitch-location-card {
+    margin-bottom: 12px;
+  }
+
+  .chart-guide-card {
+    margin-bottom: 12px;
+  }
+
+  .chart-guide-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .chart-guide-button {
+    min-height: 62px;
+    padding: 12px;
+  }
+
+  .chart-guide-button span {
+    font-size: 15px;
+  }
+
+  .chart-guide-button .ant-typography {
+    font-size: 12px;
+  }
+
+  .chart-guide-split-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .pitch-type-scatter-card {
+    padding: 10px;
+  }
+
+  .pitch-location-svg {
+    max-width: 100%;
+  }
+
   .next-pitch-layout {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -545,9 +791,17 @@ body {
     max-width: none;
   }
 
+  .next-pitch-zone-wrap {
+    max-width: none;
+  }
+
   .next-pitch-zone-cell {
     min-height: 86px;
     padding: 20px 6px 8px;
+  }
+
+  .next-pitch-outer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .next-pitch-zone-cell strong {
