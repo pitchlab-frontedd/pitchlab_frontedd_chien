@@ -203,6 +203,85 @@ body {
   color: #e6edf3;
 }
 
+.stats-mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 560px;
+  margin: 0 auto 16px;
+  border: 1px solid #465b78;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #111c2b;
+}
+
+.stats-mode-tabs button {
+  min-height: 46px;
+  border: 0;
+  border-right: 1px solid #465b78;
+  background: transparent;
+  color: #c1ccda;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.stats-mode-tabs button:last-child {
+  border-right: 0;
+}
+
+.stats-mode-tabs button.is-active {
+  background: #3f969c;
+  color: #f8fafc;
+}
+
+.standard-stats-card {
+  margin-bottom: 16px;
+}
+
+.standard-stats-table-wrap {
+  overflow-x: auto;
+}
+
+.standard-stats-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.standard-stats-table th,
+.standard-stats-table td {
+  border-bottom: 1px solid #27384f;
+  padding: 10px 12px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.standard-stats-table th:first-child,
+.standard-stats-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #162235;
+  text-align: left;
+  font-weight: 900;
+}
+
+.standard-stats-table th {
+  color: #d7e0ec;
+  background: #24344a;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.standard-stats-table td {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
 .next-pitch-card {
   margin-bottom: 16px;
 }
@@ -217,7 +296,7 @@ body {
 
 .chart-guide-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
@@ -231,6 +310,16 @@ body {
   padding: 14px 16px;
   text-align: left;
   transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+
+.pitch-tracking-total-row td {
+  background: #263446!important;
+  border-top: 1px solid #3b4f6a!important;
+  font-weight: 900;
+}
+
+.tracking-total-label {
+  color: #e6edf3;
 }
 
 .chart-guide-button:hover,

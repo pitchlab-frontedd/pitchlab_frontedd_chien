@@ -17,7 +17,6 @@ const YEAR_OPTIONS = [
 ]
 
 const ZONE_GRID = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-const CHASE_ZONES = [11, 12, 13, 14]
 const COUNT_ROWS = [
   [{ b: 0, s: 0 }, { b: 0, s: 1 }, { b: 0, s: 2 }],
   [{ b: 1, s: 0 }, { b: 1, s: 1 }, { b: 1, s: 2 }],
@@ -194,39 +193,65 @@ function ZoneSelector({ selectedZones, onChange }) {
     if (selectedZones.includes(zone)) onChange(selectedZones.filter(z => z !== zone))
     else onChange([...selectedZones, zone])
   }
-  const renderZone = (zone, size = 40) => {
+  const renderSvgZone = ({ zone, x, y, width, height, fontSize = 13, labelX, labelY }) => {
     const sel = selectedZones.includes(zone)
     return (
-      <div
+      <g
         key={zone}
         onClick={() => toggle(zone)}
-        style={{
-          width: size, height: size, border: '1px solid #21262d',
-          background: sel ? 'rgba(240,136,62,0.2)' : '#1c2b42',
-          color: sel ? '#f0883e' : '#c1ccda',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', fontSize: 14, fontWeight: 700,
-          userSelect: 'none', transition: 'all 0.12s',
-        }}
+        style={{ cursor: 'pointer' }}
       >
-        {zone}
-      </div>
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          fill={sel ? 'rgba(240,136,62,0.22)' : '#101b28'}
+          stroke={sel ? '#f0883e' : '#2d3642'}
+          strokeWidth={sel ? 1.8 : 1}
+        />
+        <text
+          x={labelX ?? x + width / 2}
+          y={labelY ?? y + height / 2 + 5}
+          textAnchor="middle"
+          fill={sel ? '#f0883e' : '#c1ccda'}
+          fontSize={fontSize}
+          fontWeight="800"
+          style={{ userSelect: 'none' }}
+        >
+          {zone}
+        </text>
+      </g>
     )
   }
+
+  const outerZones = [
+    { zone: 11, x: 0, y: 0, width: 84, height: 84, labelX: 14, labelY: 18 },
+    { zone: 12, x: 84, y: 0, width: 84, height: 84, labelX: 154, labelY: 18 },
+    { zone: 13, x: 0, y: 84, width: 84, height: 84, labelX: 14, labelY: 156 },
+    { zone: 14, x: 84, y: 84, width: 84, height: 84, labelX: 154, labelY: 156 },
+  ]
+
   return (
-    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      <div style={{ display: 'inline-block', border: '2px solid #30363d', borderRadius: 4, overflow: 'hidden' }}>
-        {ZONE_GRID.map((row, ri) => (
-          <div key={ri} style={{ display: 'flex' }}>
-            {row.map(zone => renderZone(zone))}
-          </div>
-        ))}
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, width: 128 }}>
-        {CHASE_ZONES.map(zone => renderZone(zone, 29))}
-      </div>
+    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <svg width="178" height="178" viewBox="-5 -5 178 178" role="img" aria-label="Select Statcast zones">
+        <rect x="0" y="0" width="168" height="168" rx="4" fill="#101b28" stroke="#30363d" strokeWidth="2" />
+        {outerZones.map(renderSvgZone)}
+        <g transform="translate(34 34)">
+          <rect x="0" y="0" width="100" height="100" fill="#101b28" stroke="#30363d" strokeWidth="2" />
+          {ZONE_GRID.flatMap((row, ri) => row.map((zone, ci) => renderSvgZone({
+            zone,
+            x: ci * 100 / 3,
+            y: ri * 100 / 3,
+            width: 100 / 3,
+            height: 100 / 3,
+            fontSize: 12,
+          })))}
+          <rect x="0" y="0" width="100" height="100" fill="none" stroke="#30363d" strokeWidth="2" pointerEvents="none" />
+        </g>
+      </svg>
       <Text style={{ display: 'block', fontSize: 11, color: '#7f8da1', fontWeight: 700 }}>
-        Zones 11-14
+        Click to select zones
       </Text>
     </div>
   )

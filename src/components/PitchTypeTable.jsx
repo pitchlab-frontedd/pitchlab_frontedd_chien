@@ -18,7 +18,7 @@ const METRIC_HELP = {
   '3B': 'Triples allowed.',
   HR: 'Home runs allowed.',
   SO: 'Strikeouts.',
-  BBE: 'Batted balls.',
+  BB: 'Walks allowed.',
   BA: 'Batting average allowed.',
   SLG: 'Slugging allowed.',
   wOBA: 'Weighted on-base average.',
@@ -110,6 +110,70 @@ const runValueText = value => {
   return Number(value).toFixed(3)
 }
 
+const sumBy = (rows, key) => rows.reduce((sum, row) => sum + Number(row[key] || 0), 0)
+
+const weightedAverage = (rows, valueKey, weightKey = 'count', digits = 1) => {
+  const weighted = rows.reduce((sum, row) => {
+    const value = Number(row[valueKey])
+    const weight = Number(row[weightKey] || 0)
+    return Number.isFinite(value) ? sum + value * weight : sum
+  }, 0)
+  const totalWeight = rows.reduce((sum, row) => {
+    const value = Number(row[valueKey])
+    const weight = Number(row[weightKey] || 0)
+    return Number.isFinite(value) ? sum + weight : sum
+  }, 0)
+  return totalWeight > 0 ? +(weighted / totalWeight).toFixed(digits) : null
+}
+
+const averageFrom = (sum, count, digits = 3) => (
+  count > 0 ? +(sum / count).toFixed(digits) : null
+)
+
+const buildTotalRow = rows => {
+  const count = sumBy(rows, 'count')
+  const ab = sumBy(rows, 'ab')
+  const h = sumBy(rows, 'h')
+  const singles = sumBy(rows, 'singles')
+  const doubles = sumBy(rows, 'doubles')
+  const triples = sumBy(rows, 'triples')
+  const hr = sumBy(rows, 'hr')
+  const totalBases = rows.some(row => row.totalBases !== undefined)
+    ? sumBy(rows, 'totalBases')
+    : singles + doubles * 2 + triples * 3 + hr * 4
+  const wobaNumerator = sumBy(rows, 'wobaNumerator')
+  const wobaDenominator = sumBy(rows, 'wobaDenominator')
+  const swingAttempts = sumBy(rows, 'swingAttempts')
+  const swingingStrikes = sumBy(rows, 'swingingStrikes')
+  const twoStrikePitches = sumBy(rows, 'twoStrikePitches')
+  const putAway = sumBy(rows, 'putAway')
+
+  return {
+    pitchType: 'Total',
+    count,
+    rhb: sumBy(rows, 'rhb') || null,
+    lhb: sumBy(rows, 'lhb') || null,
+    expectedRuns: weightedAverage(rows, 'expectedRuns', 'count', 3),
+    winProbChange: weightedAverage(rows, 'winProbChange', 'count', 2),
+    pct: count > 0 ? 100 : null,
+    mph: weightedAverage(rows, 'mph', 'count', 1),
+    pa: sumBy(rows, 'pa'),
+    ab,
+    h,
+    singles,
+    doubles,
+    triples,
+    hr,
+    so: sumBy(rows, 'so'),
+    bb: sumBy(rows, 'bb'),
+    ba: averageFrom(h, ab, 3),
+    slg: averageFrom(totalBases, ab, 3),
+    woba: averageFrom(wobaNumerator, wobaDenominator, 3),
+    whiffPct: swingAttempts > 0 ? +((swingingStrikes / swingAttempts) * 100).toFixed(1) : null,
+    putAwayPct: twoStrikePitches > 0 ? +((putAway / twoStrikePitches) * 100).toFixed(1) : null,
+  }
+}
+
 const right = {
   align: 'right',
 }
@@ -120,7 +184,9 @@ const buildColumns = metricHelp => [
     dataIndex: 'pitchType',
     align: 'left',
     width: 132,
-    render: pt => (
+    render: pt => pt === 'Total' ? (
+      <span className="tracking-pitch-type tracking-total-label">Total</span>
+    ) : (
       <span
         className="tracking-pitch-type"
         style={{ color: pitchTypeColor(pt) }}
@@ -152,7 +218,7 @@ const buildColumns = metricHelp => [
   { title: metricTitle('3B', metricHelp['3B']), dataIndex: 'triples', sorter: (a, b) => (a.triples || 0) - (b.triples || 0), width: 50, render: numericCell, ...right },
   { title: metricTitle('HR', metricHelp.HR), dataIndex: 'hr', sorter: (a, b) => (a.hr || 0) - (b.hr || 0), width: 52, render: numericCell, ...right },
   { title: metricTitle('SO', metricHelp.SO), dataIndex: 'so', sorter: (a, b) => (a.so || 0) - (b.so || 0), width: 52, render: numericCell, ...right },
-  { title: metricTitle('BBE', metricHelp.BBE), dataIndex: 'bbe', sorter: (a, b) => (a.bbe || 0) - (b.bbe || 0), width: 60, render: numericCell, ...right },
+  { title: metricTitle('BB', metricHelp.BB), dataIndex: 'bb', sorter: (a, b) => (a.bb || 0) - (b.bb || 0), width: 52, render: numericCell, ...right },
   { title: metricTitle('BA', metricHelp.BA), dataIndex: 'ba', sorter: (a, b) => (a.ba || 0) - (b.ba || 0), width: 64, render: rateCell, ...right },
   { title: metricTitle('SLG', metricHelp.SLG), dataIndex: 'slg', sorter: (a, b) => (a.slg || 0) - (b.slg || 0), width: 68, render: rateCell, ...right },
   { title: metricTitle('wOBA', metricHelp.wOBA), dataIndex: 'woba', sorter: (a, b) => (a.woba || 0) - (b.woba || 0), width: 76, render: rateCell, ...right },
@@ -174,6 +240,16 @@ export default function PitchTypeTable({ data, outcomeData, filters }) {
     }
   })
   const hasData = rows.length > 0
+  const totalRow = hasData ? buildTotalRow(rows) : null
+  const summaryCell = (column, index) => {
+    const value = totalRow?.[column.dataIndex]
+    const content = column.render ? column.render(value, totalRow, index) : value
+    return (
+      <Table.Summary.Cell key={column.dataIndex || index} index={index} align={column.align}>
+        {content}
+      </Table.Summary.Cell>
+    )
+  }
 
   return (
     <section className="analysis-card">
@@ -194,9 +270,16 @@ export default function PitchTypeTable({ data, outcomeData, filters }) {
             size="small"
             scroll={{ x: 1510 }}
             showSorterTooltip={false}
+            summary={() => (
+              <Table.Summary fixed>
+                <Table.Summary.Row className="pitch-tracking-total-row">
+                  {columns.map(summaryCell)}
+                </Table.Summary.Row>
+              </Table.Summary>
+            )}
           />
           <div className="pitch-tracking-mobile-list">
-            {rows.map(row => {
+            {[...rows, totalRow].map(row => {
               const wpa = Number(row.winProbChange || 0)
               const xRuns = Number(row.expectedRuns || 0)
               return (

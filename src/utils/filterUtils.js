@@ -59,6 +59,18 @@ const average = (sum, count, digits = 1) => (
   count > 0 ? +(sum / count).toFixed(digits) : null
 )
 
+const outsOnPlay = event => {
+  if ([
+    'grounded_into_double_play',
+    'double_play',
+    'strikeout_double_play',
+    'sac_fly_double_play',
+    'sac_bunt_double_play',
+  ].includes(event)) return 2
+  if (OUT_EVENTS.has(event) || event === 'strikeout') return 1
+  return 0
+}
+
 /**
  * 過濾邏輯：確保 ID 全部轉為字串進行比對，並支援單選投手或打者
  */
@@ -168,7 +180,7 @@ export function aggregateByPitchType(pitches) {
       byType[type] = {
         total: 0, ball: 0, called_strike: 0, swinging_strike: 0, foul: 0, in_play_out: 0, in_play_hit: 0,
         rhb: 0, lhb: 0, speedSum: 0, speedCount: 0,
-        pa: 0, ab: 0, h: 0, singles: 0, doubles: 0, triples: 0, hr: 0, so: 0, bbe: 0,
+        pa: 0, ab: 0, h: 0, singles: 0, doubles: 0, triples: 0, hr: 0, so: 0, bb: 0, hbp: 0, outs: 0, runs: 0, bbe: 0,
         totalBases: 0, wobaNumerator: 0, wobaDenominator: 0, twoStrikePitches: 0, putAway: 0,
       };
     }
@@ -188,6 +200,8 @@ export function aggregateByPitchType(pitches) {
     const event = p.events || '';
     if (event) {
       byType[type].pa++;
+      byType[type].outs += outsOnPlay(event);
+      byType[type].runs += Number(p.runs_on_pa || 0);
       if (AT_BAT_EVENTS.has(event)) byType[type].ab++;
       if (HIT_EVENTS.has(event)) byType[type].h++;
       if (event === 'single') byType[type].singles++;
@@ -195,6 +209,8 @@ export function aggregateByPitchType(pitches) {
       if (event === 'triple') byType[type].triples++;
       if (event === 'home_run') byType[type].hr++;
       if (event === 'strikeout') byType[type].so++;
+      if (event === 'walk' || event === 'intent_walk') byType[type].bb++;
+      if (event === 'hit_by_pitch') byType[type].hbp++;
       byType[type].totalBases += TOTAL_BASES_BY_EVENT[event] || 0;
       byType[type].wobaNumerator += WOBA_WEIGHTS[event] || 0;
       if (ON_BASE_EVENTS.has(event) || AT_BAT_EVENTS.has(event)) byType[type].wobaDenominator++;
@@ -225,7 +241,18 @@ export function aggregateByPitchType(pitches) {
         triples: d.triples,
         hr: d.hr,
         so: d.so,
+        bb: d.bb,
+        hbp: d.hbp,
+        outs: d.outs,
+        runs: d.runs,
         bbe: d.bbe,
+        totalBases: d.totalBases,
+        wobaNumerator: d.wobaNumerator,
+        wobaDenominator: d.wobaDenominator,
+        swingAttempts,
+        swingingStrikes: d.swinging_strike,
+        twoStrikePitches: d.twoStrikePitches,
+        putAway: d.putAway,
         ba: average(d.h, d.ab, 3),
         slg: average(d.totalBases, d.ab, 3),
         woba: average(d.wobaNumerator, d.wobaDenominator, 3),

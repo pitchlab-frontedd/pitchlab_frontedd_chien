@@ -7,8 +7,8 @@ import SummaryStats from './components/SummaryStats'
 import ZoneHeatmap from './components/ZoneHeatmap'
 import ResultChart from './components/ResultChart'
 import PitchTypeTable from './components/PitchTypeTable'
-import OutcomeDistribution from './components/OutcomeDistribution'
 import TendencyChartGuide from './components/TendencyChartGuide'
+import StandardStatsTable from './components/StandardStatsTable'
 import PageNavbar from './components/PageNavbar'
 import LandingPage from './pages/LandingPage'
 import FeaturesPage from './pages/FeaturesPage'
@@ -35,6 +35,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://new-baseball-
 const EMPTY_SET_DATA = {
   total: 0,
   summaryStats: null,
+  standardStats: null,
   resultData: [],
   pitchTypeData: [],
   zoneData: {},
@@ -69,6 +70,7 @@ function HistoricalDataPage({ page, onNavigate }) {
   ]);
   const [activeSetId, setActiveSetId] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [statsMode, setStatsMode] = useState('standard');
 
   // 1. 初始載入
   useEffect(() => {
@@ -176,6 +178,7 @@ function HistoricalDataPage({ page, onNavigate }) {
         return {
           total: rows.length,
           summaryStats: getSummaryStats(rows),
+          standardStats: null,
           resultData: aggregateByResult(rows),
           pitchTypeData: aggregateByPitchType(rows),
           zoneData: aggregateByZone(rows),
@@ -255,6 +258,7 @@ function HistoricalDataPage({ page, onNavigate }) {
         ...set,
         total: summary.total || 0,
         summaryStats: summary.summaryStats,
+        standardStats: summary.standardStats,
         resultData: summary.resultData || [],
         pitchTypeData: summary.pitchTypeData || [],
         zoneData: summary.zoneData || {},
@@ -355,18 +359,39 @@ function HistoricalDataPage({ page, onNavigate }) {
           </Sider>
 
           <Content className="history-content" style={{ padding: '20px', background: '#111c2b', minHeight: 'calc(100vh - 110px)', overflow: 'auto' }}>
-            <SummaryStats setsData={setsData} />
-            <div className="history-visual-grid" style={{ display: 'grid', gridTemplateColumns: '310px 1fr', gap: 16, marginBottom: 16 }}>
-              <ZoneHeatmap zoneData={activeSetData?.zoneData} totalPitches={activeSetData?.total || 0} setColor={activeSet?.color} setName={activeSet?.name} />
-              <ResultChart setsData={setsData} />
+            <div className="stats-mode-tabs" role="tablist" aria-label="Statistics view">
+              <button
+                type="button"
+                className={statsMode === 'standard' ? 'is-active' : ''}
+                onClick={() => setStatsMode('standard')}
+              >
+                Standard
+              </button>
+              <button
+                type="button"
+                className={statsMode === 'advanced' ? 'is-active' : ''}
+                onClick={() => setStatsMode('advanced')}
+              >
+                Advanced
+              </button>
             </div>
-            <TendencyChartGuide
-              pitchZoneData={activeSetData?.pitchZoneData}
-              pitchLocationData={activeSetData?.pitchLocationData}
-              filters={activeFilters}
-            />
-            <PitchTypeTable data={activeSetData?.pitchTypeData || []} outcomeData={activeSetData?.outcomeData} filters={activeFilters} />
-            <OutcomeDistribution data={activeSetData?.outcomeData} filters={activeFilters} />
+            {statsMode === 'standard' ? (
+              <StandardStatsTable data={activeSetData?.pitchTypeData || []} filters={activeFilters} standardStats={activeSetData?.standardStats} />
+            ) : (
+              <>
+                <SummaryStats setsData={setsData} />
+                <div className="history-visual-grid" style={{ display: 'grid', gridTemplateColumns: '310px 1fr', gap: 16, marginBottom: 16 }}>
+                  <ZoneHeatmap zoneData={activeSetData?.zoneData} totalPitches={activeSetData?.total || 0} setColor={activeSet?.color} setName={activeSet?.name} />
+                  <ResultChart setsData={setsData} />
+                </div>
+                <TendencyChartGuide
+                  pitchZoneData={activeSetData?.pitchZoneData}
+                  pitchLocationData={activeSetData?.pitchLocationData}
+                  filters={activeFilters}
+                />
+                <PitchTypeTable data={activeSetData?.pitchTypeData || []} outcomeData={activeSetData?.outcomeData} filters={activeFilters} />
+              </>
+            )}
           </Content>
         </Layout>
       </Layout>

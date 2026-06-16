@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Typography } from 'antd'
 import NextPitchMap from './NextPitchMap'
-import PitchLocationHeatmap from './PitchLocationHeatmap'
 import PitchTypeLocationScatter from './PitchTypeLocationScatter'
 
 const { Text } = Typography
@@ -11,11 +10,6 @@ const CHARTS = [
     key: 'zone',
     label: 'Pitch Types By Location',
     description: '9-zone pitch type tendency',
-  },
-  {
-    key: 'heatmap',
-    label: 'Pitch Heatmap',
-    description: 'Precise plate_x / plate_z density',
   },
 ]
 
@@ -52,12 +46,6 @@ export default function TendencyChartGuide({ pitchZoneData, pitchLocationData, f
         <div className="chart-guide-panel chart-guide-split-panel">
           <NextPitchMap data={pitchZoneData} filters={filters} />
           <PitchTypeLocationScatter data={pitchLocationData} />
-        </div>
-      )}
-
-      {activeChart === 'heatmap' && (
-        <div className="chart-guide-panel">
-          <PitchLocationHeatmap data={pitchLocationData} filters={filters} />
         </div>
       )}
     </section>

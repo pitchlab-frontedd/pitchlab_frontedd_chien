@@ -37,6 +37,36 @@ const dash = value => {
   return value
 }
 
+const hasDetailValue = value => (
+  value !== null
+  && value !== undefined
+  && value !== ''
+  && value !== '-'
+)
+
+const IN_PLAY_EVENTS = new Set([
+  'field_out',
+  'force_out',
+  'grounded_into_double_play',
+  'double_play',
+  'fielders_choice',
+  'fielders_choice_out',
+  'single',
+  'double',
+  'triple',
+  'home_run',
+  'field_error',
+  'sac_fly',
+  'sac_bunt',
+  'sac_fly_double_play',
+  'sac_bunt_double_play',
+])
+
+const isInPlay = point => (
+  point?.description === 'hit_into_play'
+  || IN_PLAY_EVENTS.has(point?.events)
+)
+
 export default function PitchTypeLocationScatter({ data }) {
   const [selectedPoint, setSelectedPoint] = useState(null)
   const points = data?.points || []
@@ -52,6 +82,12 @@ export default function PitchTypeLocationScatter({ data }) {
   const plateHalfWidth = 54
   const plateDepth = 24
   const selectedPitchName = selectedPoint ? pitchTypeLabel(selectedPoint.pitchType) : ''
+  const hasBattedBallData = selectedPoint && (
+    hasDetailValue(selectedPoint.launchSpeed)
+    || hasDetailValue(selectedPoint.launchAngle)
+    || hasDetailValue(selectedPoint.contactType)
+  )
+  const isMissingTrackedBattedBall = selectedPoint && isInPlay(selectedPoint) && !hasBattedBallData
 
   if (!points.length) {
     return (
@@ -105,13 +141,18 @@ export default function PitchTypeLocationScatter({ data }) {
           <p>Pitcher: {selectedPoint.pitcherName || '-'}</p>
           <p>Date: {selectedPoint.gameDate || '-'}</p>
           <p>Pitch Speed: {dash(selectedPoint.releaseSpeed)}</p>
-          <p>Exit Velocity: {dash(selectedPoint.launchSpeed)}</p>
-          <p>Launch Angle: {dash(selectedPoint.launchAngle)}</p>
           <p>Inning: {dash(selectedPoint.inning)}</p>
           <p>Count: {dash(selectedPoint.balls)}-{dash(selectedPoint.strikes)}</p>
           <p>Outs: {dash(selectedPoint.outs)}</p>
           <p>Result: {titleCase(selectedPoint.events || selectedPoint.description)}</p>
-          <p>Contact Type: {titleCase(selectedPoint.contactType)}</p>
+          {hasBattedBallData && (
+            <>
+              <p>Exit Velocity: {dash(selectedPoint.launchSpeed)}</p>
+              <p>Launch Angle: {dash(selectedPoint.launchAngle)}</p>
+              <p>Contact Type: {titleCase(selectedPoint.contactType)}</p>
+            </>
+          )}
+          {isMissingTrackedBattedBall && <p>Batted Ball: Not tracked</p>}
         </div>
       )}
     </div>
