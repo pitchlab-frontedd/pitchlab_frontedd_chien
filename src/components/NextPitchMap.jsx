@@ -27,7 +27,7 @@ export default function NextPitchMap({ data, filters }) {
       <div className="analysis-heading">
         <div>
           <h2>Next Pitch Tendencies</h2>
-          <p>{describeCount(filters?.counts)} historical pitch-zone distribution for the active filters.</p>
+          <p>{describeCount(filters?.counts)} following-pitch distribution after the active filters.</p>
         </div>
         {hasData && <span className="next-pitch-sample">n={total}</span>}
       </div>
