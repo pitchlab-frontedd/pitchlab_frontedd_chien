@@ -15,30 +15,38 @@ export const DEFAULT_FILTERS = {
   runnerBases: { first: false, second: false, third: false },
 }
 
-/**
- * 核心翻譯器：將 Statcast 的原始代碼轉換為前端需要的標籤
- * 防止 p.result 找不到的情況
- */
+// Batter-out events: fielders_choice excluded (batter reaches base)
+const BATTER_OUT_EVENTS = new Set([
+  'field_out', 'strikeout', 'force_out', 'grounded_into_double_play',
+  'fielders_choice_out', 'double_play',
+  'sac_fly', 'sac_bunt', 'strikeout_double_play',
+])
+
 const getResultType = (p) => {
   if (p.type === 'B') return 'ball';
   if (p.description === 'called_strike') return 'called_strike';
   if (p.description?.includes('swinging_strike')) return 'swinging_strike';
   if (p.description === 'foul') return 'foul';
   if (p.type === 'X') {
-    // 加上安全判斷，避免 events 為 null 時報錯
-    return (p.events && p.events.includes('out')) ? 'in_play_out' : 'in_play_hit';
+    return BATTER_OUT_EVENTS.has(p.events) ? 'in_play_out' : 'in_play_hit';
   }
   return 'other';
 };
 
 const HIT_EVENTS = new Set(['single', 'double', 'triple', 'home_run'])
-const OUT_EVENTS = new Set([
+// OUT_EVENTS: events where the batter is out (fielders_choice removed — batter reaches base)
+const OUT_EVENTS = BATTER_OUT_EVENTS
+// AB_EVENTS: official at-bat events (excludes sac_fly, sac_bunt per baseball rules)
+const AB_EVENTS = new Set([
+  ...HIT_EVENTS,
   'field_out', 'strikeout', 'force_out', 'grounded_into_double_play',
   'fielders_choice', 'fielders_choice_out', 'double_play',
-  'sac_fly', 'sac_bunt', 'strikeout_double_play',
+  'strikeout_double_play', 'field_error',
 ])
-const AT_BAT_EVENTS = new Set([...HIT_EVENTS, ...OUT_EVENTS, 'field_error'])
+const AT_BAT_EVENTS = AB_EVENTS
 const ON_BASE_EVENTS = new Set([...HIT_EVENTS, 'walk', 'intent_walk', 'hit_by_pitch'])
+// wOBA denominator: AB + uBB + HBP + SF (excludes IBB, sac_bunt)
+const WOBA_DENOM_EVENTS = new Set([...AB_EVENTS, 'walk', 'hit_by_pitch', 'sac_fly'])
 const TOTAL_BASES_BY_EVENT = {
   single: 1,
   double: 2,
@@ -47,7 +55,6 @@ const TOTAL_BASES_BY_EVENT = {
 }
 const WOBA_WEIGHTS = {
   walk: 0.69,
-  intent_walk: 0.69,
   hit_by_pitch: 0.72,
   single: 0.88,
   double: 1.25,
@@ -67,7 +74,7 @@ const outsOnPlay = event => {
     'sac_fly_double_play',
     'sac_bunt_double_play',
   ].includes(event)) return 2
-  if (OUT_EVENTS.has(event) || event === 'strikeout') return 1
+  if (OUT_EVENTS.has(event)) return 1
   return 0
 }
 
@@ -202,7 +209,7 @@ export function aggregateByPitchType(pitches) {
       byType[type].pa++;
       byType[type].outs += outsOnPlay(event);
       byType[type].runs += Number(p.runs_on_pa || 0);
-      if (AT_BAT_EVENTS.has(event)) byType[type].ab++;
+      if (AB_EVENTS.has(event)) byType[type].ab++;
       if (HIT_EVENTS.has(event)) byType[type].h++;
       if (event === 'single') byType[type].singles++;
       if (event === 'double') byType[type].doubles++;
@@ -213,7 +220,7 @@ export function aggregateByPitchType(pitches) {
       if (event === 'hit_by_pitch') byType[type].hbp++;
       byType[type].totalBases += TOTAL_BASES_BY_EVENT[event] || 0;
       byType[type].wobaNumerator += WOBA_WEIGHTS[event] || 0;
-      if (ON_BASE_EVENTS.has(event) || AT_BAT_EVENTS.has(event)) byType[type].wobaDenominator++;
+      if (WOBA_DENOM_EVENTS.has(event)) byType[type].wobaDenominator++;
     }
 
     if (['in_play_out', 'in_play_hit'].includes(rType)) byType[type].bbe++;
@@ -301,7 +308,7 @@ export function aggregateByZone(pitches) {
 // 5. 統計總覽指標
 export function getSummaryStats(pitches) {
   if (!pitches || pitches.length === 0) return null;
-  const stats = { n: pitches.length, cs: 0, ss: 0, ball: 0, swings: 0, inPlay: 0, hits: 0 };
+  const stats = { n: pitches.length, cs: 0, ss: 0, ball: 0, swings: 0, inPlay: 0, hits: 0, hr: 0 };
 
   pitches.forEach(p => {
     const res = getResultType(p);
@@ -311,14 +318,17 @@ export function getSummaryStats(pitches) {
     if (['swinging_strike', 'foul', 'in_play_out', 'in_play_hit'].includes(res)) stats.swings++;
     if (['in_play_out', 'in_play_hit'].includes(res)) stats.inPlay++;
     if (res === 'in_play_hit') stats.hits++;
+    if (p.events === 'home_run') stats.hr++;
   });
 
+  const babipHits = stats.hits - stats.hr;
+  const babipInPlay = stats.inPlay - stats.hr;
   return {
     total: stats.n,
     strikeRate: +(((stats.n - stats.ball) / stats.n) * 100).toFixed(1),
     swingRate: +((stats.swings / stats.n) * 100).toFixed(1),
     whiffRate: stats.swings > 0 ? +((stats.ss / stats.swings) * 100).toFixed(1) : 0,
     cswRate: +(((stats.cs + stats.ss) / stats.n) * 100).toFixed(1),
-    babip: stats.inPlay > 0 ? +((stats.hits / stats.inPlay) * 100).toFixed(1) : 0,
+    babip: babipInPlay > 0 ? +((babipHits / babipInPlay) * 100).toFixed(1) : 0,
   };
 }
