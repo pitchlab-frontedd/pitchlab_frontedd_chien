@@ -97,10 +97,39 @@ const METRICS = [
   { key: 'whiff', label: 'Whiff%', color: '255,107,107', help: 'Misses divided by swings.' },
 ]
 
+function computeZoneChase(zoneData) {
+  if (!zoneData) return { zonePct: null, chasePct: null }
+
+  let inZoneTotal = 0
+  let allTotal = 0
+  let chaseSwings = 0
+  let chaseTotal = 0
+
+  const STRIKE_ZONES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  const CHASE_ZONES = [11, 12, 13, 14]
+
+  ;[...STRIKE_ZONES, ...CHASE_ZONES].forEach(z => {
+    const d = zoneData[z]
+    if (!d) return
+    allTotal += d.total
+    if (STRIKE_ZONES.includes(z)) inZoneTotal += d.total
+    if (CHASE_ZONES.includes(z)) {
+      chaseTotal += d.total
+      chaseSwings += d.swinging_strike + d.foul + d.in_play_out + d.in_play_hit
+    }
+  })
+
+  return {
+    zonePct: allTotal > 0 ? +((inZoneTotal / allTotal) * 100).toFixed(1) : null,
+    chasePct: chaseTotal > 0 ? +((chaseSwings / chaseTotal) * 100).toFixed(1) : null,
+  }
+}
+
 export default function ZoneHeatmap({ zoneData, setName, setColor }) {
   const [metric, setMetric] = useState('out')
   const [tooltip, setTooltip] = useState(null)
   const metricConfig = METRICS.find(m => m.key === metric)
+  const { zonePct, chasePct } = computeZoneChase(zoneData)
 
   const getValue = (zone) => {
     const d = zoneData?.[zone]
@@ -232,6 +261,41 @@ export default function ZoneHeatmap({ zoneData, setName, setColor }) {
           <rect x={0} y={0} width={width} height={height} fill="none" stroke="#30363d" strokeWidth={2} />
         </svg>
       </div>
+
+      {(zonePct !== null || chasePct !== null) && (
+        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+          <Tooltip title="Pitches thrown inside the strike zone (zones 1–9) as a percentage of all pitches." placement="top">
+            <div style={{
+              flex: 1, background: '#0d1117', border: '1px solid #21262d',
+              borderRadius: 6, padding: '6px 10px',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              cursor: 'help',
+            }}>
+              <Text style={{ fontSize: 10, color: '#484f58', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                Zone%
+              </Text>
+              <Text style={{ fontSize: 15, fontWeight: 700, color: '#e3b341', fontFamily: 'JetBrains Mono, monospace' }}>
+                {zonePct !== null ? `${zonePct}%` : '—'}
+              </Text>
+            </div>
+          </Tooltip>
+          <Tooltip title="Rate at which batters swing at pitches outside the strike zone (zones 11–14)." placement="top">
+            <div style={{
+              flex: 1, background: '#0d1117', border: '1px solid #21262d',
+              borderRadius: 6, padding: '6px 10px',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              cursor: 'help',
+            }}>
+              <Text style={{ fontSize: 10, color: '#484f58', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                Chase%
+              </Text>
+              <Text style={{ fontSize: 15, fontWeight: 700, color: '#ff7b72', fontFamily: 'JetBrains Mono, monospace' }}>
+                {chasePct !== null ? `${chasePct}%` : '—'}
+              </Text>
+            </div>
+          </Tooltip>
+        </div>
+      )}
 
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 10 }}>
         <Text style={{ fontSize: 10, color: '#484f58' }}>Low</Text>
