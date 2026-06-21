@@ -3,7 +3,7 @@ import { Tooltip, Typography } from 'antd'
 
 const { Text } = Typography
 
-const CELL = 54
+const CELL = 62
 const GRID = 5
 const SIZE = CELL * GRID
 const RING = CELL
@@ -246,7 +246,7 @@ export default function ZoneHeatmap({ zoneData, setName, setColor }) {
                   {zone}
                 </text>
                 <text x={x + cellWidth / 2} y={y + cellHeight / 2} textAnchor="middle"
-                  dominantBaseline="middle" fontSize={20} fontWeight="800"
+                  dominantBaseline="middle" fontSize={22} fontWeight="800"
                   fill={textCol} fontFamily="JetBrains Mono, monospace">
                   {main}
                 </text>
