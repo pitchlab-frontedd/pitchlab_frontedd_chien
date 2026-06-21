@@ -99,6 +99,7 @@ const METRICS = [
 
 export default function ZoneHeatmap({ zoneData, setName, setColor }) {
   const [metric, setMetric] = useState('out')
+  const [tooltip, setTooltip] = useState(null)
   const metricConfig = METRICS.find(m => m.key === metric)
 
   const getValue = (zone) => {
@@ -176,10 +177,13 @@ export default function ZoneHeatmap({ zoneData, setName, setColor }) {
         <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ borderRadius: 4, overflow: 'hidden' }}>
           <rect width={width} height={height} fill="#0d1117" />
           {OUTER_CELLS.map(({ zone, path, labelX, labelY, valueX, valueY }) => {
-            const { main } = getDisplayText(zone)
+            const { main, sub } = getDisplayText(zone)
             const textCol = getCellTextColor(zone)
             return (
-              <g key={zone}>
+              <g key={zone}
+                onMouseMove={(e) => sub && setTooltip({ text: sub, x: e.clientX, y: e.clientY })}
+                onMouseLeave={() => setTooltip(null)}
+              >
                 <path d={pathD(path)} fill={getCellBg(zone)} />
                 <text x={labelX} y={labelY} textAnchor="start"
                   fontSize={10} fill={textCol} opacity={0.4}
@@ -202,22 +206,20 @@ export default function ZoneHeatmap({ zoneData, setName, setColor }) {
             const { main, sub } = getDisplayText(zone)
             const textCol = getCellTextColor(zone)
             return (
-              <g key={zone}>
+              <g key={zone}
+                onMouseMove={(e) => sub && setTooltip({ text: sub, x: e.clientX, y: e.clientY })}
+                onMouseLeave={() => setTooltip(null)}
+              >
                 <rect x={x} y={y} width={cellWidth} height={cellHeight} fill={getCellBg(zone)} />
                 <text x={x + 10} y={y + 16} textAnchor="start"
                   fontSize={10} fill={textCol} opacity={0.4}
                   fontFamily="JetBrains Mono, monospace" fontWeight="700">
                   {zone}
                 </text>
-                <text x={x + cellWidth / 2} y={y + cellHeight / 2 + 4} textAnchor="middle"
+                <text x={x + cellWidth / 2} y={y + cellHeight / 2} textAnchor="middle"
                   dominantBaseline="middle" fontSize={20} fontWeight="800"
                   fill={textCol} fontFamily="JetBrains Mono, monospace">
                   {main}
-                </text>
-                <text x={x + cellWidth / 2} y={y + cellHeight - 12} textAnchor="middle"
-                  fontSize={10} fill={textCol} opacity={0.6}
-                  fontFamily="JetBrains Mono, monospace">
-                  {sub}
                 </text>
               </g>
             )
@@ -239,6 +241,18 @@ export default function ZoneHeatmap({ zoneData, setName, setColor }) {
         }} />
         <Text style={{ fontSize: 10, color: '#484f58' }}>High</Text>
       </div>
+
+      {tooltip && (
+        <div style={{
+          position: 'fixed', left: tooltip.x + 14, top: tooltip.y - 32,
+          background: '#1f2937', border: '1px solid #374151', borderRadius: 4,
+          padding: '4px 10px', fontSize: 11, color: '#e6edf3',
+          pointerEvents: 'none', zIndex: 9999,
+          fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap',
+        }}>
+          {tooltip.text}
+        </div>
+      )}
     </div>
   )
 }

@@ -28,25 +28,16 @@ export default function FeaturesPage({ page, onNavigate }) {
           <div style={{
             color: '#f0883e',
             fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: 54,
+            fontSize: 88,
             letterSpacing: '0.08em',
             lineHeight: 1,
-            marginBottom: 12,
+            marginBottom: 32,
           }}>
             FEATURES
           </div>
-          <p style={{
-            color: '#8b949e',
-            fontSize: 16,
-            maxWidth: 620,
-            letterSpacing: '0.03em',
-            marginBottom: 32,
-          }}>
-            PitchLab combines MLB pitch-level data with fast filters and compact visual analysis for game planning.
-          </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16 }}>
-            {FEATURES.map((feature, index) => (
+            {FEATURES.map((feature) => (
               <section
                 key={feature.title}
                 style={{
@@ -57,24 +48,20 @@ export default function FeaturesPage({ page, onNavigate }) {
                   minHeight: 160,
                 }}
               >
-                <div style={{
-                  color: '#484f58',
-                  fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: 12,
-                  marginBottom: 18,
-                }}>
-                  0{index + 1}
-                </div>
                 <h2 style={{
                   color: '#e6edf3',
-                  fontSize: 24,
+                  fontSize: 36,
                   letterSpacing: '0.06em',
                   margin: '0 0 10px',
                   fontFamily: "'Bebas Neue', sans-serif",
                 }}>
                   {feature.title}
                 </h2>
-                <p style={{ color: '#8b949e', fontSize: 14, lineHeight: 1.6, margin: 0 }}>
+                <p style={{
+                  color: '#8b949e', fontSize: 18, lineHeight: 1.6, margin: 0,
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 400, letterSpacing: '0.03em',
+                }}>
                   {feature.body}
                 </p>
               </section>
