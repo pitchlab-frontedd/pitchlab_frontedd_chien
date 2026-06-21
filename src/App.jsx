@@ -380,7 +380,7 @@ function HistoricalDataPage({ page, onNavigate }) {
             ) : (
               <>
                 <SummaryStats setsData={setsData} />
-                <div className="history-visual-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, marginBottom: 16 }}>
+                <div className="history-visual-grid" style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: 16, marginBottom: 16 }}>
                   <ZoneHeatmap zoneData={activeSetData?.zoneData} totalPitches={activeSetData?.total || 0} setColor={activeSet?.color} setName={activeSet?.name} />
                   <ResultChart setsData={setsData} />
                 </div>
