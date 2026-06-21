@@ -212,6 +212,7 @@ export default function ZoneHeatmap({ zoneData, setName, setColor }) {
               <g key={zone}
                 onMouseMove={(e) => sub && setTooltip({ text: sub, x: e.clientX, y: e.clientY })}
                 onMouseLeave={() => setTooltip(null)}
+                style={{ cursor: sub ? 'default' : undefined }}
               >
                 <path d={pathD(path)} fill={getCellBg(zone)} />
                 <text x={labelX} y={labelY} textAnchor="start"
@@ -238,6 +239,7 @@ export default function ZoneHeatmap({ zoneData, setName, setColor }) {
               <g key={zone}
                 onMouseMove={(e) => sub && setTooltip({ text: sub, x: e.clientX, y: e.clientY })}
                 onMouseLeave={() => setTooltip(null)}
+                style={{ cursor: sub ? 'default' : undefined }}
               >
                 <rect x={x} y={y} width={cellWidth} height={cellHeight} fill={getCellBg(zone)} />
                 <text x={x + 10} y={y + 16} textAnchor="start"
@@ -308,11 +310,19 @@ export default function ZoneHeatmap({ zoneData, setName, setColor }) {
 
       {tooltip && (
         <div style={{
-          position: 'fixed', left: tooltip.x + 14, top: tooltip.y - 32,
-          background: '#1f2937', border: '1px solid #374151', borderRadius: 4,
-          padding: '4px 10px', fontSize: 11, color: '#e6edf3',
-          pointerEvents: 'none', zIndex: 9999,
-          fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap',
+          position: 'fixed',
+          left: tooltip.x + 14,
+          top: tooltip.y - 32,
+          background: '#1f2937',
+          border: '1px solid #374151',
+          borderRadius: 4,
+          padding: '4px 10px',
+          fontSize: 12,
+          color: '#e6edf3',
+          pointerEvents: 'none',
+          zIndex: 9999,
+          fontFamily: 'JetBrains Mono, monospace',
+          whiteSpace: 'nowrap',
         }}>
           {tooltip.text}
         </div>
