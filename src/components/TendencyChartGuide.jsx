@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Typography } from 'antd'
 import NextPitchMap from './NextPitchMap'
 import PitchTypeLocationScatter from './PitchTypeLocationScatter'
+import VelocityDistribution from './VelocityDistribution'
 
 const { Text } = Typography
 
@@ -11,16 +12,21 @@ const CHARTS = [
     label: 'Pitch Types By Location',
     description: '9-zone pitch type tendency',
   },
+  {
+    key: 'velocity',
+    label: 'Velocity Distribution',
+    description: 'pitch speed KDE by pitch type',
+  },
 ]
 
-export default function TendencyChartGuide({ pitchZoneData, pitchLocationData, filters }) {
+export default function TendencyChartGuide({ pitchZoneData, pitchLocationData, velocityData, filters }) {
   const [activeChart, setActiveChart] = useState(null)
 
   return (
     <section className="analysis-card chart-guide-card">
       <div className="analysis-heading">
         <div>
-          <h2>Tendency Charts</h2>
+          <h2>Pitch Arsenal</h2>
           <p>Open a focused chart for the active filters.</p>
         </div>
       </div>
@@ -46,6 +52,20 @@ export default function TendencyChartGuide({ pitchZoneData, pitchLocationData, f
         <div className="chart-guide-panel chart-guide-split-panel">
           <NextPitchMap data={pitchZoneData} filters={filters} />
           <PitchTypeLocationScatter data={pitchLocationData} />
+        </div>
+      )}
+
+      {activeChart === 'velocity' && (
+        <div className="chart-guide-panel">
+          <div className="analysis-card" style={{ background: '#162235', borderColor: '#27384f' }}>
+            <div className="analysis-heading" style={{ marginBottom: 14 }}>
+              <div>
+                <h2 style={{ fontSize: 16 }}>Velocity Distribution</h2>
+                <p>Kernel density of release speed by pitch type.</p>
+              </div>
+            </div>
+            <VelocityDistribution data={velocityData || {}} />
+          </div>
         </div>
       )}
     </section>

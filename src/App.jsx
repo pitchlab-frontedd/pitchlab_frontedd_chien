@@ -387,6 +387,7 @@ function HistoricalDataPage({ page, onNavigate }) {
                 <TendencyChartGuide
                   pitchZoneData={activeSetData?.pitchZoneData}
                   pitchLocationData={activeSetData?.pitchLocationData}
+                  velocityData={activeSetData?.velocityData}
                   filters={activeFilters}
                 />
                 <PitchTypeTable data={activeSetData?.pitchTypeData || []} outcomeData={activeSetData?.outcomeData} filters={activeFilters} />
