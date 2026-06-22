@@ -270,7 +270,16 @@ function HistoricalDataPage({ page, onNavigate }) {
     });
   }, [sets, setSummaries]);
 
-  const activeSetData = setsData.find(s => s.id === activeSetId);
+  const activeSetData = setsData.find(s => s.id === activeSetId)
+
+  const activePitcherName = useMemo(() => {
+    if (!activeFilters.pitcherIds?.length) return null
+    const ids = activeFilters.pitcherIds.map(String)
+    const matches = availablePitchers.filter(p => ids.includes(String(p.id)))
+    if (!matches.length) return null
+    if (matches.length === 1) return matches[0].name
+    return matches.map(p => p.name.split(' ').pop()).join(' / ')
+  }, [activeFilters.pitcherIds, availablePitchers]);
 
   return (
     <ConfigProvider
@@ -390,6 +399,7 @@ function HistoricalDataPage({ page, onNavigate }) {
                   pitchLocationData={activeSetData?.pitchLocationData}
                   velocityData={activeSetData?.velocityData}
                   filters={activeFilters}
+                  pitcherName={activePitcherName}
                 />
                 <PitchTypeTable data={activeSetData?.pitchTypeData || []} outcomeData={activeSetData?.outcomeData} filters={activeFilters} />
               </>

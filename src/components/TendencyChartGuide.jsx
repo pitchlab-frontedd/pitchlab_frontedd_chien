@@ -19,7 +19,7 @@ const CHARTS = [
   },
 ]
 
-export default function TendencyChartGuide({ pitchZoneData, pitchLocationData, velocityData, filters }) {
+export default function TendencyChartGuide({ pitchZoneData, pitchLocationData, velocityData, filters, pitcherName }) {
   const [activeChart, setActiveChart] = useState(null)
 
   return (
@@ -57,15 +57,11 @@ export default function TendencyChartGuide({ pitchZoneData, pitchLocationData, v
 
       {activeChart === 'velocity' && (
         <div className="chart-guide-panel">
-          <div className="analysis-card" style={{ background: '#162235', borderColor: '#27384f' }}>
-            <div className="analysis-heading" style={{ marginBottom: 14 }}>
-              <div>
-                <h2 style={{ fontSize: 16 }}>Velocity Distribution</h2>
-                <p>Kernel density of release speed by pitch type.</p>
-              </div>
-            </div>
-            <VelocityDistribution data={velocityData || {}} />
-          </div>
+          <VelocityDistribution
+            data={velocityData || {}}
+            pitcherName={pitcherName}
+            filters={filters}
+          />
         </div>
       )}
     </section>
