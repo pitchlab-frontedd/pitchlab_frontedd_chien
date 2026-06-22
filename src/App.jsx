@@ -265,6 +265,7 @@ function HistoricalDataPage({ page, onNavigate }) {
         pitchZoneData: summary.pitchZoneData || EMPTY_SET_DATA.pitchZoneData,
         pitchLocationData: summary.pitchLocationData || EMPTY_SET_DATA.pitchLocationData,
         outcomeData: summary.outcomeData || EMPTY_SET_DATA.outcomeData,
+        velocityData: summary.velocityData,
       };
     });
   }, [sets, setSummaries]);
