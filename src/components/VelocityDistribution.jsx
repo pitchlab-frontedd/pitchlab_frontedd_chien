@@ -166,20 +166,6 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
           {title}
         </text>
 
-        {/* Year watermark inside chart */}
-        {year && (
-          <text
-            x={PAD.left + PLOT_W / 2} y={PAD.top + PLOT_H / 2 - 8}
-            textAnchor="middle" dominantBaseline="middle"
-            fill="#0b6070" fontSize="34" fontWeight="200"
-            fontFamily="Helvetica, Arial, sans-serif"
-            opacity="0.18"
-            style={{ userSelect: 'none', pointerEvents: 'none' }}
-          >
-            {year}
-          </text>
-        )}
-
         {/* Horizontal grid lines */}
         {yTicks.map(v => (
           <line
@@ -230,7 +216,7 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
             key={`fill-${pt}`}
             d={toFillPath(points)}
             fill={pitchTypeColor(pt)}
-            fillOpacity="0.20"
+            fillOpacity="0.13"
             stroke="none"
             clipPath={`url(#${CLIP_ID})`}
           />
@@ -337,7 +323,6 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
               <span style={{ color: '#3d7a8a', marginLeft: 'auto', paddingLeft: 6, fontVariantNumeric: 'tabular-nums' }}>
                 {d.y.toFixed(2)}%
               </span>
-              <span style={{ color: '#6a9aaa', fontSize: 10 }}>n={d.n}</span>
             </div>
           ))}
         </div>
