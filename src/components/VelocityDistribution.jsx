@@ -23,7 +23,7 @@ function gaussianKDE(values, bandwidth, evalPoints) {
 
 const W = 700
 const H = 320
-const PAD = { top: 44, right: 32, bottom: 66, left: 62 }
+const PAD = { top: 44, right: 32, bottom: 50, left: 62 }
 const PLOT_W = W - PAD.left - PAD.right
 const PLOT_H = H - PAD.top - PAD.bottom
 const EVAL_N = 250
@@ -276,7 +276,7 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
 
         {/* X-axis title */}
         <text
-          x={PAD.left + PLOT_W / 2} y={H - 8}
+          x={PAD.left + PLOT_W / 2} y={baseY + 34}
           textAnchor="middle"
           fill="#1f6070" fontSize="11" fontWeight="600"
           fontFamily="Helvetica, Arial, sans-serif"
