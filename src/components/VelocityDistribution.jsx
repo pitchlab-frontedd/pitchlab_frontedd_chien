@@ -1,21 +1,23 @@
 import { useMemo, useState, useRef } from 'react'
 import { pitchTypeColor, pitchTypeLabel } from '../utils/pitchTypes'
 
-// Color families for each pitcher (up to 4)
-const PITCHER_PALETTES = [
-  // Pitcher 0: warm — reds/oranges
-  { FF:'#C62828', SI:'#E64A19', FC:'#AD1457', FA:'#B71C1C', SL:'#F57C00', CU:'#FFA000', ST:'#F9A825', CH:'#6D4C41', FS:'#4E342E', KC:'#BF360C', SV:'#E65100', CS:'#FF8F00', KN:'#5D4037', FO:'#4E342E', EP:'#3E2723', SC:'#827717' },
-  // Pitcher 1: blues/cyans
-  { FF:'#1565C0', SI:'#0277BD', FC:'#283593', FA:'#1A237E', SL:'#00838F', CU:'#006064', ST:'#0097A7', CH:'#00796B', FS:'#0288D1', KC:'#01579B', SV:'#1976D2', CS:'#2196F3', KN:'#4DD0E1', FO:'#00ACC1', EP:'#26C6DA', SC:'#80DEEA' },
-  // Pitcher 2: greens
-  { FF:'#2E7D32', SI:'#388E3C', FC:'#558B2F', FA:'#1B5E20', SL:'#33691E', CU:'#004D40', ST:'#00695C', CH:'#00897B', FS:'#43A047', KC:'#2E7D32', SV:'#66BB6A', CS:'#A5D6A7', KN:'#37474F', FO:'#546E7A', EP:'#78909C', SC:'#B0BEC5' },
-  // Pitcher 3: purples/violets
-  { FF:'#6A1B9A', SI:'#7B1FA2', FC:'#4A148C', FA:'#880E4F', SL:'#AD1457', CU:'#512DA8', ST:'#4527A0', CH:'#283593', FS:'#8E24AA', KC:'#AB47BC', SV:'#CE93D8', CS:'#BA68C8', KN:'#9C27B0', FO:'#673AB7', EP:'#5E35B1', SC:'#3949AB' },
-]
+// Lighten a hex color toward white by `amount` (0 = original, 1 = white)
+const PITCHER_LIGHTEN = [0, 0.38, 0.58, 0.72]
 
-function pitcherPaletteColor(pitcherIdx, pitchType) {
-  const palette = PITCHER_PALETTES[pitcherIdx % PITCHER_PALETTES.length]
-  return palette[pitchType] || pitchTypeColor(pitchType)
+function lightenColor(hex, amount) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  const nr = Math.round(r + (255 - r) * amount)
+  const ng = Math.round(g + (255 - g) * amount)
+  const nb = Math.round(b + (255 - b) * amount)
+  return `#${nr.toString(16).padStart(2,'0')}${ng.toString(16).padStart(2,'0')}${nb.toString(16).padStart(2,'0')}`
+}
+
+function pitcherColor(pitcherIdx, pitchType) {
+  const base = pitchTypeColor(pitchType)
+  const amount = PITCHER_LIGHTEN[pitcherIdx % PITCHER_LIGHTEN.length]
+  return amount === 0 ? base : lightenColor(base, amount)
 }
 
 function silvermanBandwidth(values) {
@@ -97,7 +99,7 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
         const points = gaussianKDE(values, bw, evalPoints)
         const cMax = Math.max(...points.map(p => p.y))
         if (cMax > globalYMax) globalYMax = cMax
-        const color = isMulti ? pitcherPaletteColor(pitcherIdx, pt) : pitchTypeColor(pt)
+        const color = isMulti ? pitcherColor(pitcherIdx, pt) : pitchTypeColor(pt)
         return { pt, points, n: values.length, color }
       })
       return { pid, name, pitcherIdx, curves }
