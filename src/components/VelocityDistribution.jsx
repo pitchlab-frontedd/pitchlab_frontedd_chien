@@ -2,7 +2,7 @@ import { useMemo, useState, useRef } from 'react'
 import { pitchTypeColor, pitchTypeLabel } from '../utils/pitchTypes'
 
 // Lighten a hex color toward white by `amount` (0 = original, 1 = white)
-const PITCHER_LIGHTEN = [0, 0.38, 0.58, 0.72]
+const PITCHER_LIGHTEN = [0, 0.38, 0.55, 0.68]
 
 function lightenColor(hex, amount) {
   const r = parseInt(hex.slice(1, 3), 16)
@@ -48,22 +48,20 @@ const PLOT_H = H - PAD.top - PAD.bottom
 const EVAL_N = 250
 const CLIP_ID = 'vel-dist-clip'
 
-// Normalize incoming data to { pitcherId: { name, pitchTypes: { pt: [speeds] } } }
 function normalizeData(data) {
   if (!data || typeof data !== 'object') return {}
   const firstVal = Object.values(data)[0]
   if (!firstVal) return {}
-  // Old format: { PT: [speeds] } — wrap as single pitcher
   if (Array.isArray(firstVal)) {
     return { _single: { name: null, pitchTypes: data } }
   }
-  // New format: { pitcherId: { name, pitchTypes } }
   return data
 }
 
 export default function VelocityDistribution({ data, pitcherName, filters }) {
   const svgRef = useRef(null)
   const [tooltip, setTooltip] = useState(null)
+  const [hoveredPitcher, setHoveredPitcher] = useState(null)
 
   const normalized = useMemo(() => normalizeData(data), [data])
   const pitcherIds = Object.keys(normalized)
@@ -147,14 +145,18 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
     const dataX = xMin + ((svgX - PAD.left) / PLOT_W) * (xMax - xMin)
     if (dataX < xMin || dataX > xMax) { setTooltip(null); return }
 
-    const tipPitchers = pitcherCurves.map(({ name, pitcherIdx, curves, pid }) => {
+    const activePitchers = hoveredPitcher
+      ? pitcherCurves.filter(p => p.pid === hoveredPitcher)
+      : pitcherCurves
+
+    const tipPitchers = activePitchers.map(({ name, curves, pid }) => {
       const tipCurves = curves.map(({ pt, points, color }) => {
         const closest = points.reduce((best, p) =>
           Math.abs(p.x - dataX) < Math.abs(best.x - dataX) ? p : best
         )
         return { pt, y: closest.y, color }
       }).filter(d => d.y >= 0.01).sort((a, b) => b.y - a.y)
-      return { pid, name, pitcherIdx, tipCurves }
+      return { pid, name, tipCurves }
     }).filter(p => p.tipCurves.length > 0)
 
     setTooltip({ svgX, speed: Math.round(dataX * 10) / 10, pitchers: tipPitchers })
@@ -170,9 +172,11 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
     )
   }
 
-  const displayTitle = pitcherName
-    ? `${pitcherName} Frequency of Pitch Arsenal by Pitch Speed`
-    : 'Frequency of Pitch Arsenal by Pitch Speed'
+  const displayTitle = isMulti
+    ? 'Frequency of Pitch Arsenal by Pitch Speed'
+    : pitcherName
+      ? `${pitcherName} Frequency of Pitch Arsenal by Pitch Speed`
+      : 'Frequency of Pitch Arsenal by Pitch Speed'
 
   const tooltipLeftPct = tooltip ? Math.min(Math.max((tooltip.svgX / W) * 100, 18), 78) : 50
 
@@ -194,8 +198,7 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
         <rect x="0" y="0" width={W} height={H} fill="#f9fafb" />
         <rect x={PAD.left} y={PAD.top} width={PLOT_W} height={PLOT_H} fill="#ffffff" />
 
-        <text
-          x={W / 2} y={22}
+        <text x={W / 2} y={22}
           textAnchor="middle" dominantBaseline="middle"
           fill="#0b6070" fontSize="13" fontWeight="500"
           fontFamily="Helvetica, Arial, sans-serif"
@@ -227,8 +230,7 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
           </text>
         ))}
 
-        <text
-          x={13} y={PAD.top + PLOT_H / 2}
+        <text x={13} y={PAD.top + PLOT_H / 2}
           textAnchor="middle" dominantBaseline="middle"
           fill="#1f6070" fontSize="10" fontWeight="600"
           fontFamily="Helvetica, Arial, sans-serif"
@@ -237,28 +239,32 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
           Frequency
         </text>
 
-        {/* Fills */}
-        {pitcherCurves.map(({ pid, curves }) =>
-          curves.map(({ pt, points, color }) => (
-            <path key={`fill-${pid}-${pt}`}
-              d={toFillPath(points)}
-              fill={color} fillOpacity="0.13" stroke="none"
-              clipPath={`url(#${CLIP_ID})`}
-            />
-          ))
-        )}
-
-        {/* Curve strokes */}
-        {pitcherCurves.map(({ pid, curves }) =>
-          curves.map(({ pt, points, color }) => (
-            <path key={`line-${pid}-${pt}`}
-              d={toLinePath(points)}
-              fill="none" stroke={color}
-              strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round"
-              clipPath={`url(#${CLIP_ID})`}
-            />
-          ))
-        )}
+        {/* Curves grouped by pitcher with highlight logic */}
+        {pitcherCurves.map(({ pid, curves }) => {
+          const isHovered = hoveredPitcher === pid
+          const isFaded = hoveredPitcher !== null && !isHovered
+          return (
+            <g key={pid} style={{ transition: 'opacity 0.18s' }} opacity={isFaded ? 0.12 : 1}>
+              {curves.map(({ pt, points, color }) => (
+                <path key={`fill-${pt}`}
+                  d={toFillPath(points)}
+                  fill={color} fillOpacity="0.15" stroke="none"
+                  clipPath={`url(#${CLIP_ID})`}
+                />
+              ))}
+              {curves.map(({ pt, points, color }) => (
+                <path key={`line-${pt}`}
+                  d={toLinePath(points)}
+                  fill="none" stroke={color}
+                  strokeWidth={isHovered ? 2.6 : 1.8}
+                  strokeLinejoin="round" strokeLinecap="round"
+                  clipPath={`url(#${CLIP_ID})`}
+                  style={{ transition: 'stroke-width 0.18s' }}
+                />
+              ))}
+            </g>
+          )
+        })}
 
         <rect x={PAD.left} y={PAD.top} width={PLOT_W} height={PLOT_H}
           fill="none" stroke="#90c4d4" strokeWidth="0.8"
@@ -278,8 +284,7 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
           </g>
         ))}
 
-        <text
-          x={PAD.left + PLOT_W / 2} y={baseY + 34}
+        <text x={PAD.left + PLOT_W / 2} y={baseY + 34}
           textAnchor="middle" fill="#1f6070" fontSize="11" fontWeight="600"
           fontFamily="Helvetica, Arial, sans-serif"
         >
@@ -287,8 +292,7 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
         </text>
 
         {tooltip && (
-          <line
-            x1={tooltip.svgX} y1={PAD.top} x2={tooltip.svgX} y2={baseY}
+          <line x1={tooltip.svgX} y1={PAD.top} x2={tooltip.svgX} y2={baseY}
             stroke="#5a9aaa" strokeWidth="0.8" strokeDasharray="3 2"
           />
         )}
@@ -329,31 +333,51 @@ export default function VelocityDistribution({ data, pitcherName, filters }) {
         </div>
       )}
 
-      {/* Legend */}
+      {/* Legend — pitcher name hoverable to highlight */}
       <div style={{
         display: 'flex', flexWrap: 'wrap', gap: '4px 16px',
         padding: '8px 14px 10px', background: '#f9fafb',
         borderTop: '1px solid #daeaf0',
       }}>
-        {pitcherCurves.map(({ pid, name, pitcherIdx, curves }) => (
-          <div key={pid} style={{ display: 'flex', flexWrap: 'wrap', gap: '3px 12px', width: isMulti ? '100%' : undefined }}>
-            {isMulti && (
-              <div style={{ width: '100%', color: '#0b6070', fontSize: 11, fontWeight: 700, marginBottom: 1 }}>
-                {name || pid}
-              </div>
-            )}
-            {curves.map(({ pt, n, color }) => (
-              <div key={pt} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <svg width="24" height="10" style={{ flex: '0 0 auto' }}>
-                  <rect x="0" y="3" width="24" height="4" fill={color} fillOpacity="0.25" rx="1" />
-                  <line x1="0" y1="5" x2="24" y2="5" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
-                </svg>
-                <span style={{ color: '#1f5a6a', fontSize: 11 }}>{pitchTypeLabel(pt)}</span>
-                <span style={{ color: '#5a8a9a', fontSize: 10, fontVariantNumeric: 'tabular-nums' }}>n={n}</span>
-              </div>
-            ))}
-          </div>
-        ))}
+        {pitcherCurves.map(({ pid, name, curves }) => {
+          const isHovered = hoveredPitcher === pid
+          const isFaded = hoveredPitcher !== null && !isHovered
+          return (
+            <div key={pid}
+              style={{
+                display: 'flex', flexWrap: 'wrap', gap: '3px 12px',
+                width: isMulti ? '100%' : undefined,
+                opacity: isFaded ? 0.35 : 1,
+                transition: 'opacity 0.18s',
+              }}
+            >
+              {isMulti && (
+                <div
+                  style={{
+                    width: '100%', fontSize: 11, fontWeight: 700, marginBottom: 1,
+                    color: isHovered ? '#0b4a5a' : '#0b6070',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                  }}
+                  onMouseEnter={() => setHoveredPitcher(pid)}
+                  onMouseLeave={() => setHoveredPitcher(null)}
+                >
+                  {name || pid}
+                </div>
+              )}
+              {curves.map(({ pt, n, color }) => (
+                <div key={pt} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <svg width="24" height="10" style={{ flex: '0 0 auto' }}>
+                    <rect x="0" y="3" width="24" height="4" fill={color} fillOpacity="0.25" rx="1" />
+                    <line x1="0" y1="5" x2="24" y2="5" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                  <span style={{ color: '#1f5a6a', fontSize: 11 }}>{pitchTypeLabel(pt)}</span>
+                  <span style={{ color: '#5a8a9a', fontSize: 10, fontVariantNumeric: 'tabular-nums' }}>n={n}</span>
+                </div>
+              ))}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
