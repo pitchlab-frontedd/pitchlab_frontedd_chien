@@ -1,18 +1,9 @@
-import { useState, useMemo, useEffect } from 'react'
+import { lazy, Suspense, useState, useMemo, useEffect } from 'react'
 import { Layout, Select, ConfigProvider, theme, Typography, Space, Spin, Button } from 'antd'
 import { CloseOutlined, FilterOutlined } from '@ant-design/icons'
 import FilterPanel from './components/FilterPanel'
 import SetTabs from './components/SetTabs'
-import SummaryStats from './components/SummaryStats'
-import ZoneHeatmap from './components/ZoneHeatmap'
-import ResultChart from './components/ResultChart'
-import PitchTypeTable from './components/PitchTypeTable'
-import TendencyChartGuide from './components/TendencyChartGuide'
-import StandardStatsTable from './components/StandardStatsTable'
 import PageNavbar from './components/PageNavbar'
-import LandingPage from './pages/LandingPage'
-import FeaturesPage from './pages/FeaturesPage'
-import PitchPredictionPage from './pages/PitchPredictionPage'
 
 import {
   DEFAULT_FILTERS,
@@ -22,6 +13,16 @@ import {
   getSummaryStats,
 } from './utils/filterUtils'
 import './App.css'
+
+const LandingPage = lazy(() => import('./pages/LandingPage'))
+const FeaturesPage = lazy(() => import('./pages/FeaturesPage'))
+const PitchPredictionPage = lazy(() => import('./pages/PitchPredictionPage'))
+const SummaryStats = lazy(() => import('./components/SummaryStats'))
+const ZoneHeatmap = lazy(() => import('./components/ZoneHeatmap'))
+const ResultChart = lazy(() => import('./components/ResultChart'))
+const PitchTypeTable = lazy(() => import('./components/PitchTypeTable'))
+const TendencyChartGuide = lazy(() => import('./components/TendencyChartGuide'))
+const StandardStatsTable = lazy(() => import('./components/StandardStatsTable'))
 
 const { Header, Sider, Content } = Layout
 const { Text } = Typography
@@ -42,6 +43,22 @@ const EMPTY_SET_DATA = {
   pitchZoneData: { total: 0, zones: {}, topCombos: [] },
   pitchLocationData: { total: 0, xRange: [-2.6, 2.6], zRange: [0.4, 5.2], cells: [] },
   outcomeData: { total: 0, outcomes: [], pitchTypeOutcomes: [] },
+}
+
+function PageFallback() {
+  return (
+    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#111827' }}>
+      <Spin />
+    </div>
+  )
+}
+
+function PanelFallback() {
+  return (
+    <div style={{ minHeight: 220, display: 'grid', placeItems: 'center' }}>
+      <Spin />
+    </div>
+  )
 }
 
 const readCachedOptions = (key) => {
@@ -385,25 +402,27 @@ function HistoricalDataPage({ page, onNavigate }) {
                 Advanced
               </button>
             </div>
-            {statsMode === 'standard' ? (
-              <StandardStatsTable data={activeSetData?.pitchTypeData || []} filters={activeFilters} standardStats={activeSetData?.standardStats} />
-            ) : (
-              <>
-                <SummaryStats setsData={setsData} />
-                <div className="history-visual-grid" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 16, marginBottom: 16 }}>
-                  <ZoneHeatmap zoneData={activeSetData?.zoneData} totalPitches={activeSetData?.total || 0} setColor={activeSet?.color} setName={activeSet?.name} />
-                  <ResultChart setsData={setsData} />
-                </div>
-                <TendencyChartGuide
-                  pitchZoneData={activeSetData?.pitchZoneData}
-                  pitchLocationData={activeSetData?.pitchLocationData}
-                  velocityData={activeSetData?.velocityData}
-                  filters={activeFilters}
-                  pitcherName={activePitcherName}
-                />
-                <PitchTypeTable data={activeSetData?.pitchTypeData || []} outcomeData={activeSetData?.outcomeData} filters={activeFilters} />
-              </>
-            )}
+            <Suspense fallback={<PanelFallback />}>
+              {statsMode === 'standard' ? (
+                <StandardStatsTable data={activeSetData?.pitchTypeData || []} filters={activeFilters} standardStats={activeSetData?.standardStats} />
+              ) : (
+                <>
+                  <SummaryStats setsData={setsData} />
+                  <div className="history-visual-grid" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 16, marginBottom: 16 }}>
+                    <ZoneHeatmap zoneData={activeSetData?.zoneData} totalPitches={activeSetData?.total || 0} setColor={activeSet?.color} setName={activeSet?.name} />
+                    <ResultChart setsData={setsData} />
+                  </div>
+                  <TendencyChartGuide
+                    pitchZoneData={activeSetData?.pitchZoneData}
+                    pitchLocationData={activeSetData?.pitchLocationData}
+                    velocityData={activeSetData?.velocityData}
+                    filters={activeFilters}
+                    pitcherName={activePitcherName}
+                  />
+                  <PitchTypeTable data={activeSetData?.pitchTypeData || []} outcomeData={activeSetData?.outcomeData} filters={activeFilters} />
+                </>
+              )}
+            </Suspense>
           </Content>
         </Layout>
       </Layout>
@@ -415,17 +434,12 @@ function HistoricalDataPage({ page, onNavigate }) {
 export default function App() {
   const [page, setPage] = useState('home')
 
-  if (page === 'home') {
-    return <LandingPage onNavigate={setPage} />
-  }
-
-  if (page === 'features') {
-    return <FeaturesPage page={page} onNavigate={setPage} />
-  }
-
-  if (page === 'prediction') {
-    return <PitchPredictionPage page={page} onNavigate={setPage} />
-  }
-
-  return <HistoricalDataPage page={page} onNavigate={setPage} />
+  return (
+    <Suspense fallback={<PageFallback />}>
+      {page === 'home' && <LandingPage onNavigate={setPage} />}
+      {page === 'features' && <FeaturesPage page={page} onNavigate={setPage} />}
+      {page === 'prediction' && <PitchPredictionPage page={page} onNavigate={setPage} />}
+      {!['home', 'features', 'prediction'].includes(page) && <HistoricalDataPage page={page} onNavigate={setPage} />}
+    </Suspense>
+  )
 }
