@@ -257,7 +257,7 @@ function ZoneSelector({ selectedZones, onChange }) {
   )
 }
 
-export default function FilterPanel({ filters, pitchers = [], loadingPitchers = false, onChange, onReset }) {
+export default function FilterPanel({ filters, pitchers = [], loadingPitchers = false, onChange, onReset, similarPitchers = [] }) {
   const set = (key) => (val) => onChange(f => ({ ...f, [key]: val }))
   const setRunnerState = (runnerState) => onChange(f => ({ ...f, runnerState }))
   const setRunnerBases = (runnerBases) => onChange(f => ({ ...f, runnerState: 'Custom', runnerBases }))
@@ -284,7 +284,6 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
       </div>
 
       <SectionLabel>Season</SectionLabel>
-      {/* 🚀 修正關鍵：原本這裡用 season，現在統一改成 year 才能跟 App.jsx 對接 */}
       <SingleTogglePills   
         options={[
           { value: '', label: 'ALL' },
@@ -312,6 +311,39 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
           (option?.label || '').toLowerCase().includes(input.toLowerCase())
         }
       />
+
+      {/* 🎯 相似投手快捷鍵按鈕區塊 */}
+      {similarPitchers && similarPitchers.length > 0 && (
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: 4 }}>
+            <Text style={{ fontSize: 11, color: '#38bdf8', textTransform: 'uppercase', fontWeight: 700 }}>
+              Similar Pitchers (KNN)
+            </Text>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {similarPitchers.map(p => {
+              const pId = String(p.id || p.pitcherId);
+              const isSelected = filters.pitcherIds?.includes(pId);
+              return (
+                <Pill
+                  key={pId}
+                  label={p.name || pId}
+                  selected={isSelected}
+                  color="#38bdf8"
+                  onClick={() => {
+                    onChange(f => ({
+                      ...f,
+                      pitcherIds: [pId],
+                      pitcherLabels: []
+                    }));
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div style={{ opacity: filters.pitcherIds?.length > 0 ? 0.3 : 1, pointerEvents: filters.pitcherIds?.length > 0 ? 'none' : 'auto' }}>
         <div style={{ marginBottom: 4 }}>
           <Text style={{ fontSize: 13, color: '#c1ccda', textTransform: 'uppercase', fontWeight: 700 }}>

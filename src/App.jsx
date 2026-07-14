@@ -30,8 +30,10 @@ const { Text } = Typography
 const SET_COLORS = ['#fb923c', '#38bdf8', '#4ade80', '#c084fc']
 const INITIAL_FILTERS = { ...DEFAULT_FILTERS, batterId: '', pitcherIds: [], pitcherRole: 'All' }
 
-// 定義後端基礎網址。正式站用 Render，本機開發可用 VITE_API_BASE_URL 覆蓋。
+// 定義後端基礎網址。正式站用 Render
+// ，本機開發可用 VITE_API_BASE_URL 覆蓋。
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://new-baseball-app-backend-fn6w.onrender.com";
+
 
 const EMPTY_SET_DATA = {
   total: 0,
@@ -89,7 +91,14 @@ function HistoricalDataPage({ page, onNavigate }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [statsMode, setStatsMode] = useState('standard');
 
-  // 1. 初始載入
+  // 儲存真正有對戰紀錄的對手 ID 清單（嚴格篩選用）
+  const [validOpponentPitcherIds, setValidOpponentPitcherIds] = useState(null);
+  const [validOpponentBatterIds, setValidOpponentBatterIds] = useState(null);
+
+  // 【新增項目】儲存當前投手算出來的相似投手名單
+  const [similarPitchers, setSimilarPitchers] = useState([]);
+
+  // 1. 初始載入大名單
   useEffect(() => {
     const fetchMetaData = async () => {
       try {
@@ -120,7 +129,103 @@ function HistoricalDataPage({ page, onNavigate }) {
   const activeSet = sets.find(s => s.id === activeSetId);
   const activeFilters = activeSet?.filters || INITIAL_FILTERS;
 
-  // 2. 核心數據抓取：多人使用時只抓後端聚合結果，不把大量逐球資料送到瀏覽器。
+  // 🎯 核心過濾邏輯：直接撈原始球路數據，對後端所有可能命名的欄位進行模糊地毯式搜尋，只留下真正有對決過的人
+  useEffect(() => {
+    const fetchValidOpponents = async () => {
+      const { batterId, pitcherIds } = activeFilters;
+      
+      // 如果打者、投手都沒選，就不過濾，顯示全體大名單
+      if (!batterId && (!pitcherIds || pitcherIds.length === 0)) {
+        setValidOpponentPitcherIds(null);
+        setValidOpponentBatterIds(null);
+        return;
+      }
+
+      try {
+        // A. 當使用者「選了特定打者」-> 要過濾出有跟他對決過的「投手選單」
+        if (batterId && (!pitcherIds || pitcherIds.length === 0)) {
+          setValidOpponentBatterIds(null);
+          const params = new URLSearchParams({ year: 'ALL', batterId: batterId });
+          const res = await fetch(`${API_BASE_URL}/api/pitches?${params.toString()}`);
+          if (res.ok) {
+            const pitches = await res.json();
+            if (Array.isArray(pitches)) {
+              const collectedPitcherIds = new Set();
+              pitches.forEach(p => {
+                // 地毯式讀取後端可能給的所有投手 ID 欄位
+                const id = p.pitcherId || p.pitcher_id || p.pitcher || p.pitcherIds;
+                if (id) collectedPitcherIds.add(String(id));
+              });
+              setValidOpponentPitcherIds([...collectedPitcherIds]);
+              return;
+            }
+          }
+          setValidOpponentPitcherIds([]); // 沒抓到就給空，嚴格不過濾回大名單
+        }
+        
+        // B. 當使用者「選了特定投手」-> 要過濾出有跟他對決過的「打者選單」
+        if (pitcherIds && pitcherIds.length > 0 && !batterId) {
+          setValidOpponentPitcherIds(null);
+          const params = new URLSearchParams({ year: 'ALL', pitcherId: pitcherIds.join(',') });
+          const res = await fetch(`${API_BASE_URL}/api/pitches?${params.toString()}`);
+          if (res.ok) {
+            const pitches = await res.json();
+            if (Array.isArray(pitches)) {
+              const collectedBatterIds = new Set();
+              pitches.forEach(p => {
+                // 地毯式讀取後端可能給的所有打者 ID 欄位
+                const id = p.batterId || p.batter_id || p.batter || p.batterIds;
+                if (id) collectedBatterIds.add(String(id));
+              });
+              setValidOpponentBatterIds([...collectedBatterIds]);
+              return;
+            }
+          }
+          setValidOpponentBatterIds([]); // 沒抓到就給空，嚴格不過濾回大名單
+        }
+      } catch (err) {
+        console.error("過濾對戰名單失敗:", err);
+      }
+    };
+
+    fetchValidOpponents();
+  }, [activeFilters.batterId, activeFilters.pitcherIds]);
+
+  // 【新增項目】監聽投手切換，非同步向後端獲取 KNN 相似度推薦名單 (配合新版 Query 路由)
+  // 🎯 真正統一的相似度 fetch：直接傳入乾淨的路徑
+  // 🎯 統一邏輯：配合後端新改的 Query 參數網址發送
+  useEffect(() => {
+    const fetchSimilarPitchers = async () => {
+      const { pitcherIds } = activeFilters;
+      if (pitcherIds && pitcherIds.length > 0) {
+        const targetPitcherObj = pitchers.find(p => String(p.id) === String(pitcherIds[0]));
+        const currentPitcherName = targetPitcherObj ? targetPitcherObj.name : '';
+
+        if (!currentPitcherName) {
+          setSimilarPitchers([]);
+          return;
+        }
+
+        try {
+          // 💡 注意看這裡：在 ${API_BASE_URL} 後面我精準補上了斜線 /
+          const res = await fetch(`${API_BASE_URL}/api/pitcher-similarities?pitcher_name=${encodeURIComponent(currentPitcherName)}`);
+          if (res.ok) {
+            const data = await res.json();
+            setSimilarPitchers(Array.isArray(data) ? data : []);
+          } else {
+            setSimilarPitchers([]);
+          }
+        } catch (err) {
+          console.error("獲取相似投手失敗:", err);
+          setSimilarPitchers([]);
+        }
+      } else {
+        setSimilarPitchers([]);
+      }
+    };
+    fetchSimilarPitchers();
+  }, [activeFilters.pitcherIds, pitchers]);
+  // 2. 核心數據抓取：傳送當前篩選條件給後端聚合
   useEffect(() => {
     const controller = new AbortController();
 
@@ -162,7 +267,7 @@ function HistoricalDataPage({ page, onNavigate }) {
 
       if (runnerState && runnerState !== 'All') {
         const bases = runnerState === 'Empty'
-          ? { first: false, second: false, third: false }
+          ? { first: false, second: SECOND, third: false }
           : runnerBases;
 
         params.set('on1b', bases?.first ? '1' : '0');
@@ -227,14 +332,21 @@ function HistoricalDataPage({ page, onNavigate }) {
     return () => controller.abort();
   }, [sets]);
   
-
+  // 🎯 精準篩選：如果 valid 清單存在，就「只」留下有包含在內的人。沒交手過的大谷將直接從 Yordan 的選單中消失。
   const availableBatters = useMemo(() => {
+    if (validOpponentBatterIds !== null) {
+      return batters.filter(b => validOpponentBatterIds.includes(String(b.id)));
+    }
     return batters;
-  }, [batters]);
+  }, [batters, validOpponentBatterIds]);
 
   const availablePitchers = useMemo(() => {
+    if (validOpponentPitcherIds !== null) {
+      return pitchers.filter(p => validOpponentPitcherIds.includes(String(p.id)));
+    }
     return pitchers;
-  }, [pitchers]);
+  }, [pitchers, validOpponentPitcherIds]);
+
 
   const updateActiveFilters = (updater) => {
     setSets(prev => prev.map(s =>
@@ -292,11 +404,11 @@ function HistoricalDataPage({ page, onNavigate }) {
   const activePitcherName = useMemo(() => {
     if (!activeFilters.pitcherIds?.length) return null
     const ids = activeFilters.pitcherIds.map(String)
-    const matches = availablePitchers.filter(p => ids.includes(String(p.id)))
+    const matches = pitchers.filter(p => ids.includes(String(p.id)))
     if (!matches.length) return null
     if (matches.length === 1) return matches[0].name
     return matches.map(p => p.name.split(' ').pop()).join(' / ')
-  }, [activeFilters.pitcherIds, availablePitchers]);
+  }, [activeFilters.pitcherIds, pitchers]);
 
   return (
     <ConfigProvider
@@ -380,7 +492,12 @@ function HistoricalDataPage({ page, onNavigate }) {
                 pitchers={availablePitchers} 
                 loadingPitchers={loading && availablePitchers.length === 0}
                 onChange={updateActiveFilters}
-                onReset={() => updateActiveFilters(INITIAL_FILTERS)}
+                onReset={() => {
+                  updateActiveFilters(INITIAL_FILTERS);
+                  setValidOpponentPitcherIds(null);
+                  setValidOpponentBatterIds(null);
+                }}
+                similarPitchers={similarPitchers} // 傳入相似投手資料到 FilterPanel 物件
               />
             )}
           </Sider>
