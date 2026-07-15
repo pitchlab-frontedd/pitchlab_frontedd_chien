@@ -1,3 +1,36 @@
+import { Tooltip } from 'antd'
+
+// 🎯 Pure English tooltips for baseball statistics definitions
+const STATS_TOOLTIPS = {
+  // Pitcher & Shared
+  BF: 'Batters Faced',
+  PA: 'Plate Appearances',
+  W: 'Wins',
+  L: 'Losses',
+  ERA: 'Earned Run Average',
+  G: 'Games Played',
+  GS: 'Games Started',
+  SV: 'Saves',
+  IP: 'Innings Pitched',
+  H: 'Hits Allowed / Hits',
+  R: 'Runs Allowed / Runs',
+  ER: 'Earned Runs',
+  HR: 'Home Runs',
+  BB: 'Base on Balls',
+  SO: 'Strikeouts',
+  WHIP: 'Walks plus Hits per Inning Pitched',
+  // Batter Only
+  AB: 'At Bats',
+  '1B': 'Singles',
+  '2B': 'Doubles',
+  '3B': 'Triples',
+  HBP: 'Hit By Pitch',
+  AVG: 'Batting Average',
+  OBP: 'On-Base Percentage',
+  SLG: 'Slugging Percentage',
+  OPS: 'On-base plus Slugging',
+}
+
 const sumBy = (rows, key) => rows.reduce((sum, row) => sum + Number(row[key] || 0), 0)
 
 const avg = (sum, count) => (count > 0 ? sum / count : null)
@@ -123,15 +156,35 @@ export default function StandardStatsTable({ data = [], filters = {}, standardSt
             <thead>
               <tr>
                 <th>Split</th>
-                {columns.map(column => <th key={column.key}>{column.label}</th>)}
+                {columns.map(column => (
+                  <th key={column.key}>
+                    <Tooltip title={STATS_TOOLTIPS[column.label] || ''} placement="top">
+                      <span style={{ cursor: 'help', borderBottom: '1px dotted #465b78', paddingBottom: '2px' }}>
+                        {column.label}
+                      </span>
+                    </Tooltip>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>Total</td>
-                {columns.map(column => (
-                  <td key={column.key}>{formatCell(column)}</td>
-                ))}
+                {columns.map(column => {
+                  const cellValue = formatCell(column)
+                  const isEmpty = cellValue === '-'
+                  return (
+                    <td 
+                      key={column.key}
+                      style={{
+                        color: isEmpty ? '#465b78' : 'inherit',
+                        fontWeight: isEmpty ? 400 : 'inherit'
+                      }}
+                    >
+                      {cellValue}
+                    </td>
+                  )
+                })}
               </tr>
             </tbody>
           </table>
