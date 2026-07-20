@@ -91,10 +91,6 @@ function HistoricalDataPage({ page, onNavigate }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [statsMode, setStatsMode] = useState('standard');
 
-  // 儲存真正有對戰紀錄的對手 ID 清單（嚴格篩選用）
-  const [validOpponentPitcherIds, setValidOpponentPitcherIds] = useState(null);
-  const [validOpponentBatterIds, setValidOpponentBatterIds] = useState(null);
-
   // 【新增項目】儲存當前投手算出來的相似投手名單
   const [similarPitchers, setSimilarPitchers] = useState([]);
 
@@ -128,68 +124,6 @@ function HistoricalDataPage({ page, onNavigate }) {
 
   const activeSet = sets.find(s => s.id === activeSetId);
   const activeFilters = activeSet?.filters || INITIAL_FILTERS;
-
-  // 🎯 核心過濾邏輯：直接撈原始球路數據，對後端所有可能命名的欄位進行模糊地毯式搜尋，只留下真正有對決過的人
-  useEffect(() => {
-    const fetchValidOpponents = async () => {
-      const { batterId, pitcherIds } = activeFilters;
-      
-      // 如果打者、投手都沒選，就不過濾，顯示全體大名單
-      if (!batterId && (!pitcherIds || pitcherIds.length === 0)) {
-        setValidOpponentPitcherIds(null);
-        setValidOpponentBatterIds(null);
-        return;
-      }
-
-      try {
-        // A. 當使用者「選了特定打者」-> 要過濾出有跟他對決過的「投手選單」
-        if (batterId && (!pitcherIds || pitcherIds.length === 0)) {
-          setValidOpponentBatterIds(null);
-          const params = new URLSearchParams({ year: 'ALL', batterId: batterId });
-          const res = await fetch(`${API_BASE_URL}/api/pitches?${params.toString()}`);
-          if (res.ok) {
-            const pitches = await res.json();
-            if (Array.isArray(pitches)) {
-              const collectedPitcherIds = new Set();
-              pitches.forEach(p => {
-                // 地毯式讀取後端可能給的所有投手 ID 欄位
-                const id = p.pitcherId || p.pitcher_id || p.pitcher || p.pitcherIds;
-                if (id) collectedPitcherIds.add(String(id));
-              });
-              setValidOpponentPitcherIds([...collectedPitcherIds]);
-              return;
-            }
-          }
-          setValidOpponentPitcherIds([]); // 沒抓到就給空，嚴格不過濾回大名單
-        }
-        
-        // B. 當使用者「選了特定投手」-> 要過濾出有跟他對決過的「打者選單」
-        if (pitcherIds && pitcherIds.length > 0 && !batterId) {
-          setValidOpponentPitcherIds(null);
-          const params = new URLSearchParams({ year: 'ALL', pitcherId: pitcherIds.join(',') });
-          const res = await fetch(`${API_BASE_URL}/api/pitches?${params.toString()}`);
-          if (res.ok) {
-            const pitches = await res.json();
-            if (Array.isArray(pitches)) {
-              const collectedBatterIds = new Set();
-              pitches.forEach(p => {
-                // 地毯式讀取後端可能給的所有打者 ID 欄位
-                const id = p.batterId || p.batter_id || p.batter || p.batterIds;
-                if (id) collectedBatterIds.add(String(id));
-              });
-              setValidOpponentBatterIds([...collectedBatterIds]);
-              return;
-            }
-          }
-          setValidOpponentBatterIds([]); // 沒抓到就給空，嚴格不過濾回大名單
-        }
-      } catch (err) {
-        console.error("過濾對戰名單失敗:", err);
-      }
-    };
-
-    fetchValidOpponents();
-  }, [activeFilters.batterId, activeFilters.pitcherIds]);
 
   // 【新增項目】監聽投手切換，非同步向後端獲取 KNN 相似度推薦名單 (配合新版 Query 路由)
   // 🎯 真正統一的相似度 fetch：直接傳入乾淨的路徑
@@ -332,22 +266,6 @@ function HistoricalDataPage({ page, onNavigate }) {
     return () => controller.abort();
   }, [sets]);
   
-  // 🎯 精準篩選：如果 valid 清單存在，就「只」留下有包含在內的人。沒交手過的大谷將直接從 Yordan 的選單中消失。
-  const availableBatters = useMemo(() => {
-    if (validOpponentBatterIds !== null) {
-      return batters.filter(b => validOpponentBatterIds.includes(String(b.id)));
-    }
-    return batters;
-  }, [batters, validOpponentBatterIds]);
-
-  const availablePitchers = useMemo(() => {
-    if (validOpponentPitcherIds !== null) {
-      return pitchers.filter(p => validOpponentPitcherIds.includes(String(p.id)));
-    }
-    return pitchers;
-  }, [pitchers, validOpponentPitcherIds]);
-
-
   const updateActiveFilters = (updater) => {
     setSets(prev => prev.map(s =>
       s.id === activeSetId
@@ -449,9 +367,9 @@ function HistoricalDataPage({ page, onNavigate }) {
               onChange={changeBatter}
               placeholder="Select a player or leave blank"
               style={{ width: 260 }}
-              options={availableBatters.map(b => ({ value: String(b.id), label: b.name }))}
+              options={batters.map(b => ({ value: String(b.id), label: b.name }))}
               filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-              loading={loading && availableBatters.length === 0}
+              loading={loading && batters.length === 0}
               variant="borderless"
             />
           </Space>
@@ -489,13 +407,11 @@ function HistoricalDataPage({ page, onNavigate }) {
             {activeSet && (
               <FilterPanel
                 filters={activeFilters}
-                pitchers={availablePitchers} 
-                loadingPitchers={loading && availablePitchers.length === 0}
+                pitchers={pitchers}
+                loadingPitchers={loading && pitchers.length === 0}
                 onChange={updateActiveFilters}
                 onReset={() => {
                   updateActiveFilters(INITIAL_FILTERS);
-                  setValidOpponentPitcherIds(null);
-                  setValidOpponentBatterIds(null);
                 }}
                 similarPitchers={similarPitchers} // 傳入相似投手資料到 FilterPanel 物件
               />
