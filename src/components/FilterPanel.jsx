@@ -1,9 +1,9 @@
 import { Divider, Button, Typography, Select } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { ReloadOutlined, LeftOutlined } from '@ant-design/icons'
+import { useState, useEffect, useRef } from 'react'
 import { ALL_PITCH_TYPES, pitchTypeColor, pitchTypeLabel } from '../utils/pitchTypes'
 
 const { Text } = Typography
-
 
 const PITCHER_LABEL_OPTIONS = [
   { value: 'Power', label: 'Power' },
@@ -11,7 +11,6 @@ const PITCHER_LABEL_OPTIONS = [
   { value: 'Sinker', label: 'Sinker' }
 ]
 
-// ✨ 預先準備好 Statcast 時代 (2015起) 到未來的年份，全部使用字串確保與 game_date 匹配
 const YEAR_OPTIONS = [
   '2025', '2024', '2023'
 ]
@@ -54,7 +53,6 @@ function Pill({ label, selected, onClick, color }) {
   )
 }
 
-// 用於處理「複選」的陣列按鈕
 function TogglePills({ options, value, onChange, color }) {
   const toggle = (v) => {
     if (value.includes(v)) onChange(value.filter(x => x !== v))
@@ -75,7 +73,6 @@ function TogglePills({ options, value, onChange, color }) {
   )
 }
 
-// 用於處理「單選」的字串按鈕 (專門給左右投、先發後援使用)
 function SingleTogglePills({ options, value, onChange, color }) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -83,8 +80,8 @@ function SingleTogglePills({ options, value, onChange, color }) {
         <Pill
           key={opt.value}
           label={opt.label}
-          selected={value === opt.value} // 變成直接比對字串
-          onClick={() => onChange(opt.value)} // 直接回傳點選的字串
+          selected={value === opt.value}
+          onClick={() => onChange(opt.value)}
           color={color}
         />
       ))}
@@ -196,28 +193,17 @@ function ZoneSelector({ selectedZones, onChange }) {
   const renderSvgZone = ({ zone, x, y, width, height, fontSize = 13, labelX, labelY }) => {
     const sel = selectedZones.includes(zone)
     return (
-      <g
-        key={zone}
-        onClick={() => toggle(zone)}
-        style={{ cursor: 'pointer' }}
-      >
+      <g key={zone} onClick={() => toggle(zone)} style={{ cursor: 'pointer' }}>
         <rect
-          x={x}
-          y={y}
-          width={width}
-          height={height}
+          x={x} y={y} width={width} height={height}
           fill={sel ? 'rgba(240,136,62,0.22)' : '#101b28'}
           stroke={sel ? '#f0883e' : '#2d3642'}
           strokeWidth={sel ? 1.8 : 1}
         />
         <text
-          x={labelX ?? x + width / 2}
-          y={labelY ?? y + height / 2 + 5}
-          textAnchor="middle"
-          fill={sel ? '#f0883e' : '#c1ccda'}
-          fontSize={fontSize}
-          fontWeight="800"
-          style={{ userSelect: 'none' }}
+          x={labelX ?? x + width / 2} y={labelY ?? y + height / 2 + 5}
+          textAnchor="middle" fill={sel ? '#f0883e' : '#c1ccda'}
+          fontSize={fontSize} fontWeight="800" style={{ userSelect: 'none' }}
         >
           {zone}
         </text>
@@ -234,25 +220,17 @@ function ZoneSelector({ selectedZones, onChange }) {
 
   return (
     <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-      <svg width="178" height="178" viewBox="-5 -5 178 178" role="img" aria-label="Select Statcast zones">
+      <svg width="178" height="178" viewBox="-5 -5 178 178">
         <rect x="0" y="0" width="168" height="168" rx="4" fill="#101b28" stroke="#30363d" strokeWidth="2" />
         {outerZones.map(renderSvgZone)}
         <g transform="translate(34 34)">
           <rect x="0" y="0" width="100" height="100" fill="#101b28" stroke="#30363d" strokeWidth="2" />
           {ZONE_GRID.flatMap((row, ri) => row.map((zone, ci) => renderSvgZone({
-            zone,
-            x: ci * 100 / 3,
-            y: ri * 100 / 3,
-            width: 100 / 3,
-            height: 100 / 3,
-            fontSize: 12,
+            zone, x: ci * 100 / 3, y: ri * 100 / 3, width: 100 / 3, height: 100 / 3, fontSize: 12,
           })))}
           <rect x="0" y="0" width="100" height="100" fill="none" stroke="#30363d" strokeWidth="2" pointerEvents="none" />
         </g>
       </svg>
-      <Text style={{ display: 'block', fontSize: 11, color: '#7f8da1', fontWeight: 700 }}>
-        Click to select zones
-      </Text>
     </div>
   )
 }
@@ -262,12 +240,53 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
   const setRunnerState = (runnerState) => onChange(f => ({ ...f, runnerState }))
   const setRunnerBases = (runnerBases) => onChange(f => ({ ...f, runnerState: 'Custom', runnerBases }))
 
-  const uniquePitchers = Array.from(new Map(pitchers.map(p => [String(p.id), p])).values());
+  const [history, setHistory] = useState([])
+  const [lockedSimilarPitchers, setLockedSimilarPitchers] = useState([])
 
+  const prevPitcherIdsRef = useRef(filters.pitcherIds)
+
+  useEffect(() => {
+    const currentIds = filters.pitcherIds || []
+
+    if (currentIds.length === 0) {
+      setHistory([])
+      setLockedSimilarPitchers([])
+    } 
+    // 🛠️ 修正點：只要切換到單一投手，不論有沒有相似投手名單，都直接同步覆蓋（若後端給空陣列，就正確清空）
+    else if (currentIds.length === 1) {
+      setLockedSimilarPitchers(similarPitchers || [])
+    }
+
+    prevPitcherIdsRef.current = currentIds
+  }, [filters.pitcherIds, similarPitchers])
+
+  const handleReset = () => {
+    setHistory([])
+    setLockedSimilarPitchers([])
+    onReset()
+  }
+
+  const handleGoBack = () => {
+    if (history.length === 0) return
+    const newHistory = [...history]
+    const previousPitcherId = newHistory.pop()
+    setHistory(newHistory)
+
+    onChange(f => ({
+      ...f,
+      pitcherIds: [previousPitcherId],
+      pitcherLabels: []
+    }))
+  }
+
+  const uniquePitchers = Array.from(new Map(pitchers.map(p => [String(p.id), p])).values());
   const pitcherOptions = uniquePitchers.map(p => ({
     value: String(p.id),
     label: p.name,
   }))
+
+  const lastHistoryId = history[history.length - 1]
+  const lastHistoryPitcher = lastHistoryId ? pitchers.find(p => String(p.id) === String(lastHistoryId)) : null
 
   return (
     <div style={{ padding: '18px 16px', color: '#f3f7fb' }}>
@@ -276,7 +295,7 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
           Filters
         </Text>
         <Button
-          size="small" type="text" icon={<ReloadOutlined />} onClick={onReset}
+          size="small" type="text" icon={<ReloadOutlined />} onClick={handleReset}
           style={{ color: '#c1ccda', fontSize: 13 }}
         >
           Reset
@@ -312,25 +331,53 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
         }
       />
 
-      {/* 🎯 相似投手快捷鍵按鈕區塊 */}
-      {similarPitchers && similarPitchers.length > 0 && (
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ marginBottom: 4 }}>
-            <Text style={{ fontSize: 11, color: '#38bdf8', textTransform: 'uppercase', fontWeight: 700 }}>
-              Similar Pitchers (KNN)
-            </Text>
-          </div>
+      {/* 🎯 相似投手區塊 */}
+      <div style={{ marginTop: 6, marginBottom: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+          <Text style={{ fontSize: 11, color: '#7f8da1', textTransform: 'uppercase', fontWeight: 700 }}>
+            Similar Pitchers
+          </Text>
+          {history.length > 0 && lastHistoryPitcher && (
+            <Button
+              type="link"
+              size="small"
+              icon={<LeftOutlined style={{ fontSize: 10 }} />}
+              onClick={handleGoBack}
+              style={{ padding: 0, height: 'auto', fontSize: 11, color: '#38bdf8' }}
+            >
+              Back to {lastHistoryPitcher.name.split(',')[0]}
+            </Button>
+          )}
+        </div>
+        
+        {lockedSimilarPitchers.length > 0 ? (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-            {similarPitchers.map(p => {
-              const pId = String(p.id || p.pitcherId);
-              const isSelected = filters.pitcherIds?.includes(pId);
+            {lockedSimilarPitchers.map((p, index) => {
+              const cleanSimilarName = (p.similar_pitcher || '').replace(/\s+/g, '').toLowerCase();
+              const realPitcher = pitchers.find(pit => 
+                (pit.name || '').replace(/\s+/g, '').toLowerCase() === cleanSimilarName
+              );
+              
+              const pId = realPitcher ? String(realPitcher.id) : null;
+              const isSelected = pId ? filters.pitcherIds?.includes(pId) : false;
+
               return (
                 <Pill
-                  key={pId}
-                  label={p.name || pId}
+                  key={p.similar_pitcher || index}
+                  label={p.similar_pitcher}
                   selected={isSelected}
                   color="#38bdf8"
                   onClick={() => {
+                    if (!pId) {
+                      alert(`在總名單中找不到 ${p.similar_pitcher} 的真實 ID。請確認此球員是否存在於下拉選單中。`);
+                      return;
+                    }
+                    
+                    const currentId = filters.pitcherIds?.[0]
+                    if (currentId && currentId !== pId && !history.includes(currentId)) {
+                      setHistory(prev => [...prev, currentId])
+                    }
+
                     onChange(f => ({
                       ...f,
                       pitcherIds: [pId],
@@ -341,9 +388,14 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
               );
             })}
           </div>
-        </div>
-      )}
-
+        ) : (
+          <div style={{ padding: '4px 0', color: '#465b78', fontSize: 13, fontStyle: 'italic' }}>
+            None
+          </div>
+        )}
+      </div>
+      
+      {/*
       <div style={{ opacity: filters.pitcherIds?.length > 0 ? 0.3 : 1, pointerEvents: filters.pitcherIds?.length > 0 ? 'none' : 'auto' }}>
         <div style={{ marginBottom: 4 }}>
           <Text style={{ fontSize: 13, color: '#c1ccda', textTransform: 'uppercase', fontWeight: 700 }}>
@@ -357,6 +409,7 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
           color='#bc8cff'
         />
       </div>
+      */}
 
       <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
 
@@ -434,9 +487,6 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
           onChange={setRunnerBases}
         />
       </div>
-      <Text style={{ display: 'block', fontSize: 13, color: '#c1ccda', marginTop: 6 }}>
-        Select exact base occupancy
-      </Text>
 
       <Divider style={{ borderColor: '#21262d', margin: '12px 0' }} />
 
@@ -473,9 +523,6 @@ export default function FilterPanel({ filters, pitchers = [], loadingPitchers = 
 
       <SectionLabel>Zone</SectionLabel>
       <ZoneSelector selectedZones={filters.zones} onChange={set('zones')} />
-      <Text style={{ display: 'block', fontSize: 13, color: '#c1ccda', marginTop: 6 }}>
-        Click to select zones
-      </Text>
     </div>
   )
 }
