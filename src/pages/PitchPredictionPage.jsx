@@ -5,7 +5,7 @@ import { pitchTypeColor, pitchTypeLabel } from '../utils/pitchTypes'
 
 const { Sider, Content } = Layout
 const { Text } = Typography
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://new-baseball-app-backend-fn6w.onrender.com'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://pitchlab-backend-chien.onrender.com'
 const TEXT_SUBTLE = '#9fb0c6'
 const TEXT_MUTED = '#c1ccda'
 const TEXT_SECONDARY = '#d3dce8'
